@@ -4,8 +4,8 @@ info:
   version: 1.0.0
   description: API for the Matcha dating application
   license:
-  name: MIT License
-  url: https://opensource.org/license/mit/
+    name: MIT License
+    url: https://opensource.org/license/mit/
 
 servers:
   - url: http://127.0.0.1:3000/api
@@ -19,9 +19,9 @@ paths:
     $ref: './schemas/auth.yaml#/paths/login'
   /auth/logout:
     $ref: './schemas/auth.yaml#/paths/logout'
-  /auth/verify-email:
+  /auth/verifyEmail:
     $ref: './schemas/auth.yaml#/paths/verifyEmail'
-  /auth/reset-password:
+  /auth/resetPassword:
     $ref: './schemas/auth.yaml#/paths/resetPassword'
 
 
@@ -40,8 +40,18 @@ paths:
 components:
   schemas:
     # Reference schemas from other files
-    AuthResponse:
-      $ref: './schemas/auth.yaml#/components/schemas/AuthResponse'
+    registerRequest:
+      $ref: './schemas/auth.yaml#/components/schemas/RegisterRequest'
+    registerResponse:
+      $ref: './schemas/auth.yaml#/components/schemas/RegisterResponse'
+    loginRequest:
+      $ref: './schemas/auth.yaml#/components/schemas/LoginRequest'
+    loginResponse:
+      $ref: './schemas/auth.yaml#/components/schemas/LoginResponse'
+    logoutResponse:
+      $ref: './schemas/auth.yaml#/components/schemas/LogoutResponse'
+    errorResponse:
+      $ref: './schemas/auth.yaml#/components/schemas/ErrorResponse'
 
     # User:
     #   $ref: './schemas/user.yaml#/components/schemas/User'

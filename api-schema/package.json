@@ -5,11 +5,11 @@
   "scripts": {
     "generate:frontend": "openapi-typescript openapi.yaml -o generated/typescript/api.ts",
     "generate:backend": "node scripts/generate-validators.js",
-    "validate": "swagger-parser validate openapi.yaml",
+    "validate": "npx @redocly/cli lint openapi.yaml",
     "build": "npm run validate && npm run generate:frontend && npm run generate:backend",
     "docs": "redoc-cli serve openapi.yaml --watch --port 8080",
     "docs:build": "redoc-cli build openapi.yaml --output docs/index.html",
-    "preview": "redocly preview-docs openapi.yaml --port 8081",
+    "preview": "redocly preview --port 8081",
     "serve": "node scripts/preview-server.js"
   },
   "keywords": [],

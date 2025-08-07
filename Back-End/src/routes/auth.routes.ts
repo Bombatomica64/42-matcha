@@ -1,35 +1,23 @@
-import { Router } from "express";
-import { app } from "../index";
+import type { Router } from "express";
+import { Router as createRouter } from "express";
+import { AuthController } from "../controllers/auth.controller";
+import { AuthService } from "../services/auth.services";
 
-const authRoutes = () => {
-  const router = Router();
+const authRoutes = (): Router => {
+  const router = createRouter();
+  
+  // Create service and controller instances
+  const authService = new AuthService();
+  const authController = new AuthController(authService);
 
-	router.get("/", (req, res) => {
-		// Handle auth home
-		res.send("Auth Home");
-	});
+  // Route handlers - bind controller methods to preserve 'this' context
+  router.post("/register", authController.register.bind(authController));
+  router.post("/login", authController.login.bind(authController));
+  router.post("/logout", authController.logout.bind(authController));
+  router.post("/resetPassword", authController.resetPassword.bind(authController));
+  router.get("/verifyEmail", authController.verifyEmail.bind(authController));
 
-  router.post("/login", (req, res) => {
-    // Handle login
-  });
-
-  router.post("/register", (req, res) => {
-    // Handle registration
-  });
-
-	router.get("/logout", (req, res) => {
-		// Handle logout
-	});
-
-	router.get("/reset-password", (req, res) => {
-		// Handle password reset
-	});
-
-	router.get("/verify-email", (req, res) => {
-		// Handle email verification
-	});
-
-  app.use("/auth", router);
+  return router;
 };
 
 export default authRoutes;

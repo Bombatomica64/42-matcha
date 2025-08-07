@@ -20,7 +20,7 @@ export interface JwtPayload {
 
 export function signJwt(
 	payload: Omit<JwtPayload, "iat" | "exp">,
-	expiresIn = "24h"
+	expiresIn = "24h",
 ): string {
 	return jwt.sign(payload, JWT_SECRET, { expiresIn });
 }

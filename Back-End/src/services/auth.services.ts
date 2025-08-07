@@ -1,51 +1,181 @@
 import { pool } from "../database";
-import { RegisterUserData, User } from "../types/user.types";
+import type { RegisterUserData, User } from "../models/user.entity";
+import { UserRepository } from "../repositories/user.repository";
 import { hashPassword, comparePassword } from "../utils/hash";
+// TODO: Add JWT utilities when implementing authentication
+// import { generateToken } from "../utils/jwt";
 
 export class AuthService {
-	static async registerUser(
-		userData: RegisterUserData
-	): Promise<Partial<User>> {
+	private userRepository: UserRepository;
+
+	constructor() {
+		this.userRepository = new UserRepository(pool);
+	}
+
+	/**
+	 * Register a new user
+	 */
+	async registerUser(userData: RegisterUserData): Promise<Partial<User>> {
+		// Check if user already exists
+		const existingUser = await this.userRepository.findByEmailOrUsername(userData.email);
+		if (existingUser) {
+			throw new Error("User with this email already exists");
+		}
+
+		const existingUsername = await this.userRepository.findByUsername(userData.username);
+		if (existingUsername) {
+			throw new Error("Username is already taken");
+		}
+
+		// Hash password
 		const hashedPassword = await hashPassword(userData.password);
 		if (!hashedPassword) {
 			throw new Error("Failed to hash password");
 		}
-		const query = `INSERT INTO users (username, email, age, password, first_name, last_name, bio, gender, sexual_orientation, location, location_manual) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id`;
-		const values = [
-			userData.username,
-			userData.email,
-			userData.age,
-			hashedPassword,
-			userData.first_name,
-			userData.last_name,
-			userData.bio,
-			userData.gender,
-			userData.sexual_orientation,
-			userData.location ?? 4326,
-			userData.location_manual ?? false,
-		];
-		const result = await pool.query(query, values);
-		return result.rows[0];
+
+		// Create user data with hashed password
+		const userDataWithHashedPassword = {
+			...userData,
+			password: hashedPassword,
+			hashtags: [], // Initialize with empty hashtags array
+			location_manual: userData.location_manual ?? false
+		};
+
+		// Create user
+		const newUser = await this.userRepository.createUser(userDataWithHashedPassword);
+
+		// Return user without password
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { password: _, ...userWithoutPassword } = newUser;
+		return userWithoutPassword;
 	}
 
-	static async loginUser(
-		email: string,
+	/**
+	 * Login user with email/username and password
+	 */
+	async loginUser(
+		emailOrUsername: string,
 		password: string
-	): Promise<Partial<User> | null> {
-		const query = `SELECT id, username, email, password, location FROM users WHERE email = $1 AND activated = true`;
-		const result = await pool.query(query, [email]);
-		if (result.rows.length === 0) {
+	): Promise<{ user: Partial<User>; token: string } | null> {
+		// Find user by email or username
+		const user = await this.userRepository.findByEmailOrUsername(emailOrUsername);
+		if (!user) {
 			return null; // User not found
 		}
-		const user = result.rows[0];
+
+		// Check if user is activated
+		if (!user.activated) {
+			throw new Error("Please verify your email before logging in");
+		}
+
+		// Verify password
 		const isPasswordValid = await comparePassword(password, user.password);
 		if (!isPasswordValid) {
 			return null; // Invalid password
 		}
 
+		// Update user's online status and last seen
+		await this.userRepository.updateOnlineStatus(user.id, true);
+
+		// TODO: Generate JWT token
+		const token = "temporary-token"; // Replace with actual JWT generation
+
 		// Return user WITHOUT password hash
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const { password: _, ...userWithoutPassword } = user;
-		return userWithoutPassword;
+		
+		return {
+			user: userWithoutPassword,
+			token
+		};
+	}
+
+	/**
+	 * Verify user email with verification token
+	 */
+	async verifyEmail(token: string): Promise<boolean> {
+		// Find user by verification token
+		const user = await this.userRepository.findOneBy({ 
+			email_verification_token: token 
+		} as Partial<User>);
+
+		if (!user) {
+			return false; // Invalid token
+		}
+
+		// Activate user
+		await this.userRepository.activateUser(user.id);
+
+		// Clear verification token
+		await this.userRepository.update(user.id, {
+			email_verification_token: undefined
+		} as Partial<User>);
+
+		return true;
+	}
+
+	/**
+	 * Request password reset
+	 */
+	async requestPasswordReset(email: string): Promise<void> {
+		const user = await this.userRepository.findByEmail(email);
+		if (!user) {
+			// Don't reveal if email exists or not for security
+			return;
+		}
+
+		// Generate reset token (simplified - should use crypto.randomUUID() in real implementation)
+		const resetToken = `reset_${Date.now()}_${Math.random()}`;
+		const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
+
+		// Save reset token
+		await this.userRepository.update(user.id, {
+			password_reset_token: resetToken,
+			password_reset_expires_at: expiresAt
+		} as Partial<User>);
+
+		// TODO: Send email with reset link
+		// await emailService.sendPasswordResetEmail(user.email, resetToken);
+	}
+
+	/**
+	 * Reset password with token
+	 */
+	async resetPassword(token: string, newPassword: string): Promise<boolean> {
+		// Find user by reset token
+		const user = await this.userRepository.findOneBy({
+			password_reset_token: token
+		} as Partial<User>);
+
+		if (!user || !user.password_reset_expires_at) {
+			return false; // Invalid token
+		}
+
+		// Check if token is expired
+		if (user.password_reset_expires_at < new Date()) {
+			return false; // Token expired
+		}
+
+		// Hash new password
+		const hashedPassword = await hashPassword(newPassword);
+		if (!hashedPassword) {
+			throw new Error("Failed to hash password");
+		}
+
+		// Update password and clear reset token
+		await this.userRepository.update(user.id, {
+			password: hashedPassword,
+			password_reset_token: undefined,
+			password_reset_expires_at: undefined
+		} as Partial<User>);
+
+		return true;
+	}
+
+	/**
+	 * Logout user (update online status)
+	 */
+	async logoutUser(userId: string): Promise<void> {
+		await this.userRepository.updateOnlineStatus(userId, false);
 	}
 }

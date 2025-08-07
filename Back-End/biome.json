@@ -1,8 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
-	"organizeImports": {
-		"enabled": true
-	},
+	"$schema": "https://biomejs.dev/schemas/2.1.3/schema.json",
 	"linter": {
 		"enabled": true,
 		"rules": {
@@ -26,9 +23,5 @@
 			"quoteStyle": "double",
 			"semicolons": "always"
 		}
-	},
-	"files": {
-		"include": ["src/**/*.ts"],
-		"ignore": ["node_modules/**", "dist/**"]
 	}
 }

@@ -1,7 +1,8 @@
 openapi: 3.1.1
 info:
-  title: Matcha Dating App API Auth endpoints
+  title: Auth schema
   version: 1.0.0
+  description: API schema for user authentication
 
 paths:
   register:
@@ -56,6 +57,81 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  logout:
+    post:
+      summary: User logout
+      operationId: userLogout
+      tags:
+        - Authentication
+      security: 
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User logged out successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  verifyEmail:
+    get:
+      summary: Verify user email
+      operationId: userverifyEmail
+      tags:
+        - Authentication
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Email verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/verifyEmailResponse'
+        '400':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  resetPassword:
+    post:
+      summary: Reset user password
+      operationId: userResetPassword
+      tags:
+        - Authentication
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          description: Password reset successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetPasswordResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 
 components:
@@ -88,13 +164,22 @@ components:
           example: "Hello, I'm Lollo! I love hiking and outdoor adventures."
         location:
           type: object
+          properties:
+            lat:
+              type: number
+              format: float
+              example: 40.7128
+            lng:
+              type: number
+              format: float
+              example: -74.0060
           example: { "lat": 40.7128, "lng": -74.0060 }
         location_manual:
           type: boolean
           example: false
         sexual_orientation:
           type: string
-          enum: [ "male", "female", "other" ]
+          enum: [ "heterosexual", "homosexual", "bisexual" ]
         gender:
           type: string
           enum: [ "male", "female", "other" ]
@@ -146,9 +231,38 @@ components:
           type: string
           example: "1234567890abcdef"
 
+    LogoutResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "User logged out successfully"
+
+    verifyEmailResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Email verified successfully"
+
     ErrorResponse:
       type: object
       properties:
         message:
           type: string
           example: "Invalid credentials"
+
+    ResetPasswordRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: lollo@example.com
+
+    ResetPasswordResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Email sent with password reset instructions"
