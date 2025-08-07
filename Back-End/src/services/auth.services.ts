@@ -108,7 +108,7 @@ export class AuthService {
 
 		// Clear verification token
 		await this.userRepository.update(user.id, {
-			email_verification_token: undefined
+			email_verification_token: "00000000-0000-0000-0000-000000000000", // Clear token
 		} as Partial<User>);
 
 		return true;
