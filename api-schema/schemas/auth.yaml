@@ -1,0 +1,154 @@
+openapi: 3.1.1
+info:
+  title: Matcha Dating App API Auth endpoints
+  version: 1.0.0
+
+paths:
+  register:
+    post:
+      summary: Register a new user
+      tags:
+        - Authentication
+      security: []
+      operationId: userRegister
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  login:
+    post:
+      summary: User login
+      operationId: userLogin
+      tags:
+        - Authentication
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: User logged in successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+components:
+  schemas:
+    RegisterRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: lollo
+        email:
+          type: string
+          format: email
+          example: lollo@example.com
+        password:
+          type: string
+          format: password
+          example: securepassword123
+        first_name:
+          type: string
+          example: Lollo
+        last_name:
+          type: string
+          example: Smith
+        age:
+          type: integer
+          example: 25
+        bio:
+          type: string
+          example: "Hello, I'm Lollo! I love hiking and outdoor adventures."
+        location:
+          type: object
+          example: { "lat": 40.7128, "lng": -74.0060 }
+        location_manual:
+          type: boolean
+          example: false
+        sexual_orientation:
+          type: string
+          enum: [ "male", "female", "other" ]
+        gender:
+          type: string
+          enum: [ "male", "female", "other" ]
+      required:
+        - username
+        - email
+        - password
+        - age
+        - gender
+        - sexual_orientation
+        - first_name
+        - last_name
+
+    RegisterResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "User registered successfully"
+        user_id:
+          type: string
+          example: "1234567890abcdef"
+
+    LoginRequest:
+      type: object
+      properties:
+        email_or_username:
+          type: string
+          format: email
+          example: lollo@example.com
+        password:
+          type: string
+          format: password
+          example: securepassword123
+      required:
+        - email_or_username
+        - password
+
+    LoginResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Login successful"
+        token:
+          type: string
+          example: "eyJhbGciOi"
+        user_id:
+          type: string
+          example: "1234567890abcdef"
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Invalid credentials"

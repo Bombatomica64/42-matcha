@@ -1,0 +1,56 @@
+openapi: 3.1.1
+info:
+  title: Matcha Dating App API
+  version: 1.0.0
+  description: API for the Matcha dating application
+  license:
+  name: MIT License
+  url: https://opensource.org/license/mit/
+
+servers:
+  - url: http://127.0.0.1:3000/api
+    description: Development server
+
+paths:
+  # Authentication endpoints
+  /auth/register:
+    $ref: './schemas/auth.yaml#/paths/register'
+  /auth/login:
+    $ref: './schemas/auth.yaml#/paths/login'
+  /auth/logout:
+    $ref: './schemas/auth.yaml#/paths/logout'
+  /auth/verify-email:
+    $ref: './schemas/auth.yaml#/paths/verifyEmail'
+  /auth/reset-password:
+    $ref: './schemas/auth.yaml#/paths/resetPassword'
+
+
+  # # User profile endpoints
+  # /users/profile:
+  #   $ref: './schemas/user.yaml#/paths/profile'
+  # /users/{id}:
+  #   $ref: './schemas/user.yaml#/paths/userById'
+  
+  # # Matching endpoints
+  # /matches:
+  #   $ref: './schemas/match.yaml#/paths/matches'
+  # /matches/{id}/like:
+  #   $ref: './schemas/match.yaml#/paths/like'
+
+components:
+  schemas:
+    # Reference schemas from other files
+    AuthResponse:
+      $ref: './schemas/auth.yaml#/components/schemas/AuthResponse'
+
+    # User:
+    #   $ref: './schemas/user.yaml#/components/schemas/User'
+   
+    # Match:
+    #   $ref: './schemas/match.yaml#/components/schemas/Match'
+  
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

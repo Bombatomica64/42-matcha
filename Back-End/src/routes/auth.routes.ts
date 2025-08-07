@@ -25,6 +25,10 @@ const authRoutes = () => {
 		// Handle password reset
 	});
 
+	router.get("/verify-email", (req, res) => {
+		// Handle email verification
+	});
+
   app.use("/auth", router);
 };
 
