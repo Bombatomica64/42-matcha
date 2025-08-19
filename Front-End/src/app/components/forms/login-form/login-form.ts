@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import { HttpRequestService } from '../../../services/http-request';
+import { HttpEndpoint, HttpMethod, HttpRequestService } from '../../../services/http-request';
 import { components } from '../../../../types/api'; // Adjust the path as necessary
 
 type LoginRequest = components['schemas']['LoginRequest'];
@@ -29,8 +29,8 @@ type LoginFormType = FormGroup<{
   styles: ``
 })
 export class LoginForm {
-  httpEndpoint = "/auth/login"
-  httpMethod = "POST"
+  httpEndpoint: HttpEndpoint = "/auth/login"
+  httpMethod: HttpMethod = "POST"
 
   loginForm: LoginFormType = new FormGroup({
 	email_or_username: new FormControl('',  {nonNullable: true, validators: [Validators.required]}),
