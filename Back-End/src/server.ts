@@ -56,7 +56,7 @@ const swaggerSpec = swaggerJSDoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // API Routes
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", authRoutes());
 
 // Root endpoint
 app.get("/", (req, res) => {
