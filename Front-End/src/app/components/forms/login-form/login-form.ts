@@ -1,6 +1,14 @@
 import { Component, inject } from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import { HttpRequestService } from '../../../services/http-request';
+import { components } from '../../../../types/api'; // Adjust the path as necessary
+
+type LoginRequest = components['schemas']['LoginRequest'];
+type LoginResponse = components['schemas']['LoginResponse'];
+
+type LoginFormType = FormGroup<{
+  [K in keyof LoginRequest]: FormControl<LoginRequest[K]>
+}>;
 
 @Component({
   selector: 'app-login-form',
@@ -8,34 +16,34 @@ import { HttpRequestService } from '../../../services/http-request';
   template: `
   <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
     <label for="email">
-      Email:
-      <input type="email" formControlName="email"/>
-      <p>hai proprio scritto: {{ loginForm.value.email }}</p>
-      <button type="submit" [disabled]="loginForm.invalid">Login</button>
-    </label>
+      Email or Username:
+      <input type="text" formControlName="email_or_username"/>
+	</label>
+	<label for="password">
+      Password:
+      <input type="password" formControlName="password"/>
+	</label>
+    <button type="submit" [disabled]="loginForm.invalid">Login</button>
   </form>
   `,
   styles: ``
 })
 export class LoginForm {
-  email = '';
   httpEndpoint = "/auth/login"
   httpMethod = "POST"
 
-  loginForm = new FormGroup({
-	email: new FormControl('', [Validators.required, Validators.email])
+  loginForm: LoginFormType = new FormGroup({
+	email_or_username: new FormControl('',  {nonNullable: true, validators: [Validators.required]}),
+	password: new FormControl('', {nonNullable: true, validators: [Validators.required, Validators.minLength(6)]})
   });
 
   onSubmit() {
 	if (this.loginForm.valid) {
-	  const credentials = {
-		email: this.loginForm.value.email ?? '',
-		password: ''
-	  };
-	  console.log('Form submitted with email:', this.loginForm.value.email);
-	  
+	  const credentials = this.loginForm.value as LoginRequest;
+	  console.log('Form submitted with email_or_username:', credentials.email_or_username);
+
 	  this.auth.request(credentials, this.httpEndpoint, this.httpMethod).subscribe({
-      next: (response) => {
+      next: (response : LoginResponse) => {
         console.log('Login success:', response);
       },
       error: (error) => {
@@ -46,8 +54,6 @@ export class LoginForm {
 	  console.error('Form is invalid');
 	}
   }
-
-  //protected readonly auth: HttpRequestService = inject(HttpRequestService);
 
   auth = inject(HttpRequestService)
 }
