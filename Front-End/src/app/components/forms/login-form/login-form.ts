@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import { HttpEndpoint, HttpMethod, HttpRequestService } from '../../../services/http-request';
 import { components } from '../../../../types/api'; // Adjust the path as necessary
+import { PrimaryButton } from '../../ui/primary-button/primary-button';
 
 type LoginRequest = components['schemas']['LoginRequest'];
 type LoginResponse = components['schemas']['LoginResponse'];
@@ -12,7 +13,7 @@ type LoginFormType = FormGroup<{
 
 @Component({
   selector: 'app-login-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, PrimaryButton],
   template: `
   <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
     <label for="email">
@@ -23,7 +24,7 @@ type LoginFormType = FormGroup<{
       Password:
       <input type="password" formControlName="password"/>
 	</label>
-    <button type="submit" [disabled]="loginForm.invalid">Login</button>
+    <app-primary-button type="submit" [disabled]="loginForm.invalid" label="Login" (buttonClicked)="onSubmit()" />
   </form>
   `,
   styles: ``
