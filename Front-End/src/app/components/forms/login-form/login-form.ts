@@ -7,10 +7,6 @@ import { PrimaryButton } from '../../ui/primary-button/primary-button';
 type LoginRequest = components['schemas']['LoginRequest'];
 type LoginResponse = components['schemas']['LoginResponse'];
 
-type LoginFormType = FormGroup<{
-  [K in keyof LoginRequest]: FormControl<LoginRequest[K]>
-}>;
-
 @Component({
   selector: 'app-login-form',
   imports: [ReactiveFormsModule, PrimaryButton],
@@ -33,7 +29,7 @@ export class LoginForm {
   httpEndpoint: HttpEndpoint = "/auth/login"
   httpMethod: HttpMethod = "POST"
 
-  loginForm: LoginFormType = new FormGroup({
+  loginForm = new FormGroup({
 	email_or_username: new FormControl('',  {nonNullable: true, validators: [Validators.required]}),
 	password: new FormControl('', {nonNullable: true, validators: [Validators.required, Validators.minLength(6)]})
   });
@@ -41,7 +37,7 @@ export class LoginForm {
   onSubmit() {
 	if (this.loginForm.valid) {
 	  const credentials = this.loginForm.value as LoginRequest;
-	  console.log('Form submitted with email_or_username:', credentials.email_or_username);
+	  console.log('Form submitted with:', credentials);
 
 	  this.auth.request(credentials, this.httpEndpoint, this.httpMethod).subscribe({
       next: (response : LoginResponse) => {
