@@ -3,11 +3,11 @@ import { NgOptimizedImage } from '@angular/common';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
 import { AvatarModule } from 'primeng/avatar';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 	
 @Component({
   selector: 'app-navbar',
-  imports: [ToolbarModule, ButtonModule, AvatarModule, NgOptimizedImage],
+  imports: [ToolbarModule, ButtonModule, AvatarModule, NgOptimizedImage, RouterLink],
   template: `
 	<p-toolbar [style]="{ 'border-radius': '3rem', 'padding': '0.6rem', margin: '1rem', flex: '1' }">
 		<ng-template #start>
@@ -30,9 +30,9 @@ import { Router } from '@angular/router';
 			<div class="flex items-center gap-2">
 				<button pButton
                         class="nav-register-btn"
+						[routerLink]="targetRoute"
                         [label]="routeLabel"
-                        severity="secondary"
-						[routerLink]="targetRoute">
+                        severity="secondary">
 				</button>
 			</div>
 		</ng-template>
@@ -57,16 +57,15 @@ import { Router } from '@angular/router';
 })
 export class Navbar {
   constructor(private router: Router) {}
-
-  private get isRegisterPage() {
-    return this.router.url === '/register';
+  private get isRegister() {
+	return this.router.url === '/register';
   }
 
   get targetRoute() {
-    return this.isRegisterPage ? '/login' : '/register';
+	return this.isRegister ? '/login' : '/register';
   }
 
   get routeLabel() {
-    return this.isRegisterPage ? 'Login' : 'Register';
+	return this.isRegister ? 'Login' : 'Register';
   }
 }
