@@ -131,10 +131,27 @@ type RegisterResponse = components['schemas']['RegisterResponse'];
         placeholder="Fluid">
       </p-select>
     </label>
-    <app-primary-button type="submit" [disabled]="registerForm.invalid" label="Register" (buttonClicked)="onSubmit()" />
+
+	<button pButton
+        type="submit"
+        class="register-btn"
+        [disabled]="registerForm.invalid"
+        severity="primary">
+      <i class="pi pi-sign-in" pButtonIcon></i>
+      <span pButtonLabel>Register</span>
+    </button>
+
   </form>
   `,
-  styles: ``
+  styles: `
+ 	.register-btn {
+	  width: 100%;
+	  margin-bottom: 2rem;
+	}
+	.p-inputgroup {
+	  margin-bottom: 1rem;
+	} 
+  `
 })
 export class RegisterForm {
   httpEndpoint: HttpEndpoint = "/auth/register"
