@@ -2,3 +2,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import "primeicons/primeicons.css";
+
+/* Assicura il 100% verticale */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+app-root {
+  display: contents; /* opzionale, oppure lascia */
+}

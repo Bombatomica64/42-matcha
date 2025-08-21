@@ -1,3 +1,12 @@
+/* Assicura il 100% verticale */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+app-root {
+  display: contents; /* opzionale, oppure lascia */
+}
+
 
 /* Utility classes che potrebbero mancare */
 .flex {

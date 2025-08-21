@@ -27,7 +27,11 @@ import { AvatarModule } from 'primeng/avatar';
 	<p-toolbar [style]="{ 'border-radius': '3rem', 'padding': '0rem', margin: '1rem', }">
 		<ng-template #center>
 			<div class="flex items-center gap-2">
-				<p-button label="Register" severity="secondary" />
+				<button pButton
+                        class="nav-register-btn"
+                        label="Register"
+                        severity="secondary">
+				</button>
 			</div>
 		</ng-template>
 	</p-toolbar>
@@ -42,12 +46,11 @@ import { AvatarModule } from 'primeng/avatar';
 	  justify-content: space-between;
 	  height: 100px;
 	}
-	::ng-deep .p-button
-	{
-		height: 66px !important;
-		width: 120px !important;
-		border-radius: 3rem !important;
-	}
+    .nav-register-btn {
+        height: 66px;
+        width: 120px;
+        border-radius: 3rem;
+    }
   `
 })
 export class Navbar {
