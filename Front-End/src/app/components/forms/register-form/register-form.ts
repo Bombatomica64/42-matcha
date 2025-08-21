@@ -4,42 +4,94 @@ import { HttpEndpoint, HttpMethod, HttpRequestService } from '../../../services/
 import { components } from '../../../../types/api'; // Adjust the path as necessary
 import { PrimaryButton } from '../../ui/primary-button/primary-button';
 
+import { InputTextModule } from 'primeng/inputtext';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { ButtonModule } from 'primeng/button';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { TextareaModule } from 'primeng/textarea';
+import { SelectModule } from 'primeng/select';
+
 type RegisterRequest = components['schemas']['RegisterRequest'];
 type RegisterResponse = components['schemas']['RegisterResponse'];
 
 @Component({
   selector: 'app-register-form',
-  imports: [ReactiveFormsModule, PrimaryButton],
+  imports: [ReactiveFormsModule, PrimaryButton, InputTextModule, InputGroupModule, InputGroupAddonModule, ButtonModule, ToggleSwitchModule, TextareaModule, SelectModule],
   template: `
   <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-    <label>
-      Username:
-      <input type="text" formControlName="username"/>
-    </label>
-    <label>
-      Email:
-      <input type="email" formControlName="email"/>
-    </label>
-    <label>
-      Password:
-      <input type="password" formControlName="password"/>
-    </label>
-    <label>
-      First Name:
-      <input type="text" formControlName="first_name"/>
-    </label>
-    <label>
-      Last Name:
-      <input type="text" formControlName="last_name"/>
-    </label>
-    <label>
-      Age:
-      <input type="number" formControlName="age"/>
-    </label>
-    <label>
-      Bio:
-      <textarea formControlName="bio"></textarea>
-    </label>
+
+    <p-inputgroup>
+      <p-inputgroup-addon>
+        <i class="pi pi-user"></i>
+      </p-inputgroup-addon>
+      <input pInputText formControlName="username"
+             placeholder="Username"
+             aria-label="Username" />
+    </p-inputgroup>
+
+	<p-inputgroup>
+	  <p-inputgroup-addon>
+		<i class="pi pi-envelope"></i>
+	  </p-inputgroup-addon>
+	  <input pInputText type="email"
+			 formControlName="email"
+			 placeholder="Email"
+			 aria-label="Email" />
+	</p-inputgroup>
+
+	<p-inputgroup>
+	  <p-inputgroup-addon>
+		<i class="pi pi-lock"></i>
+	  </p-inputgroup-addon>
+	  <input pInputText type="password"
+			 formControlName="password"
+			 placeholder="Password"
+			 aria-label="Password" />
+	</p-inputgroup>
+
+	<p-inputgroup>
+	  <p-inputgroup-addon>
+		<i class="pi pi-user"></i>
+	  </p-inputgroup-addon>
+	  <input pInputText type="text"
+			 formControlName="first_name"
+			 placeholder="First Name"
+			 aria-label="First Name" />
+	</p-inputgroup>
+
+    <p-inputgroup>
+      <p-inputgroup-addon>
+		<i class="pi pi-user"></i>
+	  </p-inputgroup-addon>
+      <input pInputText type="text"
+			 formControlName="last_name"
+			 placeholder="Last Name"
+			 aria-label="Last Name" />
+	</p-inputgroup>
+
+    <p-inputgroup>
+      <p-inputgroup-addon>
+		<i class="pi pi-calendar"></i>
+	  </p-inputgroup-addon>
+      <input pInputText type="number"
+			 formControlName="age"
+			 placeholder="Age"
+			 aria-label="Age" />
+	</p-inputgroup>
+
+    <p-inputgroup>
+      <p-inputgroup-addon>
+        <i class="pi pi-pencil"></i>
+      </p-inputgroup-addon>
+      <textarea
+        pTextarea
+        formControlName="bio"
+        placeholder="Bio"
+        aria-label="Bio"
+        rows="3"
+        style="width:100%;resize:vertical;"></textarea>
+    </p-inputgroup>
     
     <fieldset formGroupName="location">
       <legend>Location</legend>
@@ -55,25 +107,29 @@ type RegisterResponse = components['schemas']['RegisterResponse'];
     
     <label>
       Manual Location:
-      <input type="checkbox" formControlName="location_manual"/>
+	  <p-toggleswitch formControlName="location_manual" />
     </label>
     
     <label>
       Sexual Orientation:
-      <select formControlName="sexual_orientation">
-        <option value="heterosexual">Heterosexual</option>
-        <option value="homosexual">Homosexual</option>
-        <option value="bisexual">Bisexual</option>
-      </select>
+	  <p-select
+	    formControlName="sexual_orientation" 
+	    [options]="orientationOptions"
+		optionLabel="label"
+		optionValue="value" 
+	    placeholder="I like Trains"
+		class="w-full md:w-56" />
     </label>
-    
+
     <label>
       Gender:
-      <select formControlName="gender">
-        <option value="male">Male</option>
-        <option value="female">Female</option>
-        <option value="other">Other</option>
-      </select>
+      <p-select
+        formControlName="gender"
+        [options]="genderOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Fluid">
+      </p-select>
     </label>
     <app-primary-button type="submit" [disabled]="registerForm.invalid" label="Register" (buttonClicked)="onSubmit()" />
   </form>
@@ -122,4 +178,15 @@ export class RegisterForm {
   }
 
   auth = inject(HttpRequestService)
+
+  orientationOptions = [
+    { label: 'Heterosexual', value: 'heterosexual' },
+    { label: 'Homosexual', value: 'homosexual' },
+    { label: 'Bisexual', value: 'bisexual' }
+  ];
+  genderOptions = [
+    { label: 'Male', value: 'male' },
+    { label: 'Female', value: 'female' },
+    { label: 'Other', value: 'other' }
+  ];
 }
