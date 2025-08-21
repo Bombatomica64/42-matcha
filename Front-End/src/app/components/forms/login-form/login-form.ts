@@ -59,6 +59,7 @@ type LoginResponse = components['schemas']['LoginResponse'];
 	}
 	.login-btn {
 	  width: 100%;
+	  margin-bottom: 2rem;
 	}
 	.p-inputgroup {
 	  margin-bottom: 1rem;

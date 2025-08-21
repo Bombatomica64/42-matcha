@@ -3,7 +3,8 @@ import { NgOptimizedImage } from '@angular/common';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
 import { AvatarModule } from 'primeng/avatar';
-
+import { Router } from '@angular/router';
+	
 @Component({
   selector: 'app-navbar',
   imports: [ToolbarModule, ButtonModule, AvatarModule, NgOptimizedImage],
@@ -29,8 +30,9 @@ import { AvatarModule } from 'primeng/avatar';
 			<div class="flex items-center gap-2">
 				<button pButton
                         class="nav-register-btn"
-                        label="Register"
-                        severity="secondary">
+                        [label]="routeLabel"
+                        severity="secondary"
+						[routerLink]="targetRoute">
 				</button>
 			</div>
 		</ng-template>
@@ -54,4 +56,17 @@ import { AvatarModule } from 'primeng/avatar';
   `
 })
 export class Navbar {
+  constructor(private router: Router) {}
+
+  private get isRegisterPage() {
+    return this.router.url === '/register';
+  }
+
+  get targetRoute() {
+    return this.isRegisterPage ? '/login' : '/register';
+  }
+
+  get routeLabel() {
+    return this.isRegisterPage ? 'Login' : 'Register';
+  }
 }
