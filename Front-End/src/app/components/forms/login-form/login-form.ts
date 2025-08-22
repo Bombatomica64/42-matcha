@@ -7,39 +7,53 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { ButtonModule } from 'primeng/button';
+import { MessageModule } from 'primeng/message';
 
 type LoginRequest = components['schemas']['LoginRequest'];
 type LoginResponse = components['schemas']['LoginResponse'];
 
 @Component({
   selector: 'app-login-form',
-  imports: [ReactiveFormsModule, InputGroupModule, InputGroupAddonModule, InputTextModule, ButtonModule],
+  imports: [ReactiveFormsModule, InputGroupModule, InputGroupAddonModule, InputTextModule, ButtonModule, MessageModule],
   template: `
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-    <p-inputgroup>
-      <p-inputgroup-addon>
-        <i class="pi pi-user"></i>
-      </p-inputgroup-addon>
-      <input pInputText formControlName="email_or_username"
-             placeholder="Email o Username"
-             aria-label="Email o Username" />
-    </p-inputgroup>
-    <!--div class="error" *ngIf="loginForm.get('email_or_username')?.touched && loginForm.get('email_or_username')?.invalid">
-      Campo obbligatorio.
-    </div-->
+  @let emailCtrl = loginForm.controls.email_or_username;
+  @let pwdCtrl = loginForm.controls.password;
 
-    <p-inputgroup>
-      <p-inputgroup-addon>
-        <i class="pi pi-lock"></i>
-      </p-inputgroup-addon>
-      <input pInputText type="password"
-             formControlName="password"
-             placeholder="Password"
-             aria-label="Password" />
-    </p-inputgroup>
-    <!--div class="error" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
-      Minimo 6 caratteri.
-    </div-->
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+	<div class="input-container">
+		<p-inputgroup>
+		<p-inputgroup-addon>
+			<i class="pi pi-user"></i>
+		</p-inputgroup-addon>
+		<input pInputText formControlName="email_or_username"
+				placeholder="Email o Username"
+				aria-label="Email o Username" />
+		</p-inputgroup>
+		@if (emailCtrl.touched && emailCtrl.invalid) {
+			<p-message severity="error" variant="simple" size="small" class="ml-12">
+				@if (emailCtrl.hasError('required')) { Campo obbligatorio. }
+			</p-message>
+		}
+	</div>
+
+	<div class="input-container">
+		<p-inputgroup>
+		<p-inputgroup-addon>
+			<i class="pi pi-lock"></i>
+		</p-inputgroup-addon>
+		<input pInputText type="password"
+				formControlName="password"
+				placeholder="Password"
+				aria-label="Password" />
+		</p-inputgroup>
+		@if (pwdCtrl.touched && pwdCtrl.invalid) {
+			<p-message severity="error" variant="simple" size="small" class="ml-12">
+				@if (pwdCtrl.hasError('required')) { Campo obbligatorio. }
+				@if (pwdCtrl.hasError('minlength')) { Minimo 6 caratteri. }
+			</p-message>
+		}
+	</div>
+
     <button pButton
         type="submit"
         class="login-btn"
@@ -62,8 +76,10 @@ type LoginResponse = components['schemas']['LoginResponse'];
 	  width: 100%;
 	  margin-bottom: 2rem;
 	}
-	.p-inputgroup {
-	  margin-bottom: 1rem;
+	.input-container {
+		display: flex;
+		flex-direction: column;
+		margin-bottom: 1rem;
 	}
   `
 })

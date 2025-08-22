@@ -176,8 +176,8 @@ type RegisterResponse = components['schemas']['RegisterResponse'];
 	  margin: 0 auto;
 	  min-height: 16rem;
 	  max-width: 24rem;
-	        overflow-y: auto;
-			height: 300px;
+	  overflow-y: auto;
+	  height: 300px;
 	}
   `
 })
