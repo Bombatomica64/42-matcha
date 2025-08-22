@@ -1,0 +1,291 @@
+<form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+	<div class="card flex justify-center">
+		<p-stepper [(value)]="activeStep" class="basis-[40rem]">
+			<p-step-list>
+				<p-step [value]="1" class="flex flex-row flex-auto gap-2">
+					<ng-template #content let-activateCallback="activateCallback" let-value="value">
+						<button class="bg-transparent border-0 inline-flex flex-col gap-2" (click)="activateCallback()">
+							<span
+								class="rounded-full border-2 w-12 h-12 inline-flex items-center justify-center"
+								[ngClass]="{
+									'bg-primary text-primary-contrast border-primary': value <= activeStep,
+									'border-surface': value > activeStep
+								}"
+							>
+								<i class="pi pi-user"></i>
+							</span>
+						</button>
+					</ng-template>
+				</p-step>
+
+				<p-step [value]="2" class="flex flex-row flex-auto gap-2">
+					<ng-template #content let-activateCallback="activateCallback" let-value="value">
+						<button class="bg-transparent border-0 inline-flex flex-col gap-2" (click)="activateCallback()">
+							<span
+								class="rounded-full border-2 w-12 h-12 inline-flex items-center justify-center"
+								[ngClass]="{
+									'bg-primary text-primary-contrast border-primary': value <= activeStep,
+									'border-surface': value > activeStep
+								}"
+							>
+								<i class="pi pi-id-card"></i>
+							</span>
+						</button>
+					</ng-template>
+				</p-step>
+
+				<p-step [value]="3" class="flex flex-row flex-auto gap-2">
+					<ng-template #content let-activateCallback="activateCallback" let-value="value">
+						<button class="bg-transparent border-0 inline-flex flex-col gap-2" (click)="activateCallback()">
+							<span
+								class="rounded-full border-2 w-12 h-12 inline-flex items-center justify-center"
+								[ngClass]="{
+									'bg-primary text-primary-contrast border-primary': value <= activeStep,
+									'border-surface': value > activeStep
+								}"
+							>
+								<i class="pi pi-clipboard"></i>
+							</span>
+						</button>
+					</ng-template>
+				</p-step>
+
+				<p-step [value]="4" class="flex flex-row flex-auto gap-2">
+					<ng-template #content let-activateCallback="activateCallback" let-value="value">
+						<button class="bg-transparent border-0 inline-flex flex-col gap-2" (click)="activateCallback()">
+							<span
+								class="rounded-full border-2 w-12 h-12 inline-flex items-center justify-center"
+								[ngClass]="{
+									'bg-primary text-primary-contrast border-primary': value <= activeStep,
+									'border-surface': value > activeStep
+								}"
+							>
+								<i class="pi pi-map"></i>
+							</span>
+						</button>
+					</ng-template>
+				</p-step>
+
+				<p-step [value]="5" class="flex flex-row flex-auto gap-2">
+					<ng-template #content let-activateCallback="activateCallback" let-value="value">
+						<button class="bg-transparent border-0 inline-flex flex-col gap-2" (click)="activateCallback()">
+							<span
+								class="rounded-full border-2 w-12 h-12 inline-flex items-center justify-center"
+								[ngClass]="{
+									'bg-primary text-primary-contrast border-primary': value <= activeStep,
+									'border-surface': value > activeStep
+								}"
+							>
+								<i class="pi pi-star"></i>
+							</span>
+						</button>
+					</ng-template>
+				</p-step>
+			</p-step-list>
+
+			<p-step-panels >
+				<p-step-panel [value]="1">
+					<ng-template #content let-activateCallback="activateCallback">
+
+						<div class="step-content">
+							<div class="text-center mt-4 mb-4 text-xl font-semibold">Create your account</div>
+
+							<div class="field">
+								<p-inputgroup>
+									<p-inputgroup-addon>
+										<i class="pi pi-user"></i>
+									</p-inputgroup-addon>
+									<input pInputText formControlName="username"
+										placeholder="Username"
+										aria-label="Username" />
+								</p-inputgroup>
+
+							</div>
+							<div class="field">
+								<p-inputgroup>
+								<p-inputgroup-addon>
+									<i class="pi pi-envelope"></i>
+								</p-inputgroup-addon>
+								<input pInputText type="email"
+										formControlName="email"
+										placeholder="Email"
+										aria-label="Email" />
+								</p-inputgroup>
+							</div>
+							<div class="field">
+								<p-inputgroup>
+								<p-inputgroup-addon>
+									<i class="pi pi-lock"></i>
+								</p-inputgroup-addon>
+								<input pInputText type="password"
+										formControlName="password"
+										placeholder="Password"
+										aria-label="Password" />
+								</p-inputgroup>
+							</div>
+
+						</div>
+
+						<div class="flex pt-6 justify-end">
+							<p-button (onClick)="activateCallback(2)" label="Next" icon="pi pi-arrow-right" iconPos="right" />
+						</div>
+					</ng-template>
+				</p-step-panel>
+
+				<p-step-panel [value]="2">
+					<ng-template #content let-activateCallback="activateCallback">
+						<div class="step-content">
+							<div class="text-center mt-4 mb-4 text-xl font-semibold">Choose your interests</div>
+
+								<div class="field">
+									<p-inputgroup>
+									<p-inputgroup-addon>
+										<i class="pi pi-user"></i>
+									</p-inputgroup-addon>
+									<input pInputText type="text"
+											formControlName="first_name"
+											placeholder="First Name"
+											aria-label="First Name" />
+									</p-inputgroup>
+								</div>
+
+								<div class="field">
+									<p-inputgroup>
+									<p-inputgroup-addon>
+										<i class="pi pi-user"></i>
+									</p-inputgroup-addon>
+									<input pInputText type="text"
+											formControlName="last_name"
+											placeholder="Last Name"
+											aria-label="Last Name" />
+									</p-inputgroup>
+								</div>
+
+								<div class="field">
+									<p-inputgroup>
+									<p-inputgroup-addon>
+										<i class="pi pi-calendar"></i>
+									</p-inputgroup-addon>
+									<input pInputText type="number"
+											formControlName="age"
+											placeholder="Age"
+											aria-label="Age" />
+									</p-inputgroup>
+								</div>
+
+						</div>
+						<div class="flex pt-6 justify-between">
+							<p-button (onClick)="activateCallback(1)" label="Back" severity="secondary" icon="pi pi-arrow-left" />
+							<p-button (onClick)="activateCallback(3)" label="Next" icon="pi pi-arrow-right" iconPos="right" />
+						</div>
+					</ng-template>
+				</p-step-panel>
+
+				<p-step-panel [value]="3">
+					<ng-template #content let-activateCallback="activateCallback">
+						<div class="step-content">
+							<div class="text-center mt-4 mb-4 text-xl font-semibold">Choose your interests</div>
+
+								<div class="field">
+									<p-inputgroup>
+									<p-inputgroup-addon>
+										<i class="pi pi-pencil"></i>
+									</p-inputgroup-addon>
+									<textarea
+										pTextarea
+										formControlName="bio"
+										placeholder="Bio"
+										aria-label="Bio"
+										rows="3"
+										style="width:100%;resize:vertical;"></textarea>
+									</p-inputgroup>
+								</div>
+
+								<div class="field">
+									<label>
+									Sexual Orientation:
+									<p-select
+										formControlName="sexual_orientation" 
+										[options]="orientationOptions"
+										optionLabel="label"
+										optionValue="value" 
+										placeholder="I like Trains"
+										appendTo="body"/>
+									</label>
+								</div>
+
+								<div class="field">
+									<label>
+									Gender:
+									<p-select
+										formControlName="gender"
+										[options]="genderOptions"
+										optionLabel="label"
+										optionValue="value"
+										appendTo="body"
+										placeholder="Fluid">
+									</p-select>
+									</label>
+								</div>
+
+						</div>
+						<div class="flex pt-6 justify-between">
+							<p-button (onClick)="activateCallback(2)" label="Back" severity="secondary" icon="pi pi-arrow-left" />
+							<p-button (onClick)="activateCallback(4)" label="Next" icon="pi pi-arrow-right" iconPos="right" />
+						</div>
+					</ng-template>
+				</p-step-panel>
+
+				<p-step-panel [value]="4">
+					<ng-template #content let-activateCallback="activateCallback">
+						<div class="step-content">
+							<div class="text-center mt-4 mb-4 text-xl font-semibold">Choose your interests</div>
+
+								<div class="field">
+									<fieldset formGroupName="location">
+									<legend>Location</legend>
+									<label>
+										Latitude:
+										<input type="number" formControlName="lat" step="any"/>
+									</label>
+									<label>
+										Longitude:
+										<input type="number" formControlName="lng" step="any"/>
+									</label>
+									</fieldset>
+								</div>
+
+								<div class="field">
+									<label>
+									Manual Location:
+									<p-toggleswitch formControlName="location_manual" />
+									</label>
+								</div>
+
+						</div>
+						<div class="flex pt-6 justify-between">
+							<p-button (onClick)="activateCallback(3)" label="Back" severity="secondary" icon="pi pi-arrow-left" />
+							<p-button (onClick)="activateCallback(5)" type="submit" [disabled]="registerForm.invalid" label="Next" icon="pi pi-arrow-right" iconPos="right" />
+						</div>
+					</ng-template>
+				</p-step-panel>
+
+				<p-step-panel [value]="5">
+					<ng-template #content let-activateCallback="activateCallback">
+						<div class="flex flex-col items-center gap-2 mx-auto" style="min-height: 16rem; max-width: 24rem">
+							<div class="text-center mt-4 mb-4 text-xl font-semibold">Account created successfully</div>
+							<div class="text-center">
+								<img alt="logo" src="https://primefaces.org/cdn/primeng/images/stepper/content.svg" />
+							</div>
+						</div>
+						<div class="flex pt-6 justify-start">
+							<p-button (onClick)="activateCallback(4)" label="Back" severity="secondary" icon="pi pi-arrow-left" />
+						</div>
+					</ng-template>
+				</p-step-panel>
+			</p-step-panels>
+		</p-stepper>
+	</div>
+
+</form>

@@ -5,14 +5,7 @@ import { Navbar } from './components/navbar/navbar';
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, Navbar],
-  template: `
-	<div class="app-page">
-		<app-navbar />
-		<div class="app-content">
-			<router-outlet />
-		</div>
-	</div>
-  `,
+  templateUrl: './app.html',
   styles: `
     :host {
       display: flex;

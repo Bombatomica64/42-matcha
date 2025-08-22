@@ -18,11 +18,11 @@ import { RegisterForm } from '../../components/forms/register-form/register-form
   }
   .login-container {
       width: 100%;
-      max-width: 400px;
+      max-width: 600px;
       display: flex;
       flex-direction: column;
       margin: auto; /* centra verticalmente e orizzontalmente nello spazio restante */
-      padding: 0 1rem;
+      padding: 0 1rem 5rem 1rem;
   }
   p {
       font-size: 2rem;

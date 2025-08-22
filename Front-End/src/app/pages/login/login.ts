@@ -22,7 +22,7 @@ import { LoginForm } from '../../components/forms/login-form/login-form';
       display: flex;
       flex-direction: column;
       margin: auto; /* centra verticalmente e orizzontalmente nello spazio restante */
-      padding: 0 1rem;
+      padding: 0 1rem 5rem 1rem;
   }
   p {
       font-size: 2rem;
