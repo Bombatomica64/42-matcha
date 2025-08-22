@@ -1,3 +1,12 @@
+@let usernameCtrl = registerForm.controls.username;
+@let emailCtrl = registerForm.controls.email;
+@let pwdCtrl = registerForm.controls.password;
+@let firstNameCtrl = registerForm.controls.first_name;
+@let lastNameCtrl = registerForm.controls.last_name;
+@let ageCtrl = registerForm.controls.age;
+@let orientationCtrl = registerForm.controls.sexual_orientation;
+@let genderCtrl = registerForm.controls.gender;
+
 <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
 
 	<div class="card flex justify-center">
@@ -100,7 +109,11 @@
 										placeholder="Username"
 										aria-label="Username" />
 								</p-inputgroup>
-
+								@if (usernameCtrl.touched && usernameCtrl.invalid) {
+									<p-message severity="error" variant="simple" size="small">
+										@if (usernameCtrl.hasError('required')) { <div style="margin-left: 3rem">Campo obbligatorio.</div> }
+									</p-message>
+								}
 							</div>
 							<div class="field">
 								<p-inputgroup>
@@ -112,6 +125,11 @@
 										placeholder="Email"
 										aria-label="Email" />
 								</p-inputgroup>
+								@if (emailCtrl.touched && emailCtrl.invalid) {
+									<p-message severity="error" variant="simple" size="small">
+										@if (emailCtrl.hasError('required')) { <div style="margin-left: 3rem">Campo obbligatorio.</div> }
+									</p-message>
+								}
 							</div>
 							<div class="field">
 								<p-inputgroup>
@@ -123,6 +141,12 @@
 										placeholder="Password"
 										aria-label="Password" />
 								</p-inputgroup>
+								@if (pwdCtrl.touched && pwdCtrl.invalid) {
+									<p-message severity="error" variant="simple" size="small">
+										@if (pwdCtrl.hasError('required')) { <div style="margin-left: 3rem">Campo obbligatorio.</div> }
+										@if (pwdCtrl.hasError('minlength')) { <div style="margin-left: 3rem">Minimo 6 caratteri.</div> }
+									</p-message>
+								}
 							</div>
 
 						</div>
@@ -148,6 +172,11 @@
 											placeholder="First Name"
 											aria-label="First Name" />
 									</p-inputgroup>
+									@if (firstNameCtrl.touched && firstNameCtrl.invalid) {
+										<p-message severity="error" variant="simple" size="small">
+											@if (firstNameCtrl.hasError('required')) { <div style="margin-left: 3rem">Campo obbligatorio.</div> }
+										</p-message>
+									}
 								</div>
 
 								<div class="field">
@@ -160,6 +189,11 @@
 											placeholder="Last Name"
 											aria-label="Last Name" />
 									</p-inputgroup>
+									@if (lastNameCtrl.touched && lastNameCtrl.invalid) {
+										<p-message severity="error" variant="simple" size="small">
+											@if (lastNameCtrl.hasError('required')) { <div style="margin-left: 3rem">Campo obbligatorio.</div> }
+										</p-message>
+									}
 								</div>
 
 								<div class="field">
@@ -172,6 +206,11 @@
 											placeholder="Age"
 											aria-label="Age" />
 									</p-inputgroup>
+									@if (ageCtrl.touched && ageCtrl.invalid) {
+										<p-message severity="error" variant="simple" size="small">
+											@if (ageCtrl.hasError('required')) { <div style="margin-left: 3rem">Campo obbligatorio.</div> }
+										</p-message>
+									}
 								</div>
 
 						</div>
@@ -213,6 +252,11 @@
 										placeholder="I like Trains"
 										appendTo="body"/>
 									</label>
+									@if (orientationCtrl.touched && orientationCtrl.invalid) {
+										<p-message severity="error" variant="simple" size="small">
+											@if (orientationCtrl.hasError('required')) { <div style="margin-left: 3rem">Campo obbligatorio.</div> }
+										</p-message>
+									}
 								</div>
 
 								<div class="field">
@@ -227,6 +271,11 @@
 										placeholder="Fluid">
 									</p-select>
 									</label>
+									@if (genderCtrl.touched && genderCtrl.invalid) {
+										<p-message severity="error" variant="simple" size="small">
+											@if (genderCtrl.hasError('required')) { <div style="margin-left: 3rem">Campo obbligatorio.</div> }
+										</p-message>
+									}
 								</div>
 
 						</div>

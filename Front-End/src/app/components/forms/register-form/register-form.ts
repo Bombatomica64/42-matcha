@@ -16,13 +16,14 @@ import { StepperModule } from 'primeng/stepper';
 //import { IconField } from 'primeng/iconfield';
 //import { InputIcon } from 'primeng/inputicon';
 import { CommonModule } from '@angular/common';
+import { MessageModule } from 'primeng/message';
 
 type RegisterRequest = components['schemas']['RegisterRequest'];
 type RegisterResponse = components['schemas']['RegisterResponse'];
 
 @Component({
   selector: 'app-register-form',
-  imports: [ReactiveFormsModule, InputTextModule, InputGroupModule, InputGroupAddonModule, ButtonModule, ToggleSwitchModule, TextareaModule, SelectModule, StepperModule, CommonModule],
+  imports: [ReactiveFormsModule, InputTextModule, InputGroupModule, InputGroupAddonModule, ButtonModule, ToggleSwitchModule, TextareaModule, SelectModule, StepperModule, CommonModule, MessageModule],
   templateUrl: './register-form.html',
 //  template: `
 //  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
@@ -153,9 +154,6 @@ type RegisterResponse = components['schemas']['RegisterResponse'];
  	.register-btn {
 	  width: 100%;
 	  margin-bottom: 2rem;
-	}
-	.p-inputgroup {
-	  margin-bottom: 1rem;
 	}
 	.p-step-panels {
 	  height: 420px !important;

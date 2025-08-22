@@ -30,8 +30,8 @@ type LoginResponse = components['schemas']['LoginResponse'];
 				aria-label="Email o Username" />
 		</p-inputgroup>
 		@if (emailCtrl.touched && emailCtrl.invalid) {
-			<p-message severity="error" variant="simple" size="small" class="ml-12">
-				@if (emailCtrl.hasError('required')) { Campo obbligatorio. }
+			<p-message severity="error" variant="simple" size="small">
+				@if (emailCtrl.hasError('required')) { <div style="margin-left: 3rem">Campo obbligatorio. </div> }
 			</p-message>
 		}
 	</div>
@@ -47,9 +47,9 @@ type LoginResponse = components['schemas']['LoginResponse'];
 				aria-label="Password" />
 		</p-inputgroup>
 		@if (pwdCtrl.touched && pwdCtrl.invalid) {
-			<p-message severity="error" variant="simple" size="small" class="ml-12">
-				@if (pwdCtrl.hasError('required')) { Campo obbligatorio. }
-				@if (pwdCtrl.hasError('minlength')) { Minimo 6 caratteri. }
+			<p-message severity="error" variant="simple" size="small">
+				@if (pwdCtrl.hasError('required')) { <div style="margin-left: 3rem">Campo obbligatorio. </div> }
+				@if (pwdCtrl.hasError('minlength')) { <div style="margin-left: 3rem">Minimo 6 caratteri. </div> }
 			</p-message>
 		}
 	</div>
