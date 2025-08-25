@@ -20,15 +20,44 @@
       "@generated/*": ["./src/generated/*"],
       "@generated/types": ["./src/generated/backend/types"],
       "@generated/validators": ["./src/generated/backend/validators"],
-      "@generated/api": ["./src/generated/typescript/api"]
+      "@generated/api": ["./src/generated/typescript/api"],
+      "@config/*": ["./src/config/*"],
+      "@controllers/*": ["./src/controllers/*"],
+      "@middleware/*": ["./src/middleware/*"],
+      "@models/*": ["./src/models/*"],
+      "@orm/*": ["./src/orm/*"],
+      "@repositories/*": ["./src/repositories/*"],
+      "@routes/*": ["./src/routes/*"],
+      "@services/*": ["./src/services/*"],
+      "@types/*": ["./src/types/*"],
+      "@utils/*": ["./src/utils/*"]
     }
   },
   "include": [
-    "src/**/*",
-    "generated/**/*"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
     "dist"
-  ]
+  ],
+  "tsc-alias": {
+    "verbose": false,
+    "resolveFullPaths": true,
+    "replacers": {
+      "@generated/*": ["./dist/generated/*"],
+      "@generated/types": ["./dist/generated/backend/types"],
+      "@generated/validators": ["./dist/generated/backend/validators"],
+      "@generated/api": ["./dist/generated/typescript/api"],
+      "@config/*": ["./dist/config/*"],
+      "@controllers/*": ["./dist/controllers/*"],
+      "@middleware/*": ["./dist/middleware/*"],
+      "@models/*": ["./dist/models/*"],
+      "@orm/*": ["./dist/orm/*"],
+      "@repositories/*": ["./dist/repositories/*"],
+      "@routes/*": ["./dist/routes/*"],
+      "@services/*": ["./dist/services/*"],
+      "@types/*": ["./dist/types/*"],
+      "@utils/*": ["./dist/utils/*"]
+    }
+  }
 }

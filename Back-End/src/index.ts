@@ -1,7 +1,7 @@
-import { env } from "./config/env";
+import process from "node:process";
+import { setTimeout } from "node:timers";
+import { env } from "@config/env";
 import { app, logger } from "./server";
-import process from "process";
-import { setTimeout } from "timers";
 
 const server = app.listen(env.PORT, () => {
 	const { NODE_ENV, HOST, PORT } = env;

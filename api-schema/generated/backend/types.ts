@@ -13,7 +13,7 @@ export interface RegisterRequest {
   password: string;
   first_name: string;
   last_name: string;
-  age: number;
+  birth_date: string;
   bio?: string;
   location?: {
     lat: number;

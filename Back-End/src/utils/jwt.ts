@@ -1,5 +1,5 @@
-import jwt, { Secret } from "jsonwebtoken";
 import { env } from "node:process";
+import jwt, { type Secret } from "jsonwebtoken";
 
 const JWT_SECRET = env.JWT_SECRET as Secret;
 
@@ -20,7 +20,7 @@ export interface JwtPayload {
 
 export function signJwt(
 	payload: Omit<JwtPayload, "iat" | "exp">,
-	expiresIn = "24h",
+	expiresIn: number = 24 * 60 * 60 // 24 hours in seconds
 ): string {
 	return jwt.sign(payload, JWT_SECRET, { expiresIn });
 }

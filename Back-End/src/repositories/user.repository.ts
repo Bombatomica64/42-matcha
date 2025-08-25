@@ -1,6 +1,6 @@
 import type { Pool } from 'pg';
-import { BaseRepository } from '../orm/base-repository';
-import type { User, CreateUserData, UpdateUserData } from '../models/user.entity';
+import { BaseRepository } from '@orm/base-repository';
+import type { User, CreateUserData, UpdateUserData } from '@models/user.entity';
 
 export class UserRepository extends BaseRepository<User> {
   constructor(pool: Pool) {
@@ -46,7 +46,7 @@ export class UserRepository extends BaseRepository<User> {
       online_status: false,
       last_seen: new Date(),
       hashtags: [],
-      location_manual: userData.location_manual ?? false
+      location_manual: userData.location_manual ?? false,
     };
 
     return this.create(userWithDefaults);

@@ -1,7 +1,8 @@
+import { emailService } from "@utils/email";
 import { pool } from "../database";
-import type { RegisterUserData, User } from "../models/user.entity";
-import { UserRepository } from "../repositories/user.repository";
-import { hashPassword, comparePassword } from "../utils/hash";
+import type { RegisterUserData, User } from "@models/user.entity";
+import { UserRepository } from "@repositories/user.repository";
+import { hashPassword, comparePassword } from "@utils/hash";
 // TODO: Add JWT utilities when implementing authentication
 // import { generateToken } from "../utils/jwt";
 
@@ -38,12 +39,14 @@ export class AuthService {
 			...userData,
 			password: hashedPassword,
 			hashtags: [], // Initialize with empty hashtags array
-			location_manual: userData.location_manual ?? false
+			location_manual: userData.location_manual ?? false,
+			email_verification_token: emailService.generateVerificationToken()
 		};
 
 		// Create user
 		const newUser = await this.userRepository.createUser(userDataWithHashedPassword);
 
+		emailService.sendVerificationEmail(newUser.email, newUser.email_verification_token);
 		// Return user without password
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const { password: _, ...userWithoutPassword } = newUser;
@@ -134,8 +137,7 @@ export class AuthService {
 			password_reset_expires_at: expiresAt
 		} as Partial<User>);
 
-		// TODO: Send email with reset link
-		// await emailService.sendPasswordResetEmail(user.email, resetToken);
+		await emailService.sendPasswordResetEmail(user.email, resetToken);
 	}
 
 	/**

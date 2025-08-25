@@ -3,7 +3,7 @@ export interface User {
   id: string;
   username: string;
   email: string;
-  age: number;
+  birth_date: Date;
   password: string;
   bio?: string;
   first_name: string;
@@ -20,7 +20,7 @@ export interface User {
   profile_complete: boolean;
   last_seen: Date;
   online_status: boolean;
-  email_verification_token?: string;
+  email_verification_token: string;
   email_verified_at?: Date;
   password_reset_token?: string;
   password_reset_expires_at?: Date;
@@ -40,7 +40,7 @@ export type RegisterUserData = {
   password: string;
   first_name: string;
   last_name: string;
-  age: number;
+  birth_date: Date;
   bio?: string;
   gender: 'male' | 'female' | 'other';
   sexual_orientation: 'heterosexual' | 'homosexual' | 'bisexual';

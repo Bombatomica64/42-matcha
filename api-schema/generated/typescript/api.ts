@@ -116,8 +116,11 @@ export interface components {
             first_name: string;
             /** @example Smith */
             last_name: string;
-            /** @example 25 */
-            age: number;
+            /**
+             * Format: date
+             * @example 1998-01-01
+             */
+            birth_date: string;
             /** @example Hello, I'm Lollo! I love hiking and outdoor adventures. */
             bio?: string;
             /** @example {

@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
 		id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 		username VARCHAR(50) NOT NULL,
 		email VARCHAR(100) NOT NULL UNIQUE,
-		age INTEGER CHECK (age >= 0),
+		birth_date DATE CHECK (birth_date <= CURRENT_DATE),
 		password VARCHAR(255) NOT NULL,
 		bio TEXT,
 		first_name VARCHAR(50),

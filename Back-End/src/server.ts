@@ -4,8 +4,8 @@ import helmet from "helmet";
 import { pino } from "pino";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
-import { env } from "./config/env";
-import authRoutes from "./routes/auth.routes";
+import { env } from "@config/env";
+import authRoutes from "@routes/auth.routes";
 
 const logger = pino({ name: "matcha-server" });
 const app: Express = express();
@@ -47,7 +47,7 @@ const swaggerOptions = {
 			},
 		},
 	},
-	apis: ["./src/routes/*.ts", "./src/controllers/*.ts"], // Path to the API files
+	apis: ["./src/routes/*.js", "./src/controllers/*.js"], // Path to the API files
 };
 
 const swaggerSpec = swaggerJSDoc(swaggerOptions);
@@ -56,10 +56,18 @@ const swaggerSpec = swaggerJSDoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // API Routes
-app.use("/api/auth", authRoutes());
+app.use("/auth", authRoutes());
+
+//HEALTH
+app.get("/health", (_req, res) => {
+	res.json({
+		status: "ok",
+		timestamp: new Date(),
+	});
+});
 
 // Root endpoint
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
 	res.json({
 		message: "Welcome to Matcha Dating App API",
 		documentation: "/api-docs",

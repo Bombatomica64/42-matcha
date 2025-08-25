@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
-import { AuthService } from '../services/auth.service';
-import { ValidationSchemas } from '../utils/validation';
+import { logger } from '../server';
+import type { AuthService } from '@services/auth.services';
+import { ValidationSchemas } from '@utils/validation';
 import type {
 	RegisterRequest,
 	RegisterResponse,
@@ -30,7 +31,7 @@ export class AuthController {
         !registerData.password ||
         !registerData.first_name ||
         !registerData.last_name ||
-        !registerData.age ||
+        !registerData.birth_date ||
         !registerData.gender ||
         !registerData.sexual_orientation
       ) {
@@ -77,7 +78,7 @@ export class AuthController {
         password: registerData.password,
         first_name: registerData.first_name,
         last_name: registerData.last_name,
-        age: registerData.age,
+        birth_date: registerData.birth_date,
         bio: registerData.bio,
         gender: registerData.gender,
         sexual_orientation: registerData.sexual_orientation,
@@ -98,7 +99,7 @@ export class AuthController {
 
       res.status(201).json(successResponse);
     } catch (error) {
-      console.error('Registration error:', error);
+      logger.error('Registration error:', error);
 
       const errorResponse: ErrorResponse = {
         message: error instanceof Error ? error.message : 'Registration failed'
@@ -144,8 +145,7 @@ export class AuthController {
 
       res.status(200).json(successResponse);
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Login error:', error);
+      logger.error('Login error:', error);
 
       const errorResponse: ErrorResponse = {
         message: error instanceof Error ? error.message : 'Login failed'
@@ -158,15 +158,14 @@ export class AuthController {
   /**
    * Handle user logout
    */
-  async logout(req: Request, res: Response): Promise<void> {
+  async logout(_req: Request, res: Response): Promise<void> {
     try {
       // TODO: Implement JWT token blacklisting if needed
       res.status(200).json({
         message: 'User logged out successfully'
       });
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Logout error:', error);
+      logger.error('Logout error:', error);
 
       const errorResponse: ErrorResponse = {
         message: 'Logout failed'
@@ -205,8 +204,7 @@ export class AuthController {
         message: 'Email verified successfully'
       });
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Email verification error:', error);
+      logger.error('Email verification error:', error);
 
       const errorResponse: ErrorResponse = {
         message: 'Email verification failed'
@@ -237,8 +235,7 @@ export class AuthController {
         message: 'Email sent with password reset instructions'
       });
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Password reset error:', error);
+      logger.error('Password reset error:', error);
 
       const errorResponse: ErrorResponse = {
         message: 'Password reset request failed'
@@ -247,4 +244,53 @@ export class AuthController {
       res.status(400).json(errorResponse);
     }
   }
+
+	/**
+	 * Handle password change request
+	 */
+	async changePassword(req: Request, res: Response): Promise<void> {
+		try {
+			const { token } = req.query;
+
+			if (!token || typeof token !== 'string') {
+				const errorResponse: ErrorResponse = {
+					message: 'Password change token is required'
+				};
+				res.status(400).json(errorResponse);
+				return;
+			}
+
+			const { newPassword } = req.body;
+
+			if (!newPassword) {
+				const errorResponse: ErrorResponse = {
+					message: 'New password is required'
+				};
+				res.status(400).json(errorResponse);
+				return;
+			}
+
+			const result = await this.authService.resetPassword(token, newPassword);
+
+			if (!result) {
+				const errorResponse: ErrorResponse = {
+					message: 'Failed to reset password'
+				};
+				res.status(400).json(errorResponse);
+				return;
+			}
+
+			res.status(200).json({
+				message: 'Password reset successfully'
+			});
+		} catch (error) {
+			logger.error('Password reset error:', error);
+
+			const errorResponse: ErrorResponse = {
+				message: 'Password reset failed'
+			};
+
+			res.status(500).json(errorResponse);
+		}
+	}
 }

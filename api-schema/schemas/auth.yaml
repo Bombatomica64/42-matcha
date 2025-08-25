@@ -156,9 +156,10 @@ components:
         last_name:
           type: string
           example: Smith
-        age:
-          type: integer
-          example: 25
+        birth_date:
+          type: string
+          format: date
+          example: 1998-01-01
         bio:
           type: string
           example: "Hello, I'm Lollo! I love hiking and outdoor adventures."
@@ -187,7 +188,7 @@ components:
         - username
         - email
         - password
-        - age
+        - birth_date
         - gender
         - sexual_orientation
         - first_name
