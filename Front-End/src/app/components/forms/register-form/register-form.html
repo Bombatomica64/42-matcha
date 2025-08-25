@@ -317,14 +317,17 @@
 								<div class="field">
 									<fieldset formGroupName="location">
 									<legend>Location</legend>
-									<label>
+									<button pButton type="button" label="Get Current Location" icon="pi pi-map-marker" (click)="getMyLocation()"></button>
+									longitude = {{registerForm.get('location')?.get('lng')?.value}}
+									latitude = {{registerForm.get('location')?.get('lat')?.value}}
+									<!--label>
 										Latitude:
 										<input type="number" formControlName="lat" step="any"/>
 									</label>
 									<label>
 										Longitude:
 										<input type="number" formControlName="lng" step="any"/>
-									</label>
+									</label-->
 									</fieldset>
 								</div>
 

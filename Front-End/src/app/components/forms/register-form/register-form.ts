@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpEndpoint, HttpMethod, HttpRequestService } from '../../../services/http-request';
+import { Geolocation } from '../../../services/geolocation';
 import { components } from '../../../../types/api'; // Adjust the path as necessary
 
 import { InputTextModule } from 'primeng/inputtext';
@@ -91,6 +92,14 @@ export class RegisterForm {
     gender: new FormControl<'male' | 'female' | 'other' | ''>('', {nonNullable: true, validators: [Validators.required]})
   });
 
+  getMyLocation() {
+    this.geo.getLocation().then(loc => {
+      this.registerForm.get('location')?.patchValue({ lat: loc.location.latitude, lng: loc.location.longitude });
+    }).catch(error => {
+      console.error('Error getting location:', error);
+    });
+  }
+
   onSubmit() {
     if (this.registerForm.valid) {
       const credentials = this.registerForm.value as RegisterRequest;
@@ -109,7 +118,8 @@ export class RegisterForm {
     }
   }
 
-  auth = inject(HttpRequestService)
+  auth = inject(HttpRequestService);
+  geo = inject(Geolocation);
 
   activeStep: number = 1;
 
