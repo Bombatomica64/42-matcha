@@ -445,7 +445,13 @@ registerForm.controls.gender;
 
               @if (registerForm.get('location')?.get('lat')?.value && registerForm.get('location')?.get('lng')?.value) {
                 <div class="field">
-                  <div #leafletMap class="leaflet-map"></div>
+                  <app-map
+                    [lat]="registerForm.get('location')?.get('lat')?.value"
+                    [lng]="registerForm.get('location')?.get('lng')?.value"
+                    (locationChange)="onLocationChange($event)"
+                    [height]="'150px'"
+                    [width]="'100%'"
+                  ></app-map>
                 </div>
               }
 
