@@ -1,4 +1,4 @@
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { HttpEndpoint, HttpMethod, HttpRequestService } from '../../../services/http-request';
 import { Geolocation } from '../../../services/geolocation';
 import { components } from '../../../../types/api'; // Adjust the path as necessary
@@ -24,18 +24,23 @@ import { DatePickerModule } from 'primeng/datepicker';
 type RegisterRequest = components['schemas']['RegisterRequest'];
 type RegisterResponse = components['schemas']['RegisterResponse'];
 
-//function minAgeDateValidator(min: number): ValidatorFn {
-//  return (control: AbstractControl) => {
-//    const v = control.value;
-//    if (!v) return { required: true };
-//    if (!(v instanceof Date)) return { invalidDate: true };
-//    const today = new Date();
-//    let age = today.getFullYear() - v.getFullYear();
-//    const m = today.getMonth() - v.getMonth();
-//    if (m < 0 || (m === 0 && today.getDate() < v.getDate())) age--;
-//    return age >= min ? null : { minAge: { required: min, actual: age } };
-//  };
-//}
+function adultValidator(minAge: number): ValidatorFn {
+  return (control: AbstractControl | null) => {
+    const v = control?.value;
+    if (!v) return { required: true };
+    const date = v instanceof Date ? v : new Date(v);
+    if (isNaN(date.getTime())) return { invalidDate: true };
+
+    const today = new Date();
+    let age = today.getFullYear() - date.getFullYear();
+    const m = today.getMonth() - date.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < date.getDate())) {
+      age--;
+    }
+
+    return age >= minAge ? null : { underage: { requiredAge: minAge, actualAge: age } };
+  };
+}
 
 @Component({
   selector: 'app-register-form',
@@ -108,7 +113,7 @@ export class RegisterForm {
     password: new FormControl('', {nonNullable: true, validators: [Validators.required, Validators.minLength(6)]}),
     first_name: new FormControl('', {nonNullable: true, validators: [Validators.required]}),
     last_name: new FormControl('', {nonNullable: true, validators: [Validators.required]}),
-    age: new FormControl<number | null>(null, {nonNullable: true, validators: [Validators.required, Validators.min(18)]}),
+    birth_date: new FormControl<Date | null>(null, {nonNullable: true, validators: [Validators.required, adultValidator(18)]}),
     bio: new FormControl('', {nonNullable: true}),
 
     location: new FormGroup({

@@ -1,7 +1,7 @@
 @let usernameCtrl = registerForm.controls.username; @let emailCtrl =
 registerForm.controls.email; @let pwdCtrl = registerForm.controls.password; @let
 firstNameCtrl = registerForm.controls.first_name; @let lastNameCtrl =
-registerForm.controls.last_name; @let ageCtrl = registerForm.controls.age; @let
+registerForm.controls.last_name; @let ageCtrl = registerForm.controls.birth_date; @let
 orientationCtrl = registerForm.controls.sexual_orientation; @let genderCtrl =
 registerForm.controls.gender;
 
@@ -266,7 +266,7 @@ registerForm.controls.gender;
                 }
               </div>
 
-              <div class="field">
+              <!-- <div class="field">
                 <p-inputgroup>
                   <p-inputgroup-addon>
                     <i class="pi pi-calendar"></i>
@@ -286,30 +286,30 @@ registerForm.controls.gender;
                   }
                 </p-message>
                 }
-              </div>
+              </div> -->
 
-              <!--div class="field">
-									<p-inputgroup>
-										<p-inputgroup-addon>
-										<i class="pi pi-calendar"></i>
-										</p-inputgroup-addon>
-										<p-datepicker
-										formControlName="age"
-										placeholder="Birth date"
-										dateFormat="dd/mm/yy"
-										[showIcon]="false"
-										appendTo="body"
-										inputId="birth_date"
-										styleClass="w-full"
-										[panelStyle]="{minWidth:'14rem'}">
-										</p-datepicker>
-									</p-inputgroup>
-									@if (ageCtrl.touched && ageCtrl.invalid) {
-										<p-message severity="error" variant="simple" size="small">
-											@if (ageCtrl.hasError('required')) { <div style="margin-left: 3rem">Campo obbligatorio.</div> }
-										</p-message>
-									}
-								</div-->
+              <div class="field">
+								<p-inputgroup>
+									<p-inputgroup-addon>
+									<i class="pi pi-calendar"></i>
+									</p-inputgroup-addon>
+									<p-datepicker
+									formControlName="birth_date"
+									placeholder="Birth date"
+									dateFormat="dd/mm/yy"
+									[showIcon]="false"
+									appendTo="body"
+									inputId="birth_date"
+									styleClass="w-full"
+									[panelStyle]="{minWidth:'14rem'}">
+									</p-datepicker>
+								</p-inputgroup>
+								@if (ageCtrl.touched && ageCtrl.invalid) {
+									<p-message severity="error" variant="simple" size="small">
+										@if (ageCtrl.hasError('required')) { <div style="margin-left: 3rem">Campo obbligatorio.</div> }
+									</p-message>
+								}
+							</div>
             </div>
             <div class="flex pt-6 justify-between">
               <p-button
