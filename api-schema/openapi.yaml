@@ -8,7 +8,7 @@ info:
     url: https://opensource.org/license/mit/
 
 servers:
-  - url: http://127.0.0.1:3000/api
+  - url: https://127.0.0.1/api
     description: Development server
 
 paths:
@@ -25,21 +25,88 @@ paths:
     $ref: './schemas/auth.yaml#/paths/resetPassword'
 
 
-  # # User profile endpoints
-  # /users/profile:
-  #   $ref: './schemas/user.yaml#/paths/profile'
-  # /users/{id}:
-  #   $ref: './schemas/user.yaml#/paths/userById'
+  # User profile endpoints
+  /users/profile:
+    $ref: './schemas/user.yaml#/paths/profile'
   
-  # # Matching endpoints
-  # /matches:
-  #   $ref: './schemas/match.yaml#/paths/matches'
-  # /matches/{id}/like:
-  #   $ref: './schemas/match.yaml#/paths/like'
+
+  # User discovery/search
+  /users/search:
+    $ref: './schemas/user.yaml#/paths/search'
+  /users/discover:
+    $ref: './schemas/user.yaml#/paths/discover'
+
+  # Photo management under users
+  /photos:
+    $ref: './schemas/user.yaml#/paths/userPhotos'
+  /photos/{photoId}:
+    $ref: './schemas/user.yaml#/paths/userPhotoById'
+  /photos/{photoId}/main:
+    $ref: './schemas/user.yaml#/paths/setMainPhoto'
+
+  
+  # User interactions
+  /users/{id}:
+    $ref: './schemas/user.yaml#/paths/userById'
+  /users/{id}/like:
+    $ref: './schemas/user.yaml#/paths/likeUser'
+  /users/{id}/block:
+    $ref: './schemas/user.yaml#/paths/blockUser'
+  /users/{id}/matches:
+    $ref: './schemas/user.yaml#/paths/userMatches'
 
 components:
   schemas:
     # Reference schemas from other files
+    # registerRequest:
+    #   $ref: './schemas/auth.yaml#/components/schemas/RegisterRequest'
+    # registerResponse:
+    #   $ref: './schemas/auth.yaml#/components/schemas/RegisterResponse'
+    # loginRequest:
+    #   $ref: './schemas/auth.yaml#/components/schemas/LoginRequest'
+    # loginResponse:
+    #   $ref: './schemas/auth.yaml#/components/schemas/LoginResponse'
+    # logoutResponse:
+    #   $ref: './schemas/auth.yaml#/components/schemas/LogoutResponse'
+    # User:
+    #   $ref: './schemas/user.yaml#/components/schemas/User'
+   
+    # Match:
+    #   $ref: './schemas/match.yaml#/components/schemas/Match'
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Invalid request"
+        message:
+          type: string
+          example: "The provided data is invalid"
+        code:
+          type: string
+          example: "VALIDATION_ERROR"
+        details:
+          type: object
+          additionalProperties: true
+          example: 
+            field: "email"
+            reason: "Invalid email format"
+      required:
+        - error
+        - message
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "User liked successfully"
+        data:
+          type: object
+          additionalProperties: true
+          example:
+            userId: "123e4567-e89b-12d3-a456-426614174000"
+
+    # Reference auth schemas
     registerRequest:
       $ref: './schemas/auth.yaml#/components/schemas/RegisterRequest'
     registerResponse:
@@ -50,17 +117,30 @@ components:
       $ref: './schemas/auth.yaml#/components/schemas/LoginResponse'
     logoutResponse:
       $ref: './schemas/auth.yaml#/components/schemas/LogoutResponse'
-    errorResponse:
-      $ref: './schemas/auth.yaml#/components/schemas/ErrorResponse'
 
-    # User:
-    #   $ref: './schemas/user.yaml#/components/schemas/User'
-   
-    # Match:
-    #   $ref: './schemas/match.yaml#/components/schemas/Match'
-  
+    # Reference user schemas
+    userProfileResponse:
+      $ref: './schemas/user.yaml#/components/schemas/UserProfileResponse'
+
+    # Reference photo schemas
+    photo:
+      $ref: './schemas/photos.yaml#/components/schemas/Photo'
+    photoUploadRequest:
+      $ref: './schemas/photos.yaml#/components/schemas/PhotoUploadRequest'
+    photoResponse:
+      $ref: './schemas/photos.yaml#/components/schemas/PhotoResponse'
+    photoListResponse:
+      $ref: './schemas/photos.yaml#/components/schemas/PhotoListResponse'
+
   securitySchemes:
     BearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+      description: |
+        JWT token containing user ID and role information.
+        
+        **Authorization Rules:**
+        - **Admin**: Can perform any operation on any resource
+        - **User**: Can only access/modify their own resources
+        - **Guest**: Read-only access to public resources

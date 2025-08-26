@@ -1,0 +1,870 @@
+openapi: 3.1.1
+info:
+  title: User schema
+  version: 1.0.0
+  description: API schema for user management
+
+paths: 
+  profile:
+    get: 
+      summary: Get user profile
+      tags:
+        - User
+      operationId: getUserProfile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#components/schemas/User'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+    put:
+      summary: Update user profile
+      tags:
+        - User
+      operationId: updateUserProfile
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#components/schemas/User'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+    patch:
+      summary: Partially update user profile
+      tags:
+        - User
+      operationId: patchUserProfile
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#components/schemas/UserProfilePatchRequest'
+      responses:
+        '200':
+          description: User profile partially updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#components/schemas/User'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+  userById:
+    get:
+      summary: Get user by ID
+      tags:
+        - User
+      operationId: getUserById
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the user to retrieve
+          schema:
+            type: string
+            format: uuid
+            description: The unique identifier of the user
+      responses:
+        '200':
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#components/schemas/User'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+  userPhotos:
+    get:
+      summary: Get user photos
+      tags:
+        - User
+        - Photos
+      operationId: getUserPhotos
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User photos retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: './photos.yaml#/components/schemas/PhotoListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+    post:
+      summary: Upload a new photo
+      tags:
+        - User
+        - Photos
+      operationId: uploadUserPhoto
+      security:
+        - BearerAuth: []
+      requestBody:
+        $ref: './photos.yaml#/components/schemas/PhotoUploadRequest'
+      responses:
+        '201':
+          description: Photo uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: './photos.yaml#/components/schemas/PhotoResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+  userPhotoById:
+    get:
+      summary: Get user photo by ID
+      tags:
+        - User
+        - Photos
+      operationId: getUserPhotoById
+      security:
+        - BearerAuth: []
+      parameters:
+      - name: photoId
+        in: path
+        required: true
+        description: The ID of the photo to retrieve
+        schema:
+            type: string
+            format: uuid
+            description: The unique identifier of the photo
+      responses:
+        '200':
+          description: User photo retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: './photos.yaml#/components/schemas/PhotoResponse'
+        '404':
+          description: Photo not found
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete user photo
+      description: |
+        Delete a specific photo. 
+        
+        **Authorization:**
+        - Users can only delete their own photos
+        - Admins can delete any photo
+        - Returns 403 if user tries to delete another user's photo
+
+      tags:
+        - User
+        - Photos
+      operationId: deleteUserPhoto
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: photoId
+          in: path
+          required: true
+          description: The ID of the photo to delete
+          schema:
+            type: string
+            format: uuid
+            description: The unique identifier of the photo
+      responses:
+        '204':
+          description: Photo deleted successfully
+        '403':
+           description: Forbidden - insufficient permissions
+           content:
+             application/json:
+               schema:
+                 $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+               example:
+                 error: "Forbidden"
+                 message: "You can only delete your own photos"
+                 code: "INSUFFICIENT_PERMISSIONS"
+        '404':
+          description: Photo not found
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+  setMainPhoto:
+    post:
+      summary: Set a photo as the main profile photo
+      tags:
+        - User
+        - Photos
+      operationId: setMainPhoto
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: photoId
+          in: path
+          required: true
+          description: The ID of the photo to set as main
+          schema:
+            type: string
+            format: uuid
+            description: The unique identifier of the photo
+      responses:
+        '200':
+          description: Main photo set successfully
+        '403':
+          description: Forbidden - insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Forbidden"
+                message: "You can only set your own photos as main"
+                code: "INSUFFICIENT_PERMISSIONS"
+        '404':
+          description: Photo not found
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+  likeUser:
+    post:
+      summary: Like a user
+      description: |
+        Like a user profile. This action is mutual and will notify the other user.
+      tags:
+        - User
+        - Match
+      operationId: likeUser
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the user to like
+          schema:
+            type: string
+            format: uuid
+            description: The unique identifier of the user
+      responses:
+        '201':
+          description: User liked successfully
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/SuccessResponse'
+              example:
+                message: "User liked successfully"
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+                example:
+                  error: "Not Found"
+                  message: "User not found"
+                  code: "USER_NOT_FOUND"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Unauthorized"
+                message: "You must be logged in to like a user"
+                code: "UNAUTHORIZED"
+    get:
+      summary: Get user likes
+      description: Retrieve a list of users that liked the specified user.
+      tags:
+        - User
+        - Match
+      operationId: getUserLikes
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the user to retrieve likes for
+          schema:
+            type: string
+            format: uuid
+            description: The unique identifier of the user
+      responses:
+        '200':
+          description: List of liked users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Not Found"
+                message: "User not found"
+                code: "USER_NOT_FOUND"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Unauthorized"
+                message: "You must be logged in to like a user"
+                code: "UNAUTHORIZED"
+  blockUser:
+    get:
+      summary: Get blocked users
+      description: Retrieve a list of users that the selected user has blocked.
+      tags:
+        - User
+      operationId: getBlockedUsers
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the user to retrieve blocked users for
+          schema:
+            type: string
+            format: uuid
+            description: The unique identifier of the user
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of results to return
+          schema:
+            type: integer
+            format: int32
+            example: 10
+        - name: page
+          in: query
+          required: false
+          description: Page number for pagination
+          schema:
+            type: integer
+            format: int32
+            example: 1
+      responses:
+        '200':
+          description: List of blocked users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Not Found"
+                message: "User not found"
+                code: "USER_NOT_FOUND"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Unauthorized"
+                message: "You must be logged in to block a user"
+                code: "UNAUTHORIZED"
+    post:
+      summary: Block selected user
+      description: Block a user from interacting with the current user.
+      tags:
+        - User
+      operationId: blockUser
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the user to block
+          schema:
+            type: string
+            format: uuid
+            description: The unique identifier of the user
+      responses:
+        '204':
+          description: User blocked successfully
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Not Found"
+                message: "User not found"
+                code: "USER_NOT_FOUND"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Unauthorized"
+                message: "You must be logged in to block a user"
+                code: "UNAUTHORIZED"
+    delete:
+      summary: Unblock selected user
+      description: Unblock a previously blocked user.
+      tags:
+        - User
+      operationId: unblockUser
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the user to unblock
+          schema:
+            type: string
+            format: uuid
+            description: The unique identifier of the user
+      responses:
+        '204':
+          description: User unblocked successfully
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Not Found"
+                message: "User not found"
+                code: "USER_NOT_FOUND"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Unauthorized"
+                message: "You must be logged in to unblock a user"
+                code: "UNAUTHORIZED"
+    
+  userMatches:
+    get:
+      summary: Get user matches
+      description: Retrieve a list of matches for the selected user.
+      tags:
+        - User
+      operationId: userMatches
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the user to retrieve matches for
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of user matches retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Not Found"
+                message: "User not found"
+                code: "USER_NOT_FOUND"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Unauthorized"
+                message: "You must be logged in to view matches"
+                code: "UNAUTHORIZED"
+  search:
+    get:
+      summary: Search for users
+      description: Search for users based on various criteria.
+      tags:
+        - User
+      operationId: searchUsers
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: query
+          in: query
+          required: false
+          description: Search query string (e.g., name, interests)
+          schema:
+            type: string
+        - name: age_min
+          in: query
+          required: false
+          description: Minimum age filter
+          schema:
+            type: integer
+            minimum: 18
+        - name: age_max
+          in: query
+          required: false
+          description: Maximum age filter
+          schema:
+            type: integer
+            maximum: 100
+        - name: location
+          in: query
+          required: false
+          description: Location filter (e.g., city or coordinates)
+          schema:
+            type: string
+        - name: interests
+          in: query
+          required: false
+          description: Comma-separated list of interests to filter by
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          description: Page number for pagination (default is 1)
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: per_page
+          in: query
+          required: false
+          description: Number of results per page (default is 10, max is 50)
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 50
+      responses:
+        '200':
+          description: List of users matching the search criteria retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_results:
+                    type: integer
+                    example: 42
+                  total_pages:
+                    type: integer
+                    example: 5
+                  current_page:
+                    type: integer
+                    example: 1
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request - invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Bad Request"
+                message: "Invalid query parameters"
+                code: "BAD_REQUEST"
+  discover:
+    get:
+      summary: Discover potential matches
+      description: |
+        Get potential matches using the matching algorithm.
+        
+        **Algorithm Features:**
+        - Filters out already seen/liked/passed users
+        - Considers user preferences (age, location, orientation)
+        - Excludes blocked users and users who blocked you
+        - Uses fame rating and compatibility scoring
+        - Never shows the same user twice in a session
+        
+        **Pagination Strategy:**
+        - Small batches (10-20 users) for better user experience
+        - Algorithm runs on each request with exclusion filters
+        - Client should request new batch when running low
+      tags:
+        - User
+        - Discovery
+      operationId: discoverUsers
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          description: Number of users to return (recommended 10-20)
+          schema:
+            type: integer
+            minimum: 5
+            maximum: 50
+            default: 20
+        - name: refresh
+          in: query
+          description: Force refresh algorithm (ignore recent cache)
+          schema:
+            type: boolean
+            default: false
+        - name: maxDistance
+          in: query
+          description: Override max distance preference (km)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: seed
+          in: query
+          description: Algorithm seed for consistent ordering in session
+          schema:
+            type: string
+            example: "session_abc123"
+      responses:
+        '200':
+          description: Potential matches retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '204':
+          description: No more users to discover
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No more potential matches available"
+                  suggestions:
+                    type: array
+                    items:
+                      type: string
+                    example: 
+                      - "Try expanding your distance preferences"
+                      - "Consider adjusting your age range"
+                      - "Add more interests to your profile"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+  
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        birth_date:
+          type: string
+          format: date
+        bio:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        gender:
+          type: string
+          enum: [male, female, other]
+        sexual_orientation:
+          type: string
+          enum: [heterosexual, homosexual, bisexual, other]
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: float
+            longitude:
+              type: number
+              format: float
+        fame_rating:
+          type: integer
+          minimum: 0.5
+          maximum: 5.0
+        online_status:
+          type: boolean
+        likes_received:
+          type: integer
+          minimum: 0
+        views:
+          type: integer
+          minimum: 0
+        matches:
+          type: integer
+          minimum: 0
+        photos:
+          type: array
+          items:
+            $ref: './photos.yaml#/components/schemas/Photo'
+        hashtags:
+          type: array
+          items:
+            type: string
+    UserProfilePatchRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        bio:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        birth_date:
+          type: string
+          format: date
+        email:
+          type: string
+          format: email
+        sexual_orientation:
+          type: string
+          enum: [heterosexual, homosexual, bisexual]
+          default: bisexual
+        gender:
+          type: string
+          enum: [male, female, other]
+          default: other
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: float
+            longitude:
+              type: number
+              format: float

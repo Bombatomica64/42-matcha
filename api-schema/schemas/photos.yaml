@@ -1,0 +1,71 @@
+openapi: 3.1.1
+info:
+  title: Photo schema
+  version: 1.0.0
+  description: Schema for photo management
+
+components:
+  schemas:
+    Photo:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        user_id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440001"
+        image_url:
+          type: string
+          format: uri
+          example: "/uploads/photos/550e8400-e29b-41d4-a716-446655440000.jpg"
+        is_main:
+          type: boolean
+          example: false
+        uploaded_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+      required:
+        - id
+        - user_id
+        - image_url
+        - is_main
+        - uploaded_at
+
+    PhotoUploadRequest:
+      type: object
+      properties:
+        photo:
+          type: string
+          format: binary
+          description: "Photo file (JPEG, PNG, WebP)"
+        is_main:
+          type: boolean
+          default: false
+          description: "Set as main profile photo"
+      required:
+        - photo
+
+    PhotoResponse:
+      allOf:
+        - $ref: '#/components/schemas/Photo'
+        - type: object
+          properties:
+            message:
+              type: string
+              example: "Photo uploaded successfully"
+
+    PhotoListResponse:
+      type: object
+      properties:
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Photo'
+          maxItems: 5
+        total:
+          type: integer
+          example: 3

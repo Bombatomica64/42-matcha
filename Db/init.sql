@@ -40,7 +40,7 @@ CREATE INDEX idx_users_matches ON users(matches_count);
 
 -- Create photos table for local storage
 CREATE TABLE IF NOT EXISTS user_photos (
-        id SERIAL PRIMARY KEY,
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         user_uuid UUID REFERENCES users(id) ON DELETE CASCADE,
         filename VARCHAR(255) NOT NULL, -- e.g., "photo_1.jpg"
         original_filename VARCHAR(255), -- User's original filename
