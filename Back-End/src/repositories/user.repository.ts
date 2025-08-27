@@ -164,7 +164,6 @@ export class UserRepository extends BaseRepository<User> {
 			fame_rating: 0.0,
 			online_status: false,
 			last_seen: new Date(),
-			hashtags: [],
 			location_manual: userData.location_manual ?? false,
 		};
 
