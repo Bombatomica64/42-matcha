@@ -11,7 +11,7 @@ export type HttpEndpoint = keyof paths;
 })
 export class HttpRequestService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:3000/api';
+  private baseUrl = 'https://localhost:8443/api';
 
   request(credentials: any, httpEndpoint: HttpEndpoint, httpMethod: HttpMethod): Observable<any> {
     return this.http.request(httpMethod, `${this.baseUrl}${httpEndpoint}`, { body: credentials });
