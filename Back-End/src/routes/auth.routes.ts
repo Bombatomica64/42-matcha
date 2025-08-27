@@ -15,6 +15,7 @@ const authRoutes = (): Router => {
 	router.post("/register", authController.register.bind(authController));
 	router.post("/login", authController.login.bind(authController));
 	router.post("/logout", authController.logout.bind(authController));
+	router.post("/refresh", authController.refreshToken.bind(authController));
 	router.post(
 		"/resetPassword",
 		authController.resetPassword.bind(authController)
