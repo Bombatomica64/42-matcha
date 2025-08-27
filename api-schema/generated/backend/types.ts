@@ -48,15 +48,23 @@ export interface verifyEmailResponse {
   message?: string;
 }
 
-export interface ErrorResponse {
-  message?: string;
-}
-
 export interface ResetPasswordRequest {
   email?: string;
 }
 
 export interface ResetPasswordResponse {
   message?: string;
+}
+
+export interface ErrorResponse {
+  error: string;
+  message: string;
+  code?: string;
+  details?: object;
+}
+
+export interface SuccessResponse {
+  message?: string;
+  data?: object;
 }
 

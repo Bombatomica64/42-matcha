@@ -30,7 +30,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+                $ref: './common.yaml#/components/schemas/ErrorResponse'
   login:
     post:
       summary: User login
@@ -56,7 +56,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+                $ref: './common.yaml#/components/schemas/ErrorResponse'
   logout:
     post:
       summary: User logout
@@ -77,7 +77,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+                $ref: './common.yaml#/components/schemas/ErrorResponse'
   verifyEmail:
     get:
       summary: Verify user email
@@ -105,7 +105,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+                $ref: './common.yaml#/components/schemas/ErrorResponse'
   resetPassword:
     post:
       summary: Reset user password
@@ -131,7 +131,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+                $ref: './common.yaml#/components/schemas/ErrorResponse'
 
 
 components:

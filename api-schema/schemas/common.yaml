@@ -1,0 +1,45 @@
+openapi: 3.1.1
+info:
+  title: Common schemas
+  version: 1.0.0
+  description: Shared components and schemas
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error type
+          example: "Bad Request"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "The request could not be processed"
+        code:
+          type: string
+          description: Application-specific error code
+          example: "VALIDATION_ERROR"
+        details:
+          type: object
+          description: Additional error details
+          additionalProperties: true
+          example:
+            field: "email"
+            issue: "Invalid email format"
+      required:
+        - error
+        - message
+
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Operation completed successfully"
+        data:
+          type: object
+          additionalProperties: true
+          example:
+            userId: "123e4567-e89b-12d3-a456-426614174000"
