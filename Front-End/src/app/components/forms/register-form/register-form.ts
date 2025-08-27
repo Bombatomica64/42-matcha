@@ -12,6 +12,7 @@ import { ButtonModule } from 'primeng/button';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
+import { AutoFocusModule } from 'primeng/autofocus';
 
 import { StepperModule } from 'primeng/stepper';
 //import { ToggleButton } from 'primeng/togglebutton';
@@ -46,7 +47,7 @@ function adultValidator(minAge: number): ValidatorFn {
 
 @Component({
   selector: 'app-register-form',
-  imports: [ReactiveFormsModule, InputTextModule, InputGroupModule, InputGroupAddonModule, ButtonModule, ToggleSwitchModule, TextareaModule, SelectModule, StepperModule, CommonModule, MessageModule, DatePickerModule, Map],
+  imports: [ReactiveFormsModule, InputTextModule, InputGroupModule, InputGroupAddonModule, ButtonModule, ToggleSwitchModule, TextareaModule, SelectModule, StepperModule, CommonModule, MessageModule, DatePickerModule, Map, AutoFocusModule],
   templateUrl: './register-form.html',
   styles: `
  	.register-btn {

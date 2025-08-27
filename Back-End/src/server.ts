@@ -8,6 +8,7 @@ import { env } from "@config/env";
 import authRoutes from "@routes/auth.routes";
 import { jwtMiddleware } from "@middleware/jwt.middleware";
 import type { User } from "@models/user.entity";
+import { pool } from "./database";
 
 const logger = pino({ name: "matcha-server" });
 const app: Express = express();
@@ -32,6 +33,15 @@ app.use(
 );
 app.use(helmet());
 
+pool.connect((err, client, release) => {
+  if (err) {
+    logger.error("Database connection failed:", err);
+    process.exit(1);  // Exit if DB is not connected
+  } else {
+    logger.info("Database connected successfully");
+    release();  // Release the client back to the pool
+  }
+});
 // Swagger Configuration
 const swaggerOptions = {
 	definition: {
