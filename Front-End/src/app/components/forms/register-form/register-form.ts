@@ -23,6 +23,8 @@ import { DatePickerModule } from 'primeng/datepicker';
 
 type RegisterRequest = components['schemas']['RegisterRequest'];
 type RegisterResponse = components['schemas']['RegisterResponse'];
+type SexualOrientation = RegisterRequest['sexual_orientation'];
+type Gender = RegisterRequest['gender'];
 
 function adultValidator(minAge: number): ValidatorFn {
   return (control: AbstractControl | null) => {
@@ -145,10 +147,26 @@ export class RegisterForm {
 
   onSubmit() {
     if (this.registerForm.valid) {
-      const credentials = this.registerForm.value as RegisterRequest;
-      console.log('Form submitted with:', credentials);
+      const raw = this.registerForm.value;
+      const birth_date: string = raw.birth_date
+        ? raw.birth_date.toISOString().split('T')[0]
+        : '';
 
-      this.auth.request(credentials, this.httpEndpoint, this.httpMethod).subscribe({
+      const payload: RegisterRequest = {
+        username: raw.username!,
+        email: raw.email!,
+        password: raw.password!,
+        first_name: raw.first_name!,
+        last_name: raw.last_name!,
+        birth_date,
+        bio: raw.bio || undefined,
+        location: { lat: raw.location!.lat!, lng: raw.location!.lng! },
+        location_manual: raw.location_manual!,
+        sexual_orientation: raw.sexual_orientation as RegisterRequest['sexual_orientation'],
+        gender: raw.gender as RegisterRequest['gender']
+      };
+
+      this.auth.request(payload, this.httpEndpoint, this.httpMethod).subscribe({
         next: (response : RegisterResponse) => {
           console.log('Register success:', response);
         },
@@ -173,12 +191,12 @@ export class RegisterForm {
   auth = inject(HttpRequestService);
   geo = inject(Geolocation);
 
-  orientationOptions = [
+  orientationOptions: { label: string; value: SexualOrientation }[] = [
     { label: 'Heterosexual', value: 'heterosexual' },
     { label: 'Homosexual', value: 'homosexual' },
     { label: 'Bisexual', value: 'bisexual' }
   ];
-  genderOptions = [
+  genderOptions: { label: string; value: Gender }[] = [
     { label: 'Male', value: 'male' },
     { label: 'Female', value: 'female' },
     { label: 'Other', value: 'other' }
