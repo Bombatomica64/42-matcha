@@ -1,7 +1,9 @@
-import { Component, inject } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { HttpEndpoint, HttpMethod, HttpRequestService } from '../../../services/http-request';
+import { Geolocation } from '../../../services/geolocation';
 import { components } from '../../../../types/api'; // Adjust the path as necessary
+import { Component, inject, AfterViewInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Map } from '../../map/map';
 
 import { InputTextModule } from 'primeng/inputtext';
 import { InputGroupModule } from 'primeng/inputgroup';
@@ -22,22 +24,27 @@ import { DatePickerModule } from 'primeng/datepicker';
 type RegisterRequest = components['schemas']['RegisterRequest'];
 type RegisterResponse = components['schemas']['RegisterResponse'];
 
-//function minAgeDateValidator(min: number): ValidatorFn {
-//  return (control: AbstractControl) => {
-//    const v = control.value;
-//    if (!v) return { required: true };
-//    if (!(v instanceof Date)) return { invalidDate: true };
-//    const today = new Date();
-//    let age = today.getFullYear() - v.getFullYear();
-//    const m = today.getMonth() - v.getMonth();
-//    if (m < 0 || (m === 0 && today.getDate() < v.getDate())) age--;
-//    return age >= min ? null : { minAge: { required: min, actual: age } };
-//  };
-//}
+function adultValidator(minAge: number): ValidatorFn {
+  return (control: AbstractControl | null) => {
+    const v = control?.value;
+    if (!v) return { required: true };
+    const date = v instanceof Date ? v : new Date(v);
+    if (isNaN(date.getTime())) return { invalidDate: true };
+
+    const today = new Date();
+    let age = today.getFullYear() - date.getFullYear();
+    const m = today.getMonth() - date.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < date.getDate())) {
+      age--;
+    }
+
+    return age >= minAge ? null : { underage: { requiredAge: minAge, actualAge: age } };
+  };
+}
 
 @Component({
   selector: 'app-register-form',
-  imports: [ReactiveFormsModule, InputTextModule, InputGroupModule, InputGroupAddonModule, ButtonModule, ToggleSwitchModule, TextareaModule, SelectModule, StepperModule, CommonModule, MessageModule, DatePickerModule],
+  imports: [ReactiveFormsModule, InputTextModule, InputGroupModule, InputGroupAddonModule, ButtonModule, ToggleSwitchModule, TextareaModule, SelectModule, StepperModule, CommonModule, MessageModule, DatePickerModule, Map],
   templateUrl: './register-form.html',
   styles: `
  	.register-btn {
@@ -66,9 +73,37 @@ type RegisterResponse = components['schemas']['RegisterResponse'];
 	  overflow-y: auto;
 	  height: 300px;
 	}
+  .location {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: nowrap;
+  }
+
+  .location > legend {
+    margin: 0;
+    padding-right: 0.5rem;
+    flex: 0 0 auto;
+  }
+
+  .location .location-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex: 1 1 auto;
+  }
+
+  .location .manual-location {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
   `
 })
 export class RegisterForm {
+  // add activeStep used by the template's p-stepper
+  activeStep = 1;
+
   httpEndpoint: HttpEndpoint = "/auth/register"
   httpMethod: HttpMethod = "POST"
 
@@ -78,7 +113,7 @@ export class RegisterForm {
     password: new FormControl('', {nonNullable: true, validators: [Validators.required, Validators.minLength(6)]}),
     first_name: new FormControl('', {nonNullable: true, validators: [Validators.required]}),
     last_name: new FormControl('', {nonNullable: true, validators: [Validators.required]}),
-    age: new FormControl<number | null>(null, {nonNullable: true, validators: [Validators.required, Validators.min(18)]}),
+    birth_date: new FormControl<Date | null>(null, {nonNullable: true, validators: [Validators.required, adultValidator(18)]}),
     bio: new FormControl('', {nonNullable: true}),
 
     location: new FormGroup({
@@ -90,6 +125,23 @@ export class RegisterForm {
     sexual_orientation: new FormControl<'heterosexual' | 'homosexual' | 'bisexual' | ''>('', {nonNullable: true, validators: [Validators.required]}),
     gender: new FormControl<'male' | 'female' | 'other' | ''>('', {nonNullable: true, validators: [Validators.required]})
   });
+
+  // inject ChangeDetectorRef to stabilize change detection after async updates
+  cdr = inject(ChangeDetectorRef);
+
+  getMyLocation() {
+    this.geo.getLocation().then(loc => {
+      const lat = loc.location.latitude;
+      const lng = loc.location.longitude;
+      // defer patch to next macrotask to avoid ExpressionChangedAfterItHasBeenCheckedError
+      setTimeout(() => {
+        this.registerForm.get('location')?.patchValue({ lat, lng });
+        this.cdr.detectChanges();
+      }, 0);
+    }).catch(error => {
+      console.error('Error getting location:', error);
+    });
+  }
 
   onSubmit() {
     if (this.registerForm.valid) {
@@ -109,9 +161,17 @@ export class RegisterForm {
     }
   }
 
-  auth = inject(HttpRequestService)
+  // Patch location when Map component emits a new position
+  onLocationChange(ev: { lat: number; lng: number }) {
+    // defer UI/model update to next macrotask (map may emit during component init)
+    setTimeout(() => {
+      this.registerForm.get('location')?.patchValue({ lat: ev.lat, lng: ev.lng });
+      this.cdr.detectChanges();
+    }, 0);
+  }
 
-  activeStep: number = 1;
+  auth = inject(HttpRequestService);
+  geo = inject(Geolocation);
 
   orientationOptions = [
     { label: 'Heterosexual', value: 'heterosexual' },

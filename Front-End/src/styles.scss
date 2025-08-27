@@ -3,6 +3,15 @@
 @tailwind components;
 @tailwind utilities;
 @import "primeicons/primeicons.css";
+@import "leaflet/dist/leaflet.css";
+
+//@use
+
+.leaflet-map {
+  width: 100%;
+  height: 300px;
+  display: block;
+}
 
 /* Assicura il 100% verticale */
 html, body {
