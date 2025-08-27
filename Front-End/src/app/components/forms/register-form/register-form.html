@@ -148,6 +148,7 @@ registerForm.controls.gender;
                     formControlName="username"
                     placeholder="Username"
                     aria-label="Username"
+                    [pAutoFocus]="true"
                   />
                 </p-inputgroup>
                 @if (usernameCtrl.touched && usernameCtrl.invalid) {
@@ -233,6 +234,7 @@ registerForm.controls.gender;
                     formControlName="first_name"
                     placeholder="First Name"
                     aria-label="First Name"
+                    [pAutoFocus]="true"
                   />
                 </p-inputgroup>
                 @if (firstNameCtrl.touched && firstNameCtrl.invalid) {
@@ -347,6 +349,7 @@ registerForm.controls.gender;
                     aria-label="Bio"
                     rows="3"
                     style="width: 100%; resize: vertical"
+                    [pAutoFocus]="true"
                   ></textarea>
                 </p-inputgroup>
               </div>
