@@ -119,9 +119,10 @@ components:
       $ref: './schemas/auth.yaml#/components/schemas/LogoutResponse'
 
     # Reference user schemas
-    userProfileResponse:
-      $ref: './schemas/user.yaml#/components/schemas/UserProfileResponse'
-
+    user:
+      $ref: './schemas/user.yaml#/components/schemas/User'
+    userProfilePatchRequest:
+      $ref: './schemas/user.yaml#/components/schemas/UserProfilePatchRequest'
     # Reference photo schemas
     photo:
       $ref: './schemas/photos.yaml#/components/schemas/Photo'
@@ -133,7 +134,7 @@ components:
       $ref: './schemas/photos.yaml#/components/schemas/PhotoListResponse'
 
   securitySchemes:
-    BearerAuth:
+    bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT

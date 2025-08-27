@@ -35,19 +35,6 @@ components:
         - is_main
         - uploaded_at
 
-    PhotoUploadRequest:
-      type: object
-      properties:
-        photo:
-          type: string
-          format: binary
-          description: "Photo file (JPEG, PNG, WebP)"
-        is_main:
-          type: boolean
-          default: false
-          description: "Set as main profile photo"
-      required:
-        - photo
 
     PhotoResponse:
       allOf:
@@ -69,3 +56,16 @@ components:
         total:
           type: integer
           example: 3
+    PhotoUploadRequest:
+      type: object
+      properties:
+        photo:
+          type: string
+          format: binary
+          description: "Photo file (JPEG, PNG, WebP)"
+        is_main:
+          type: boolean
+          default: false
+          description: "Set as main profile photo"
+      required:
+        - photo

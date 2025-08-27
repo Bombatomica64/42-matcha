@@ -64,7 +64,7 @@ paths:
       tags:
         - Authentication
       security: 
-        - BearerAuth: []
+        - bearerAuth: []
       responses:
         '200':
           description: User logged out successfully
@@ -85,7 +85,7 @@ paths:
       tags:
         - Authentication
       security:
-        - BearerAuth: []
+        - bearerAuth: []
       parameters:
         - name: token
           in: query

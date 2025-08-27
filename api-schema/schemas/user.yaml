@@ -12,14 +12,14 @@ paths:
         - User
       operationId: getUserProfile
       security:
-        - BearerAuth: []
+        - bearerAuth: []
       responses:
         '200':
           description: User profile retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#components/schemas/User'
+                $ref: '#/components/schemas/User'
         '404':
           description: User not found
           content:
@@ -38,7 +38,7 @@ paths:
         - User
       operationId: updateUserProfile
       security:
-        - BearerAuth: []
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -51,7 +51,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#components/schemas/User'
+                $ref: '#/components/schemas/User'
         '404':
           description: User not found
           content:
@@ -70,20 +70,20 @@ paths:
         - User
       operationId: patchUserProfile
       security:
-        - BearerAuth: []
+        - bearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#components/schemas/UserProfilePatchRequest'
+              $ref: '#/components/schemas/UserProfilePatchRequest'
       responses:
         '200':
           description: User profile partially updated successfully
           content:
             application/json:
               schema:
-                $ref: '#components/schemas/User'
+                $ref: '#/components/schemas/User'
         '404':
           description: User not found
           content:
@@ -103,7 +103,7 @@ paths:
         - User
       operationId: getUserById
       security:
-        - BearerAuth: []
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -119,7 +119,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#components/schemas/User'
+                $ref: '#/components/schemas/User'
         '404':
           description: User not found
           content:
@@ -140,7 +140,7 @@ paths:
         - Photos
       operationId: getUserPhotos
       security:
-        - BearerAuth: []
+        - bearerAuth: []
       responses:
         '200':
           description: User photos retrieved successfully
@@ -161,9 +161,13 @@ paths:
         - Photos
       operationId: uploadUserPhoto
       security:
-        - BearerAuth: []
+        - bearerAuth: []
       requestBody:
-        $ref: './photos.yaml#/components/schemas/PhotoUploadRequest'
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: './photos.yaml#/components/schemas/PhotoUploadRequest'
       responses:
         '201':
           description: Photo uploaded successfully
@@ -191,7 +195,7 @@ paths:
         - Photos
       operationId: getUserPhotoById
       security:
-        - BearerAuth: []
+        - bearerAuth: []
       parameters:
       - name: photoId
         in: path
@@ -235,7 +239,7 @@ paths:
         - Photos
       operationId: deleteUserPhoto
       security:
-        - BearerAuth: []
+        - bearerAuth: []
       parameters:
         - name: photoId
           in: path
@@ -278,7 +282,7 @@ paths:
         - Photos
       operationId: setMainPhoto
       security:
-        - BearerAuth: []
+        - bearerAuth: []
       parameters:
         - name: photoId
           in: path
@@ -323,7 +327,7 @@ paths:
         - Match
       operationId: likeUser
       security:
-        - BearerAuth: []
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -370,7 +374,7 @@ paths:
         - Match
       operationId: getUserLikes
       security:
-        - BearerAuth: []
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -417,7 +421,7 @@ paths:
         - User
       operationId: getBlockedUsers
       security:
-        - BearerAuth: []
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -479,7 +483,7 @@ paths:
         - User
       operationId: blockUser
       security:
-        - BearerAuth: []
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -519,7 +523,7 @@ paths:
         - User
       operationId: unblockUser
       security:
-        - BearerAuth: []
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -561,7 +565,7 @@ paths:
         - User
       operationId: userMatches
       security:
-        - BearerAuth: []
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -607,7 +611,7 @@ paths:
         - User
       operationId: searchUsers
       security:
-        - BearerAuth: []
+        - bearerAuth: []
       parameters:
         - name: query
           in: query
@@ -711,7 +715,7 @@ paths:
         - Discovery
       operationId: discoverUsers
       security:
-        - BearerAuth: []
+        - bearerAuth: []
       parameters:
         - name: limit
           in: query
