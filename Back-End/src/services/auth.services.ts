@@ -3,6 +3,7 @@ import { pool } from "../database";
 import type { RegisterUserData, User } from "@models/user.entity";
 import { UserRepository } from "@repositories/user.repository";
 import { hashPassword, comparePassword } from "@utils/hash";
+import { generateTokenPair, refreshAccessToken, verifyJwt } from "@utils/jwt";
 // TODO: Add JWT utilities when implementing authentication
 // import { generateToken } from "../utils/jwt";
 
@@ -40,13 +41,14 @@ export class AuthService {
 			password: hashedPassword,
 			hashtags: [], // Initialize with empty hashtags array
 			location_manual: userData.location_manual ?? false,
-			email_verification_token: emailService.generateVerificationToken()
+			email_verification_token: emailService.generateVerificationToken() || "00000000-0000-0000-0000-000000000000",
+			photos: [],
 		};
 
 		// Create user
 		const newUser = await this.userRepository.createUser(userDataWithHashedPassword);
 
-		emailService.sendVerificationEmail(newUser.email, newUser.email_verification_token);
+		emailService.sendVerificationEmail(newUser.email, newUser?.email_verification_token || "00000000-0000-0000-0000-000000000000");
 		// Return user without password
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const { password: _, ...userWithoutPassword } = newUser;
@@ -59,7 +61,7 @@ export class AuthService {
 	async loginUser(
 		emailOrUsername: string,
 		password: string
-	): Promise<{ user: Partial<User>; token: string } | null> {
+	): Promise<{ user: Partial<User>; accessToken: string; refreshToken: string } | null> {
 		// Find user by email or username
 		const user = await this.userRepository.findByEmailOrUsername(emailOrUsername);
 		if (!user) {
@@ -79,9 +81,13 @@ export class AuthService {
 
 		// Update user's online status and last seen
 		await this.userRepository.updateOnlineStatus(user.id, true);
-
-		// TODO: Generate JWT token
-		const token = "temporary-token"; // Replace with actual JWT generation
+		
+		// Generate JWT token pair
+		const { accessToken, refreshToken } = generateTokenPair({ 
+			id: user.id, 
+			username: user.username,
+			location: user.location 
+		});
 
 		// Return user WITHOUT password hash
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -89,7 +95,8 @@ export class AuthService {
 		
 		return {
 			user: userWithoutPassword,
-			token
+			accessToken,
+			refreshToken
 		};
 	}
 
@@ -172,6 +179,31 @@ export class AuthService {
 		} as Partial<User>);
 
 		return true;
+	}
+
+	/**
+	 * Refresh access token using refresh token
+	 */
+	async refreshToken(refreshToken: string): Promise<{ accessToken: string } | null> {
+		// Verify and decode refresh token
+		const payload = verifyJwt(refreshToken);
+		if (!payload || payload.type !== 'refresh') {
+			return null; // Invalid refresh token
+		}
+
+		// Check if user still exists and is active
+		const user = await this.userRepository.findById(payload.userId);
+		if (!user || !user.activated) {
+			return null; // User not found or deactivated
+		}
+
+		// Generate new access token
+		const newAccessToken = refreshAccessToken(refreshToken);
+		if (!newAccessToken) {
+			return null; // Failed to generate new token
+		}
+
+		return { accessToken: newAccessToken };
 	}
 
 	/**
