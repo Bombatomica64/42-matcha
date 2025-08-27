@@ -44,7 +44,7 @@ export class UserRepository extends BaseRepository<User> {
 			WHERE u.id = $1
 			GROUP BY u.id
 		`;
-		
+
 		const result = await this.pool.query(query, [id]);
 		return result.rows[0] || null;
 	}
@@ -93,7 +93,7 @@ export class UserRepository extends BaseRepository<User> {
 			WHERE u.email = $1
 			GROUP BY u.id
 		`;
-		
+
 		const result = await this.pool.query(query, [email]);
 		return result.rows[0] || null;
 	}
@@ -135,7 +135,7 @@ export class UserRepository extends BaseRepository<User> {
 			WHERE u.username = $1
 			GROUP BY u.id
 		`;
-		
+
 		const result = await this.pool.query(query, [username]);
 		return result.rows[0] || null;
 	}
@@ -167,6 +167,18 @@ export class UserRepository extends BaseRepository<User> {
 			location_manual: userData.location_manual ?? false,
 		};
 
+		if (
+			userData.location &&
+			typeof userData.location === "object" &&
+			"coordinates" in userData.location &&
+			Array.isArray((userData.location as any).coordinates)
+		) {
+			const coords = (userData.location as { coordinates: [number, number] })
+				.coordinates;
+			userWithDefaults.location = `POINT(${coords[0]} ${coords[1]})`;
+		} else {
+			userWithDefaults.location = "POINT(0 0)"; // Set to default location
+		}
 		return this.create(userWithDefaults);
 	}
 
@@ -305,7 +317,7 @@ export class UserRepository extends BaseRepository<User> {
 			LEFT JOIN user_photos p ON u.id = p.user_uuid
 			WHERE u.activated = true
 		`;
-		
+
 		const params: unknown[] = [];
 		const countParams: unknown[] = [];
 		let paramIndex = 1;
@@ -319,7 +331,7 @@ export class UserRepository extends BaseRepository<User> {
 				u.bio ILIKE $${paramIndex}
 			)`;
 			const searchValue = `%${criteria.query}%`;
-			
+
 			dataQuery += searchCondition;
 			countQuery += searchCondition;
 			params.push(searchValue);
@@ -396,7 +408,9 @@ export class UserRepository extends BaseRepository<User> {
 		const totalPages = Math.ceil(totalResults / perPage);
 
 		// Add GROUP BY and pagination to main query
-		dataQuery += ` GROUP BY u.id ORDER BY u.created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+		dataQuery += ` GROUP BY u.id ORDER BY u.created_at DESC LIMIT $${paramIndex} OFFSET $${
+			paramIndex + 1
+		}`;
 		params.push(perPage, offset);
 
 		const result = await this.pool.query(dataQuery, params);
@@ -406,21 +420,28 @@ export class UserRepository extends BaseRepository<User> {
 			const queryParts: string[] = [];
 			queryParts.push(`page=${pageNum}`);
 			queryParts.push(`per_page=${perPage}`);
-			
-			if (criteria.query) queryParts.push(`query=${encodeURIComponent(criteria.query)}`);
-			if (criteria.ageMin !== undefined) queryParts.push(`age_min=${criteria.ageMin}`);
-			if (criteria.ageMax !== undefined) queryParts.push(`age_max=${criteria.ageMax}`);
+
+			if (criteria.query)
+				queryParts.push(`query=${encodeURIComponent(criteria.query)}`);
+			if (criteria.ageMin !== undefined)
+				queryParts.push(`age_min=${criteria.ageMin}`);
+			if (criteria.ageMax !== undefined)
+				queryParts.push(`age_max=${criteria.ageMax}`);
 			if (criteria.gender) queryParts.push(`gender=${criteria.gender}`);
-			if (criteria.sexualOrientation) queryParts.push(`sexual_orientation=${criteria.sexualOrientation}`);
+			if (criteria.sexualOrientation)
+				queryParts.push(`sexual_orientation=${criteria.sexualOrientation}`);
 			if (criteria.location) {
-				queryParts.push(`location=${criteria.location.lat},${criteria.location.lng}`);
-				if (criteria.location.radius) queryParts.push(`radius=${criteria.location.radius}`);
+				queryParts.push(
+					`location=${criteria.location.lat},${criteria.location.lng}`
+				);
+				if (criteria.location.radius)
+					queryParts.push(`radius=${criteria.location.radius}`);
 			}
 			if (criteria.interests && criteria.interests.length > 0) {
-				queryParts.push(`interests=${criteria.interests.join(',')}`);
+				queryParts.push(`interests=${criteria.interests.join(",")}`);
 			}
-			
-			return `/api/user/search?${queryParts.join('&')}`;
+
+			return `/api/user/search?${queryParts.join("&")}`;
 		};
 
 		return {

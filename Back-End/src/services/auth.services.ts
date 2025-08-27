@@ -39,10 +39,8 @@ export class AuthService {
 		const userDataWithHashedPassword = {
 			...userData,
 			password: hashedPassword,
-			hashtags: [], // Initialize with empty hashtags array
 			location_manual: userData.location_manual ?? false,
 			email_verification_token: emailService.generateVerificationToken() || "00000000-0000-0000-0000-000000000000",
-			photos: [],
 		};
 
 		// Create user
@@ -86,7 +84,6 @@ export class AuthService {
 		const { accessToken, refreshToken } = generateTokenPair({ 
 			id: user.id, 
 			username: user.username,
-			location: user.location 
 		});
 
 		// Return user WITHOUT password hash

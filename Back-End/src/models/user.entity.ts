@@ -16,7 +16,7 @@ export interface User {
   location?: {
     type: 'Point';
     coordinates: [number, number]; // [longitude, latitude]
-  };
+  } | string;
   location_manual: boolean;
   fame_rating: number;
   profile_complete: boolean;
@@ -26,8 +26,8 @@ export interface User {
   email_verified_at?: Date;
   password_reset_token?: string;
   password_reset_expires_at?: Date;
-  hashtags: string[];
-  photos: Photo[];
+  hashtags?: string[];
+  photos?: Photo[];
   created_at: Date;
   updated_at: Date;
   // Computed/aggregated fields from database counters

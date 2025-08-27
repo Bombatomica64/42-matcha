@@ -16,4 +16,9 @@ export class HttpRequestService {
   request(credentials: any, httpEndpoint: HttpEndpoint, httpMethod: HttpMethod): Observable<any> {
     return this.http.request(httpMethod, `${this.baseUrl}${httpEndpoint}`, { body: credentials });
   }
+
+  //no body
+  requestParams(queryParams: any, httpEndpoint: HttpEndpoint, httpMethod: HttpMethod): Observable<any> {
+    return this.http.request(httpMethod, `${this.baseUrl}${httpEndpoint}`, { params: queryParams });
+  }
 }
