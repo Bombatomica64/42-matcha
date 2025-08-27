@@ -4,8 +4,7 @@ import type { RegisterUserData, User } from "@models/user.entity";
 import { UserRepository } from "@repositories/user.repository";
 import { hashPassword, comparePassword } from "@utils/hash";
 import { generateTokenPair, refreshAccessToken, verifyJwt } from "@utils/jwt";
-// TODO: Add JWT utilities when implementing authentication
-// import { generateToken } from "../utils/jwt";
+
 
 export class AuthService {
 	private userRepository: UserRepository;

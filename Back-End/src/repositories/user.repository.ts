@@ -235,19 +235,22 @@ export class UserRepository extends BaseRepository<User> {
 	}
 
 	/**
-	 * Search users by criteria with pagination
+	 * Search users by criteria with pagination (excludes blocked users)
 	 */
-	async searchUsers(criteria: {
-		ageMin?: number;
-		ageMax?: number;
-		gender?: string;
-		sexualOrientation?: string;
-		location?: { lat: number; lng: number; radius?: number };
-		query?: string;
-		interests?: string[];
-		page?: number;
-		perPage?: number;
-	}): Promise<{
+	async searchUsers(
+		currentUserId: string,
+		criteria: {
+			ageMin?: number;
+			ageMax?: number;
+			gender?: string;
+			sexualOrientation?: string;
+			location?: { lat: number; lng: number; radius?: number };
+			query?: string;
+			interests?: string[];
+			page?: number;
+			perPage?: number;
+		}
+	): Promise<{
 		total_results: number;
 		total_pages: number;
 		current_page: number;
@@ -270,6 +273,15 @@ export class UserRepository extends BaseRepository<User> {
 			LEFT JOIN user_hashtags uh ON u.id = uh.user_id
 			LEFT JOIN hashtags h ON uh.hashtag_id = h.id
 			WHERE u.activated = true
+			AND u.id != $1
+			AND NOT EXISTS (
+				SELECT 1 FROM user_blocks ub1 
+				WHERE ub1.blocker_id = $1 AND ub1.blocked_id = u.id
+			)
+			AND NOT EXISTS (
+				SELECT 1 FROM user_blocks ub2 
+				WHERE ub2.blocker_id = u.id AND ub2.blocked_id = $1
+			)
 		`;
 
 		// Base query for fetching users with details
@@ -304,11 +316,20 @@ export class UserRepository extends BaseRepository<User> {
 			LEFT JOIN hashtags h ON uh.hashtag_id = h.id
 			LEFT JOIN user_photos p ON u.id = p.user_uuid
 			WHERE u.activated = true
+			AND u.id != $1
+			AND NOT EXISTS (
+				SELECT 1 FROM user_blocks ub1 
+				WHERE ub1.blocker_id = $1 AND ub1.blocked_id = u.id
+			)
+			AND NOT EXISTS (
+				SELECT 1 FROM user_blocks ub2 
+				WHERE ub2.blocker_id = u.id AND ub2.blocked_id = $1
+			)
 		`;
 		
-		const params: unknown[] = [];
-		const countParams: unknown[] = [];
-		let paramIndex = 1;
+		const params: unknown[] = [currentUserId];
+		const countParams: unknown[] = [currentUserId];
+		let paramIndex = 2; // Start at 2 since $1 is currentUserId
 
 		// Add search filters
 		if (criteria.query) {

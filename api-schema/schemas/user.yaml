@@ -337,6 +337,18 @@ paths:
             type: string
             format: uuid
             description: The unique identifier of the user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                like:
+                  type: boolean
+                  description: Whether to like or dislike the user
+              required:
+                - like
       responses:
         '201':
           description: User liked successfully
@@ -412,6 +424,59 @@ paths:
               example:
                 error: "Unauthorized"
                 message: "You must be logged in to like a user"
+                code: "UNAUTHORIZED"
+    delete:
+      summary: Remove like/Dislike
+      description: Remove a like/dislike from a user profile.
+      tags:
+        - User
+        - Match
+      operationId: removeUserLike
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the user to remove like/dislike for
+          schema:
+            type: string
+            format: uuid
+            description: The unique identifier of the user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                like:
+                  type: boolean
+                  description: Whether to like or dislike the user
+              required:
+                - like
+      responses:
+        '204':
+          description: Like/Dislike removed successfully
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Not Found"
+                message: "User not found"
+                code: "USER_NOT_FOUND"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Unauthorized"
+                message: "You must be logged in to remove a like/dislike"
                 code: "UNAUTHORIZED"
   blockUser:
     get:
