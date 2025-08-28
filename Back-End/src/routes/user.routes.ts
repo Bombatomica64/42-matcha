@@ -43,6 +43,8 @@ const userRoutes = (): Router => {
 	// Legacy matches endpoint (privacy protected)
 	router.get("/:id/matches", userController.getUserMatches.bind(userController));
 
+	//Algo TODO
+	router.get("/discover", userController.getDiscoverableUsers.bind(userController));
 	return router;
 };
 

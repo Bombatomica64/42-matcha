@@ -1011,12 +1011,13 @@ paths:
         - Considers user preferences (age, location, orientation)
         - Excludes blocked users and users who blocked you
         - Uses fame rating and compatibility scoring
-        - Never shows the same user twice in a session
+        - Geographic distance-based scoring with PostGIS
+        - Common hashtag/interest matching
         
         **Pagination Strategy:**
-        - Small batches (10-20 users) for better user experience
-        - Algorithm runs on each request with exclusion filters
-        - Client should request new batch when running low
+        - Uses limit/offset pagination for consistent results
+        - Algorithm applies scoring and filtering on each request
+        - Client can request specific batches with offset
       tags:
         - User
         - Discovery
@@ -1032,34 +1033,118 @@ paths:
             minimum: 5
             maximum: 50
             default: 20
-        - name: refresh
+        - name: offset
           in: query
-          description: Force refresh algorithm (ignore recent cache)
+          description: Number of users to skip for pagination
           schema:
-            type: boolean
-            default: false
+            type: integer
+            minimum: 0
+            default: 0
         - name: maxDistance
           in: query
-          description: Override max distance preference (km)
+          description: Maximum distance in kilometers
           schema:
             type: integer
             minimum: 1
-            maximum: 100
-        - name: seed
+            maximum: 1000
+            default: 50
+        - name: ageMin
           in: query
-          description: Algorithm seed for consistent ordering in session
+          description: Minimum age filter
           schema:
-            type: string
-            example: "session_abc123"
+            type: integer
+            minimum: 18
+            maximum: 100
+            default: 18
+        - name: ageMax
+          in: query
+          description: Maximum age filter
+          schema:
+            type: integer
+            minimum: 18
+            maximum: 100
+            default: 100
+        - name: minFameRating
+          in: query
+          description: Minimum fame rating filter
+          schema:
+            type: number
+            format: float
+            minimum: 0
+            maximum: 5
+            default: 0
       responses:
         '200':
           description: Potential matches retrieved successfully
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Discoverable users retrieved successfully"
+                  data:
+                    type: object
+                    properties:
+                      users:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/User'
+                        description: "Array of discoverable users"
+                      total:
+                        type: integer
+                        description: "Total number of potential matches"
+                        example: 142
+                      hasMore:
+                        type: boolean
+                        description: "Whether there are more users to discover"
+                        example: true
+                      pagination:
+                        type: object
+                        description: "Pagination metadata"
+                        properties:
+                          limit:
+                            type: integer
+                            example: 20
+                          offset:
+                            type: integer
+                            example: 0
+                          currentPage:
+                            type: integer
+                            example: 1
+                          totalPages:
+                            type: integer
+                            example: 8
+                          nextOffset:
+                            type: [integer, "null"]
+                            example: 20
+                          prevOffset:
+                            type: [integer, "null"]
+                            example: null
+                      filters:
+                        type: object
+                        description: "Applied filters for the request"
+                        properties:
+                          maxDistance:
+                            type: integer
+                            example: 50
+                          ageRange:
+                            type: object
+                            properties:
+                              min:
+                                type: integer
+                                example: 18
+                              max:
+                                type: integer
+                                example: 100
+                          minFameRating:
+                            type: number
+                            format: float
+                            example: 0
+                required:
+                  - message
+                  - data
         '204':
           description: No more users to discover
           content:
@@ -1078,6 +1163,12 @@ paths:
                       - "Try expanding your distance preferences"
                       - "Consider adjusting your age range"
                       - "Add more interests to your profile"
+        '400':
+          description: Bad request - invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:

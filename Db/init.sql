@@ -41,12 +41,12 @@ CREATE INDEX idx_users_matches ON users(matches_count);
 -- Create photos table for local storage
 CREATE TABLE IF NOT EXISTS user_photos (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        user_uuid UUID REFERENCES users(id) ON DELETE CASCADE,
+        user_id UUID REFERENCES users(id) ON DELETE CASCADE,
         filename VARCHAR(255) NOT NULL, -- e.g., "photo_1.jpg"
         original_filename VARCHAR(255), -- User's original filename
         file_path VARCHAR(500) NOT NULL, -- e.g., "uploads/users/{id}/photo_1.jpg"
         file_size INTEGER,
-        mime_type VARCHAR(50),
+        mime_type VARCHAR(50) NOT NULL CHECK (mime_type IN ('image/jpeg', 'image/png', 'image/gif')),
         is_primary BOOLEAN DEFAULT FALSE,
         display_order INTEGER DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -54,17 +54,17 @@ CREATE TABLE IF NOT EXISTS user_photos (
 
 -- Ensure only one primary photo per user
 CREATE UNIQUE INDEX idx_one_primary_photo_per_user 
-ON user_photos (user_uuid)
+ON user_photos (user_id)
 WHERE is_primary = true;
 
 -- Index for efficient queries
-CREATE INDEX idx_user_photos_user_uuid ON user_photos(user_uuid);
+CREATE INDEX idx_user_photos_user_id ON user_photos(user_id);
 
 -- Constraint: Max 5 photos per user (as per your specs)
 CREATE OR REPLACE FUNCTION check_photo_limit()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF (SELECT COUNT(*) FROM user_photos WHERE user_uuid = NEW.user_uuid) >= 5 THEN
+    IF (SELECT COUNT(*) FROM user_photos WHERE user_id = NEW.user_id) >= 5 THEN
         RAISE EXCEPTION 'User cannot have more than 5 photos';
     END IF;
     RETURN NEW;

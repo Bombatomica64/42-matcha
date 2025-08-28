@@ -39,10 +39,10 @@ export function dbUserToApiUser(dbUser: DbUser): ApiUser {
 		// Convert database photos to API photos
 		photos: dbUser.photos?.map((photo) => ({
 			id: photo.id,
-			user_id: photo.user_uuid,
-			image_url: photo.file_path,
-			is_main: photo.is_primary,
-			uploaded_at: photo.created_at.toISOString(),
+			user_id: photo.user_id,
+			image_url: photo.image_url,
+			is_main: photo.is_main,
+			uploaded_at: photo.uploaded_at,
 		})) as ApiPhoto[],
 		// Hashtags are already strings in DB
 		hashtags: dbUser.hashtags,
@@ -109,14 +109,14 @@ export function createMinimalUserResponse(dbUser: DbUser): Partial<ApiUser> {
 		online_status: dbUser.online_status,
 		// Include only primary photo for performance
 		photos: dbUser.photos
-			?.filter((photo) => photo.is_primary)
+			?.filter((photo) => photo.is_main)
 			.slice(0, 1)
 			.map((photo) => ({
 				id: photo.id,
-				user_id: photo.user_uuid,
-				image_url: photo.file_path,
+				user_id: photo.user_id,
+				image_url: photo.image_url,
 				is_main: true,
-				uploaded_at: photo.created_at.toISOString(),
+				uploaded_at: photo.uploaded_at,
 			})) as ApiPhoto[],
 		hashtags: dbUser.hashtags,
 	};

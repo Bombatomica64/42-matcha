@@ -688,4 +688,151 @@ export class UserController {
 			res.status(500).json(errorResponse);
 		}
 	}
+
+	/**
+	 * Get discoverable users based on compatibility algorithm
+	 */
+	public async getDiscoverableUsers(req: Request, res: Response): Promise<void> {
+		const currentUserId = res.locals?.user?.id;
+
+		if (!currentUserId) {
+			const errorResponse: ErrorResponse = {
+				error: "Unauthorized",
+				message: "Authentication required to discover users",
+				code: "AUTH_REQUIRED",
+			};
+			res.status(401).json(errorResponse);
+			return;
+		}
+
+		try {
+			// Parse query parameters
+			const maxDistance = req.query.maxDistance ? parseInt(req.query.maxDistance as string) : 10; //10 km default
+			const ageMin = req.query.ageMin
+				? parseInt(req.query.ageMin as string) < 18
+					? 18
+					: parseInt(req.query.ageMin as string)
+				: 18; //18 years default
+			const ageMax = req.query.ageMax
+				? parseInt(req.query.ageMax as string) > 100
+					? 100
+					: parseInt(req.query.ageMax as string)
+				: 100; //100 years default
+			const minFameRating = req.query.minFameRating
+				? parseFloat(req.query.minFameRating as string) < 0
+					? 0
+					: parseFloat(req.query.minFameRating as string)
+				: 0; //0 fame rating default
+			const limit = parseInt(req.query.limit as string) || 20;
+			const offset = parseInt(req.query.offset as string) || 0;
+
+			// Validate parameters
+			if (maxDistance !== undefined && (maxDistance < 1 || maxDistance > 1000)) {
+				const errorResponse: ErrorResponse = {
+					error: "Bad Request",
+					message: "Max distance must be between 1 and 1000 kilometers",
+					code: "VALIDATION_ERROR",
+				};
+				res.status(400).json(errorResponse);
+				return;
+			}
+
+			if (ageMin !== undefined && (ageMin < 18 || ageMin > 100)) {
+				const errorResponse: ErrorResponse = {
+					error: "Bad Request",
+					message: "Minimum age must be between 18 and 100",
+					code: "VALIDATION_ERROR",
+				};
+				res.status(400).json(errorResponse);
+				return;
+			}
+
+			if (ageMax !== undefined && (ageMax < 18 || ageMax > 100)) {
+				const errorResponse: ErrorResponse = {
+					error: "Bad Request",
+					message: "Maximum age must be between 18 and 100",
+					code: "VALIDATION_ERROR",
+				};
+				res.status(400).json(errorResponse);
+				return;
+			}
+
+			if (ageMin !== undefined && ageMax !== undefined && ageMin > ageMax) {
+				const errorResponse: ErrorResponse = {
+					error: "Bad Request",
+					message: "Minimum age cannot be greater than maximum age",
+					code: "VALIDATION_ERROR",
+				};
+				res.status(400).json(errorResponse);
+				return;
+			}
+
+			if (minFameRating !== undefined && (minFameRating < 0 || minFameRating > 5)) {
+				const errorResponse: ErrorResponse = {
+					error: "Bad Request",
+					message: "Minimum fame rating must be between 0 and 5",
+					code: "VALIDATION_ERROR",
+				};
+				res.status(400).json(errorResponse);
+				return;
+			}
+
+			const result = await this.userService.getDiscoverableUsers(currentUserId, {
+				maxDistance,
+				ageMin,
+				ageMax,
+				minFameRating,
+				limit,
+				offset,
+			});
+
+			// If no users found and this is the first page, return 204
+			if (result.users.length === 0 && offset === 0) {
+				const noUsersResponse = {
+					message: "No more potential matches available",
+					suggestions: [
+						"Try expanding your distance preferences",
+						"Consider adjusting your age range",
+						"Add more interests to your profile",
+					],
+				};
+				res.status(204).json(noUsersResponse);
+				return;
+			}
+
+			const successResponse: SuccessResponse = {
+				message: "Discoverable users retrieved successfully",
+				data: {
+					users: result.users,
+					total: result.total,
+					hasMore: result.hasMore,
+					pagination: {
+						limit,
+						offset,
+						currentPage: Math.floor(offset / limit) + 1,
+						totalPages: Math.ceil(result.total / limit),
+						nextOffset: result.hasMore ? offset + limit : null,
+						prevOffset: offset > 0 ? Math.max(0, offset - limit) : null,
+					},
+					filters: {
+						maxDistance: maxDistance || 50,
+						ageRange: {
+							min: ageMin || 18,
+							max: ageMax || 100,
+						},
+						minFameRating: minFameRating || 0,
+					},
+				},
+			};
+			res.status(200).json(successResponse);
+		} catch (error) {
+			logger.error(`Failed to get discoverable users for: ${currentUserId}`, error);
+			const errorResponse: ErrorResponse = {
+				error: "Internal Server Error",
+				message: "Failed to fetch discoverable users",
+				code: "SERVER_ERROR",
+			};
+			res.status(500).json(errorResponse);
+		}
+	}
 }

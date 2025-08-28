@@ -144,12 +144,13 @@ export interface paths {
 		 *     - Considers user preferences (age, location, orientation)
 		 *     - Excludes blocked users and users who blocked you
 		 *     - Uses fame rating and compatibility scoring
-		 *     - Never shows the same user twice in a session
+		 *     - Geographic distance-based scoring with PostGIS
+		 *     - Common hashtag/interest matching
 		 *
 		 *     **Pagination Strategy:**
-		 *     - Small batches (10-20 users) for better user experience
-		 *     - Algorithm runs on each request with exclusion filters
-		 *     - Client should request new batch when running low
+		 *     - Uses limit/offset pagination for consistent results
+		 *     - Algorithm applies scoring and filtering on each request
+		 *     - Client can request specific batches with offset
 		 *
 		 */
 		get: operations["discoverUsers"];
@@ -557,14 +558,44 @@ export interface components {
 			 */
 			user_id: string;
 			/**
+			 * @description Generated filename for storage
+			 * @example photo_1.jpg
+			 */
+			filename: string;
+			/**
+			 * @description Original filename uploaded by user
+			 * @example my_selfie.jpg
+			 */
+			original_filename?: string;
+			/**
 			 * Format: uri
+			 * @description Public URL to access the image
 			 * @example /uploads/photos/550e8400-e29b-41d4-a716-446655440000.jpg
 			 */
 			image_url: string;
-			/** @example false */
+			/**
+			 * @description File size in bytes
+			 * @example 2048576
+			 */
+			file_size?: number;
+			/**
+			 * @example image/jpeg
+			 * @enum {string}
+			 */
+			mime_type: "image/jpeg" | "image/png" | "image/gif" | "image/webp";
+			/**
+			 * @description Whether this is the user's main profile photo
+			 * @example false
+			 */
 			is_main: boolean;
 			/**
+			 * @description Order in which photos should be displayed
+			 * @example 1
+			 */
+			display_order: number;
+			/**
 			 * Format: date-time
+			 * @description When the photo was uploaded
 			 * @example 2024-01-15T10:30:00Z
 			 */
 			uploaded_at: string;
@@ -625,14 +656,18 @@ export interface components {
 			};
 		};
 		PhotoListResponse: {
-			photos?: components["schemas"]["Photo"][];
-			/** @example 3 */
-			total?: number;
+			/** @description User's photos ordered by display_order */
+			photos: components["schemas"]["Photo"][];
+			/**
+			 * @description Total number of photos for this user
+			 * @example 3
+			 */
+			total: number;
 		};
 		PhotoUploadRequest: {
 			/**
 			 * Format: binary
-			 * @description Photo file (JPEG, PNG, WebP)
+			 * @description Photo file (JPEG, PNG, WebP, GIF max 5MB)
 			 */
 			photo: string;
 			/**
@@ -640,10 +675,16 @@ export interface components {
 			 * @default false
 			 */
 			is_main: boolean;
+			/**
+			 * @description Display order (0 = first)
+			 * @default 0
+			 */
+			display_order: number;
 		};
-		PhotoResponse: components["schemas"]["Photo"] & {
+		PhotoResponse: {
 			/** @example Photo uploaded successfully */
-			message?: string;
+			message: string;
+			photo: components["schemas"]["Photo"];
 		};
 		"schemas-SuccessResponse": {
 			/** @example Operation completed successfully */
@@ -1007,12 +1048,16 @@ export interface operations {
 			query?: {
 				/** @description Number of users to return (recommended 10-20) */
 				limit?: number;
-				/** @description Force refresh algorithm (ignore recent cache) */
-				refresh?: boolean;
-				/** @description Override max distance preference (km) */
+				/** @description Number of users to skip for pagination */
+				offset?: number;
+				/** @description Maximum distance in kilometers */
 				maxDistance?: number;
-				/** @description Algorithm seed for consistent ordering in session */
-				seed?: string;
+				/** @description Minimum age filter */
+				ageMin?: number;
+				/** @description Maximum age filter */
+				ageMax?: number;
+				/** @description Minimum fame rating filter */
+				minFameRating?: number;
 			};
 			header?: never;
 			path?: never;
@@ -1026,7 +1071,55 @@ export interface operations {
 					[name: string]: unknown;
 				};
 				content: {
-					"application/json": components["schemas"]["User"][];
+					"application/json": {
+						/** @example Discoverable users retrieved successfully */
+						message: string;
+						data: {
+							/** @description Array of discoverable users */
+							users?: components["schemas"]["User"][];
+							/**
+							 * @description Total number of potential matches
+							 * @example 142
+							 */
+							total?: number;
+							/**
+							 * @description Whether there are more users to discover
+							 * @example true
+							 */
+							hasMore?: boolean;
+							/** @description Pagination metadata */
+							pagination?: {
+								/** @example 20 */
+								limit?: number;
+								/** @example 0 */
+								offset?: number;
+								/** @example 1 */
+								currentPage?: number;
+								/** @example 8 */
+								totalPages?: number;
+								/** @example 20 */
+								nextOffset?: number | null;
+								/** @example null */
+								prevOffset?: number | null;
+							};
+							/** @description Applied filters for the request */
+							filters?: {
+								/** @example 50 */
+								maxDistance?: number;
+								ageRange?: {
+									/** @example 18 */
+									min?: number;
+									/** @example 100 */
+									max?: number;
+								};
+								/**
+								 * Format: float
+								 * @example 0
+								 */
+								minFameRating?: number;
+							};
+						};
+					};
 				};
 			};
 			/** @description No more users to discover */
@@ -1045,6 +1138,15 @@ export interface operations {
 						 *     ] */
 						suggestions?: string[];
 					};
+				};
+			};
+			/** @description Bad request - invalid parameters */
+			400: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
 				};
 			};
 			/** @description Unauthorized */

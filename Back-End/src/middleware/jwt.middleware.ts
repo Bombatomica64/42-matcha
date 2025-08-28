@@ -1,7 +1,7 @@
+import { dbUserToApiUser } from "@mappers/user.mapper";
 import { UserRepository } from "@repositories/user.repository";
 import { decodeJwt } from "@utils/jwt";
 import type { NextFunction, Request, Response } from "express";
-import { dbUserToApiUser } from "src/mappers/user.mapper";
 import { pool } from "../database";
 import { logger } from "../server";
 

@@ -147,4 +147,61 @@ export class UserService {
 	public async getCurrentUserBlocks(userId: string, page = 1, limit = 20) {
 		return this.blockService.getCurrentUserBlocks(userId, page, limit);
 	}
+
+	/**
+	 * Discover compatible users based on various factors
+	 */
+	public async getDiscoverableUsers(
+		userId: string,
+		options: {
+			maxDistance?: number;
+			ageMin?: number;
+			ageMax?: number;
+			minFameRating?: number;
+			limit?: number;
+			offset?: number;
+		} = {},
+	): Promise<{
+		users: User[];
+		total: number;
+		hasMore: boolean;
+	}> {
+		const {
+			maxDistance = 50,
+			ageMin = 18,
+			ageMax = 100,
+			minFameRating = 0,
+			limit = 20,
+			offset = 0,
+		} = options;
+
+		// Use stored procedure
+		const usersResult = await pool.query(
+			"SELECT * FROM get_discoverable_users($1, $2, $3, $4, $5, $6, $7)",
+			[userId, maxDistance, ageMin, ageMax, minFameRating, limit, offset],
+		);
+
+		// Get total count (separate simpler query)
+		const countResult = await pool.query(
+			"SELECT COUNT(*) as total FROM get_discoverable_users($1, $2, $3, $4, $5, 999999, 0)",
+			[userId, maxDistance, ageMin, ageMax, minFameRating],
+		);
+
+		const users = usersResult.rows.map((row) => ({
+			...row,
+			location: row.location
+				? {
+						type: "Point",
+						coordinates: [row.location.x, row.location.y],
+					}
+				: null,
+			hashtags: [],
+			photos: [],
+		})) as User[];
+
+		const total = parseInt(countResult.rows[0].total);
+		const hasMore = offset + limit < total;
+
+		return { users, total, hasMore };
+	}
 }
