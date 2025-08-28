@@ -52,8 +52,14 @@ paths:
     $ref: './schemas/user.yaml#/paths/likeUser'
   /users/{id}/block:
     $ref: './schemas/user.yaml#/paths/blockUser'
-  /users/{id}/matches:
+  /users/matches:
     $ref: './schemas/user.yaml#/paths/userMatches'
+  
+  # User relationship lists (private to user)
+  /users/likes:
+    $ref: './schemas/user.yaml#/paths/userLikes'
+  /users/blocks:
+    $ref: './schemas/user.yaml#/paths/userBlocks'
 
 components:
   schemas:

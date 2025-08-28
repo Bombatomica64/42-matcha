@@ -1,11 +1,9 @@
-import { emailService } from "@utils/email";
-import { pool } from "../database";
 import type { RegisterUserData, User } from "@models/user.entity";
 import { UserRepository } from "@repositories/user.repository";
-import { hashPassword, comparePassword } from "@utils/hash";
+import { emailService } from "@utils/email";
+import { comparePassword, hashPassword } from "@utils/hash";
 import { generateTokenPair, refreshAccessToken, verifyJwt } from "@utils/jwt";
-// TODO: Add JWT utilities when implementing authentication
-// import { generateToken } from "../utils/jwt";
+import { pool } from "../database";
 
 export class AuthService {
 	private userRepository: UserRepository;
@@ -40,13 +38,19 @@ export class AuthService {
 			...userData,
 			password: hashedPassword,
 			location_manual: userData.location_manual ?? false,
-			email_verification_token: emailService.generateVerificationToken() || "00000000-0000-0000-0000-000000000000",
+
+			email_verification_token:
+				emailService.generateVerificationToken() || "00000000-0000-0000-0000-000000000000",
+			photos: [],
 		};
 
 		// Create user
 		const newUser = await this.userRepository.createUser(userDataWithHashedPassword);
 
-		emailService.sendVerificationEmail(newUser.email, newUser?.email_verification_token || "00000000-0000-0000-0000-000000000000");
+		emailService.sendVerificationEmail(
+			newUser.email,
+			newUser?.email_verification_token || "00000000-0000-0000-0000-000000000000",
+		);
 		// Return user without password
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const { password: _, ...userWithoutPassword } = newUser;
@@ -58,7 +62,7 @@ export class AuthService {
 	 */
 	async loginUser(
 		emailOrUsername: string,
-		password: string
+		password: string,
 	): Promise<{ user: Partial<User>; accessToken: string; refreshToken: string } | null> {
 		// Find user by email or username
 		const user = await this.userRepository.findByEmailOrUsername(emailOrUsername);
@@ -79,21 +83,23 @@ export class AuthService {
 
 		// Update user's online status and last seen
 		await this.userRepository.updateOnlineStatus(user.id, true);
-		
+
 		// Generate JWT token pair
-		const { accessToken, refreshToken } = generateTokenPair({ 
-			id: user.id, 
+		const { accessToken, refreshToken } = generateTokenPair({
+			id: user.id,
 			username: user.username,
+			location: user.location,
+
 		});
 
 		// Return user WITHOUT password hash
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const { password: _, ...userWithoutPassword } = user;
-		
+
 		return {
 			user: userWithoutPassword,
 			accessToken,
-			refreshToken
+			refreshToken,
 		};
 	}
 
@@ -102,8 +108,8 @@ export class AuthService {
 	 */
 	async verifyEmail(token: string): Promise<boolean> {
 		// Find user by verification token
-		const user = await this.userRepository.findOneBy({ 
-			email_verification_token: token 
+		const user = await this.userRepository.findOneBy({
+			email_verification_token: token,
 		} as Partial<User>);
 
 		if (!user) {
@@ -138,7 +144,7 @@ export class AuthService {
 		// Save reset token
 		await this.userRepository.update(user.id, {
 			password_reset_token: resetToken,
-			password_reset_expires_at: expiresAt
+			password_reset_expires_at: expiresAt,
 		} as Partial<User>);
 
 		await emailService.sendPasswordResetEmail(user.email, resetToken);
@@ -150,7 +156,7 @@ export class AuthService {
 	async resetPassword(token: string, newPassword: string): Promise<boolean> {
 		// Find user by reset token
 		const user = await this.userRepository.findOneBy({
-			password_reset_token: token
+			password_reset_token: token,
 		} as Partial<User>);
 
 		if (!user || !user.password_reset_expires_at) {
@@ -172,7 +178,7 @@ export class AuthService {
 		await this.userRepository.update(user.id, {
 			password: hashedPassword,
 			password_reset_token: undefined,
-			password_reset_expires_at: undefined
+			password_reset_expires_at: undefined,
 		} as Partial<User>);
 
 		return true;
@@ -184,7 +190,7 @@ export class AuthService {
 	async refreshToken(refreshToken: string): Promise<{ accessToken: string } | null> {
 		// Verify and decode refresh token
 		const payload = verifyJwt(refreshToken);
-		if (!payload || payload.type !== 'refresh') {
+		if (!payload || payload.type !== "refresh") {
 			return null; // Invalid refresh token
 		}
 

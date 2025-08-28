@@ -337,6 +337,18 @@ paths:
             type: string
             format: uuid
             description: The unique identifier of the user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                like:
+                  type: boolean
+                  description: Whether to like or dislike the user
+              required:
+                - like
       responses:
         '201':
           description: User liked successfully
@@ -367,8 +379,14 @@ paths:
                 message: "You must be logged in to like a user"
                 code: "UNAUTHORIZED"
     get:
-      summary: Get user likes
-      description: Retrieve a list of users that liked the specified user.
+      summary: Get likes for a specific user
+      description: |
+        Retrieve likes for a specific user profile.
+        
+        **Privacy Rules:**
+        - Only returns likes if the requested user ID matches the authenticated user
+        - Cannot view other users' likes for privacy reasons
+        - Use `/users/likes` endpoint instead for current user's likes
       tags:
         - User
         - Match
@@ -379,7 +397,7 @@ paths:
         - name: id
           in: path
           required: true
-          description: The ID of the user to retrieve likes for
+          description: The ID of the user to retrieve likes for (must be current user)
           schema:
             type: string
             format: uuid
@@ -393,6 +411,16 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
+        '403':
+          description: Forbidden - can only view your own likes
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Forbidden"
+                message: "You can only view your own likes. Use /users/likes instead."
+                code: "PRIVACY_VIOLATION"
         '404':
           description: User not found
           content:
@@ -413,12 +441,72 @@ paths:
                 error: "Unauthorized"
                 message: "You must be logged in to like a user"
                 code: "UNAUTHORIZED"
-  blockUser:
-    get:
-      summary: Get blocked users
-      description: Retrieve a list of users that the selected user has blocked.
+    delete:
+      summary: Remove like/Dislike
+      description: Remove a like/dislike from a user profile.
       tags:
         - User
+        - Match
+      operationId: removeUserLike
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the user to remove like/dislike for
+          schema:
+            type: string
+            format: uuid
+            description: The unique identifier of the user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                like:
+                  type: boolean
+                  description: Whether to like or dislike the user
+              required:
+                - like
+      responses:
+        '204':
+          description: Like/Dislike removed successfully
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Not Found"
+                message: "User not found"
+                code: "USER_NOT_FOUND"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Unauthorized"
+                message: "You must be logged in to remove a like/dislike"
+                code: "UNAUTHORIZED"
+  blockUser:
+    get:
+      summary: Get blocked users for a specific user
+      description: |
+        Retrieve blocked users for a specific user profile.
+        
+        **Privacy Rules:**
+        - Only returns blocks if the requested user ID matches the authenticated user
+        - Cannot view other users' block lists for privacy and safety reasons
+        - Use `/users/blocks` endpoint instead for current user's blocks
+      tags:
+        - User
+        - Blocks
       operationId: getBlockedUsers
       security:
         - bearerAuth: []
@@ -426,7 +514,7 @@ paths:
         - name: id
           in: path
           required: true
-          description: The ID of the user to retrieve blocked users for
+          description: The ID of the user to retrieve blocked users for (must be current user)
           schema:
             type: string
             format: uuid
@@ -456,6 +544,16 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
+        '403':
+          description: Forbidden - can only view your own block list
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Forbidden"
+                message: "You can only view your own block list. Use /users/blocks instead."
+                code: "PRIVACY_VIOLATION"
         '404':
           description: User not found
           content:
@@ -559,40 +657,77 @@ paths:
     
   userMatches:
     get:
-      summary: Get user matches
-      description: Retrieve a list of matches for the selected user.
+      summary: Get current user's matches
+      description: |
+        Retrieve a list of matches for the current authenticated user.
+        
+        **Privacy Rules:**
+        - Only returns matches for the authenticated user
+        - Cannot view other users' matches for privacy reasons
       tags:
         - User
-      operationId: userMatches
+        - Matches
+      operationId: getCurrentUserMatches
       security:
         - bearerAuth: []
       parameters:
-        - name: id
-          in: path
-          required: true
-          description: The ID of the user to retrieve matches for
+        - name: page
+          in: query
+          required: false
+          description: Page number for pagination
           schema:
-            type: string
-            format: uuid
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          required: false
+          description: Number of results per page
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
       responses:
         '200':
           description: List of user matches retrieved successfully
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
-        '404':
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: './common.yaml#/components/schemas/ErrorResponse'
-              example:
-                error: "Not Found"
-                message: "User not found"
-                code: "USER_NOT_FOUND"
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: Total number of matches
+                  page:
+                    type: integer
+                    description: Current page number
+                  totalPages:
+                    type: integer
+                    description: Total number of pages
+                  matches:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user:
+                          $ref: '#/components/schemas/User'
+                        matchedAt:
+                          type: string
+                          format: date-time
+                          description: When the match was created
+                        lastMessageAt:
+                          type: string
+                          format: date-time
+                          description: When the last message was sent (if any)
+                        unreadMessages:
+                          type: integer
+                          description: Number of unread messages from this match
+                          minimum: 0
+                      required:
+                        - user
+                        - matchedAt
+                        - unreadMessages
         '401':
           description: Unauthorized
           content:
@@ -602,6 +737,178 @@ paths:
               example:
                 error: "Unauthorized"
                 message: "You must be logged in to view matches"
+                code: "UNAUTHORIZED"
+  
+  userLikes:
+    get:
+      summary: Get current user's likes
+      description: |
+        Retrieve lists of users that the current user has liked and users who have liked the current user.
+        
+        **Privacy Rules:**
+        - Users can only see their own likes (given and received)
+        - Returns separate lists for likes given and likes received
+        - Includes like timestamps and status
+      tags:
+        - User
+        - Likes
+      operationId: getCurrentUserLikes
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          required: false
+          description: Filter by like type
+          schema:
+            type: string
+            enum: [given, received, mutual]
+            default: received
+        - name: page
+          in: query
+          required: false
+          description: Page number for pagination
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          required: false
+          description: Number of results per page
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: User likes retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    enum: [given, received, mutual]
+                    description: Type of likes returned
+                  total:
+                    type: integer
+                    description: Total number of likes of this type
+                  page:
+                    type: integer
+                    description: Current page number
+                  totalPages:
+                    type: integer
+                    description: Total number of pages
+                  likes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user:
+                          $ref: '#/components/schemas/User'
+                        likedAt:
+                          type: string
+                          format: date-time
+                          description: When the like was created
+                        isMatch:
+                          type: boolean
+                          description: Whether this like resulted in a mutual match
+                      required:
+                        - user
+                        - likedAt
+                        - isMatch
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Unauthorized"
+                message: "You must be logged in to view likes"
+                code: "UNAUTHORIZED"
+
+  userBlocks:
+    get:
+      summary: Get current user's blocked users
+      description: |
+        Retrieve the list of users that the current user has blocked.
+        
+        **Privacy Rules:**
+        - Users can only see their own block list
+        - Does not reveal who has blocked the current user (for safety)
+        - Includes block timestamps
+      tags:
+        - User
+        - Blocks
+      operationId: getCurrentUserBlocks
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Page number for pagination
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          required: false
+          description: Number of results per page
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Blocked users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: Total number of blocked users
+                  page:
+                    type: integer
+                    description: Current page number
+                  totalPages:
+                    type: integer
+                    description: Total number of pages
+                  blockedUsers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user:
+                          $ref: '#/components/schemas/User'
+                        blockedAt:
+                          type: string
+                          format: date-time
+                          description: When the user was blocked
+                        reason:
+                          type: string
+                          description: Optional reason for blocking (if provided)
+                          example: "Inappropriate behavior"
+                      required:
+                        - user
+                        - blockedAt
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Unauthorized"
+                message: "You must be logged in to view blocked users"
                 code: "UNAUTHORIZED"
   search:
     get:
@@ -704,12 +1011,13 @@ paths:
         - Considers user preferences (age, location, orientation)
         - Excludes blocked users and users who blocked you
         - Uses fame rating and compatibility scoring
-        - Never shows the same user twice in a session
+        - Geographic distance-based scoring with PostGIS
+        - Common hashtag/interest matching
         
         **Pagination Strategy:**
-        - Small batches (10-20 users) for better user experience
-        - Algorithm runs on each request with exclusion filters
-        - Client should request new batch when running low
+        - Uses limit/offset pagination for consistent results
+        - Algorithm applies scoring and filtering on each request
+        - Client can request specific batches with offset
       tags:
         - User
         - Discovery
@@ -725,34 +1033,118 @@ paths:
             minimum: 5
             maximum: 50
             default: 20
-        - name: refresh
+        - name: offset
           in: query
-          description: Force refresh algorithm (ignore recent cache)
+          description: Number of users to skip for pagination
           schema:
-            type: boolean
-            default: false
+            type: integer
+            minimum: 0
+            default: 0
         - name: maxDistance
           in: query
-          description: Override max distance preference (km)
+          description: Maximum distance in kilometers
           schema:
             type: integer
             minimum: 1
-            maximum: 100
-        - name: seed
+            maximum: 1000
+            default: 50
+        - name: ageMin
           in: query
-          description: Algorithm seed for consistent ordering in session
+          description: Minimum age filter
           schema:
-            type: string
-            example: "session_abc123"
+            type: integer
+            minimum: 18
+            maximum: 100
+            default: 18
+        - name: ageMax
+          in: query
+          description: Maximum age filter
+          schema:
+            type: integer
+            minimum: 18
+            maximum: 100
+            default: 100
+        - name: minFameRating
+          in: query
+          description: Minimum fame rating filter
+          schema:
+            type: number
+            format: float
+            minimum: 0
+            maximum: 5
+            default: 0
       responses:
         '200':
           description: Potential matches retrieved successfully
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Discoverable users retrieved successfully"
+                  data:
+                    type: object
+                    properties:
+                      users:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/User'
+                        description: "Array of discoverable users"
+                      total:
+                        type: integer
+                        description: "Total number of potential matches"
+                        example: 142
+                      hasMore:
+                        type: boolean
+                        description: "Whether there are more users to discover"
+                        example: true
+                      pagination:
+                        type: object
+                        description: "Pagination metadata"
+                        properties:
+                          limit:
+                            type: integer
+                            example: 20
+                          offset:
+                            type: integer
+                            example: 0
+                          currentPage:
+                            type: integer
+                            example: 1
+                          totalPages:
+                            type: integer
+                            example: 8
+                          nextOffset:
+                            type: [integer, "null"]
+                            example: 20
+                          prevOffset:
+                            type: [integer, "null"]
+                            example: null
+                      filters:
+                        type: object
+                        description: "Applied filters for the request"
+                        properties:
+                          maxDistance:
+                            type: integer
+                            example: 50
+                          ageRange:
+                            type: object
+                            properties:
+                              min:
+                                type: integer
+                                example: 18
+                              max:
+                                type: integer
+                                example: 100
+                          minFameRating:
+                            type: number
+                            format: float
+                            example: 0
+                required:
+                  - message
+                  - data
         '204':
           description: No more users to discover
           content:
@@ -771,6 +1163,12 @@ paths:
                       - "Try expanding your distance preferences"
                       - "Consider adjusting your age range"
                       - "Add more interests to your profile"
+        '400':
+          description: Bad request - invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:

@@ -26,5 +26,8 @@ COPY --from=build /app/package*.json ./
 # Install only production dependencies
 RUN npm ci --only=production && npm cache clean --force
 
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+
 # Use the correct entry point from package.json
 CMD ["node", "dist/index.js"]

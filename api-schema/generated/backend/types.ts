@@ -15,7 +15,7 @@ export interface RegisterRequest {
   last_name: string;
   birth_date: string;
   bio?: string;
-  location?: {
+  location: {
     lat: number;
     lng: number;
   };

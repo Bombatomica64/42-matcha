@@ -1,5 +1,5 @@
+import type { CreateUserData, UpdateUserData, User } from "@models/user.entity";
 import { BaseRepository } from "@orm/base-repository";
-import type { User, CreateUserData, UpdateUserData } from "@models/user.entity";
 import type { Pool } from "pg";
 
 export class UserRepository extends BaseRepository<User> {
@@ -185,10 +185,7 @@ export class UserRepository extends BaseRepository<User> {
 	/**
 	 * Update user profile
 	 */
-	async updateProfile(
-		id: string,
-		profileData: UpdateUserData
-	): Promise<User | null> {
+	async updateProfile(id: string, profileData: UpdateUserData): Promise<User | null> {
 		return this.update(id, profileData);
 	}
 
@@ -205,10 +202,7 @@ export class UserRepository extends BaseRepository<User> {
 	/**
 	 * Update user's online status
 	 */
-	async updateOnlineStatus(
-		id: string,
-		isOnline: boolean
-	): Promise<User | null> {
+	async updateOnlineStatus(id: string, isOnline: boolean): Promise<User | null> {
 		const updateData: Partial<User> = {
 			online_status: isOnline,
 			last_seen: new Date(),
@@ -222,7 +216,7 @@ export class UserRepository extends BaseRepository<User> {
 	async findByLocation(
 		latitude: number,
 		longitude: number,
-		radiusKm: number = 50
+		radiusKm: number = 50,
 	): Promise<User[]> {
 		const query = `
       SELECT * FROM ${this.tableName}
@@ -238,28 +232,27 @@ export class UserRepository extends BaseRepository<User> {
       )
     `;
 
-		const result = await this.pool.query(query, [
-			longitude,
-			latitude,
-			radiusKm,
-		]);
+		const result = await this.pool.query(query, [longitude, latitude, radiusKm]);
 		return result.rows;
 	}
 
 	/**
-	 * Search users by criteria with pagination
+	 * Search users by criteria with pagination (excludes blocked users)
 	 */
-	async searchUsers(criteria: {
-		ageMin?: number;
-		ageMax?: number;
-		gender?: string;
-		sexualOrientation?: string;
-		location?: { lat: number; lng: number; radius?: number };
-		query?: string;
-		interests?: string[];
-		page?: number;
-		perPage?: number;
-	}): Promise<{
+	async searchUsers(
+		currentUserId: string,
+		criteria: {
+			ageMin?: number;
+			ageMax?: number;
+			gender?: string;
+			sexualOrientation?: string;
+			location?: { lat: number; lng: number; radius?: number };
+			query?: string;
+			interests?: string[];
+			page?: number;
+			perPage?: number;
+		},
+	): Promise<{
 		total_results: number;
 		total_pages: number;
 		current_page: number;
@@ -282,6 +275,15 @@ export class UserRepository extends BaseRepository<User> {
 			LEFT JOIN user_hashtags uh ON u.id = uh.user_id
 			LEFT JOIN hashtags h ON uh.hashtag_id = h.id
 			WHERE u.activated = true
+			AND u.id != $1
+			AND NOT EXISTS (
+				SELECT 1 FROM user_blocks ub1 
+				WHERE ub1.blocker_id = $1 AND ub1.blocked_id = u.id
+			)
+			AND NOT EXISTS (
+				SELECT 1 FROM user_blocks ub2 
+				WHERE ub2.blocker_id = u.id AND ub2.blocked_id = $1
+			)
 		`;
 
 		// Base query for fetching users with details
@@ -316,11 +318,21 @@ export class UserRepository extends BaseRepository<User> {
 			LEFT JOIN hashtags h ON uh.hashtag_id = h.id
 			LEFT JOIN user_photos p ON u.id = p.user_uuid
 			WHERE u.activated = true
+			AND u.id != $1
+			AND NOT EXISTS (
+				SELECT 1 FROM user_blocks ub1 
+				WHERE ub1.blocker_id = $1 AND ub1.blocked_id = u.id
+			)
+			AND NOT EXISTS (
+				SELECT 1 FROM user_blocks ub2 
+				WHERE ub2.blocker_id = u.id AND ub2.blocked_id = $1
+			)
 		`;
 
-		const params: unknown[] = [];
-		const countParams: unknown[] = [];
-		let paramIndex = 1;
+
+		const params: unknown[] = [currentUserId];
+		const countParams: unknown[] = [currentUserId];
+		let paramIndex = 2; // Start at 2 since $1 is currentUserId
 
 		// Add search filters
 		if (criteria.query) {
@@ -421,12 +433,10 @@ export class UserRepository extends BaseRepository<User> {
 			queryParts.push(`page=${pageNum}`);
 			queryParts.push(`per_page=${perPage}`);
 
-			if (criteria.query)
-				queryParts.push(`query=${encodeURIComponent(criteria.query)}`);
-			if (criteria.ageMin !== undefined)
-				queryParts.push(`age_min=${criteria.ageMin}`);
-			if (criteria.ageMax !== undefined)
-				queryParts.push(`age_max=${criteria.ageMax}`);
+
+			if (criteria.query) queryParts.push(`query=${encodeURIComponent(criteria.query)}`);
+			if (criteria.ageMin !== undefined) queryParts.push(`age_min=${criteria.ageMin}`);
+			if (criteria.ageMax !== undefined) queryParts.push(`age_max=${criteria.ageMax}`);
 			if (criteria.gender) queryParts.push(`gender=${criteria.gender}`);
 			if (criteria.sexualOrientation)
 				queryParts.push(`sexual_orientation=${criteria.sexualOrientation}`);

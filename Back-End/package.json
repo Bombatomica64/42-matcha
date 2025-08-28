@@ -13,7 +13,9 @@
     "format": "biome format src/",
     "format:fix": "biome format --write src/",
     "check": "biome check src/",
-    "check:fix": "biome check --apply src/",
+    "check:fix": "biome check --write src/",
+    "organize-imports": "biome check --apply-unsafe src/",
+    "seed:users": "node scripts/seed-users.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -21,6 +23,8 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@faker-js/faker": "^10.0.0",
+    "@types/multer": "^2.0.0",
     "@types/nodemailer": "^7.0.1",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
@@ -28,6 +32,7 @@
     "express": "^5.1.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
     "nodemailer": "^7.0.5",
     "pg": "^8.16.3",
     "pino": "^9.7.0",

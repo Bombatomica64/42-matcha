@@ -39,14 +39,9 @@ export class EmailService {
                         <a href="${verificationLink}">Verify Email</a>`,
 			});
 
-			if (ret.accepted.length > 0)
-				logger.info(`Verification email sent to ${email}`);
+			if (ret.accepted.length > 0) logger.info(`Verification email sent to ${email}`);
 			else
-				logger.error(
-					`Failed to send verification email to ${email}: ${ret.rejected.join(
-						", "
-					)}`
-				);
+				logger.error(`Failed to send verification email to ${email}: ${ret.rejected.join(", ")}`);
 		} catch (error) {
 			logger.error(`Error sending verification email to ${email}:`, error);
 			throw new Error("Failed to send verification email");
@@ -68,14 +63,9 @@ export class EmailService {
         <a href="${resetLink}">Reset Password</a>`,
 			});
 
-			if (ret.accepted.length > 0)
-				logger.info(`Password reset email sent to ${email}`);
+			if (ret.accepted.length > 0) logger.info(`Password reset email sent to ${email}`);
 			else
-				logger.error(
-					`Failed to send password reset email to ${email}: ${ret.rejected.join(
-						", "
-					)}`
-				);
+				logger.error(`Failed to send password reset email to ${email}: ${ret.rejected.join(", ")}`);
 		} catch (error) {
 			logger.error(`Error sending password reset email to ${email}:`, error);
 			throw new Error("Failed to send password reset email");

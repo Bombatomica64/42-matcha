@@ -1,8 +1,7 @@
 import { AuthController } from "@controllers/auth.controller";
 import { AuthService } from "@services/auth.services";
-
-import { Router as createRouter } from "express";
 import type { Router } from "express";
+import { Router as createRouter } from "express";
 
 const authRoutes = (): Router => {
 	const router = createRouter();
@@ -16,14 +15,8 @@ const authRoutes = (): Router => {
 	router.post("/login", authController.login.bind(authController));
 	router.post("/logout", authController.logout.bind(authController));
 	router.post("/refresh", authController.refreshToken.bind(authController));
-	router.post(
-		"/resetPassword",
-		authController.resetPassword.bind(authController)
-	);
-	router.post(
-		"/changePassword",
-		authController.changePassword.bind(authController)
-	);
+	router.post("/resetPassword", authController.resetPassword.bind(authController));
+	router.post("/changePassword", authController.changePassword.bind(authController));
 	router.get("/verifyEmail", authController.verifyEmail.bind(authController));
 
 	return router;

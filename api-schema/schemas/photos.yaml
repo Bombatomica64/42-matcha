@@ -17,33 +17,62 @@ components:
           type: string
           format: uuid
           example: "550e8400-e29b-41d4-a716-446655440001"
+        filename:
+          type: string
+          example: "photo_1.jpg"
+          description: "Generated filename for storage"
+        original_filename:
+          type: string
+          example: "my_selfie.jpg"
+          description: "Original filename uploaded by user"
         image_url:
           type: string
           format: uri
           example: "/uploads/photos/550e8400-e29b-41d4-a716-446655440000.jpg"
+          description: "Public URL to access the image"
+        file_size:
+          type: integer
+          example: 2048576
+          description: "File size in bytes"
+        mime_type:
+          type: string
+          enum: ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          example: "image/jpeg"
         is_main:
           type: boolean
           example: false
+          description: "Whether this is the user's main profile photo"
+        display_order:
+          type: integer
+          example: 1
+          minimum: 0
+          description: "Order in which photos should be displayed"
         uploaded_at:
           type: string
           format: date-time
           example: "2024-01-15T10:30:00Z"
+          description: "When the photo was uploaded"
       required:
         - id
         - user_id
+        - filename
         - image_url
+        - mime_type
         - is_main
+        - display_order
         - uploaded_at
 
-
     PhotoResponse:
-      allOf:
-        - $ref: '#/components/schemas/Photo'
-        - type: object
-          properties:
-            message:
-              type: string
-              example: "Photo uploaded successfully"
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Photo uploaded successfully"
+        photo:
+          $ref: '#/components/schemas/Photo'
+      required:
+        - message
+        - photo
 
     PhotoListResponse:
       type: object
@@ -53,19 +82,32 @@ components:
           items:
             $ref: '#/components/schemas/Photo'
           maxItems: 5
+          description: "User's photos ordered by display_order"
         total:
           type: integer
           example: 3
+          minimum: 0
+          maximum: 5
+          description: "Total number of photos for this user"
+      required:
+        - photos
+        - total
+
     PhotoUploadRequest:
       type: object
       properties:
         photo:
           type: string
           format: binary
-          description: "Photo file (JPEG, PNG, WebP)"
+          description: "Photo file (JPEG, PNG, WebP, GIF max 5MB)"
         is_main:
           type: boolean
           default: false
           description: "Set as main profile photo"
+        display_order:
+          type: integer
+          minimum: 0
+          default: 0
+          description: "Display order (0 = first)"
       required:
         - photo
