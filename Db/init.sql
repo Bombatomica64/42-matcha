@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
 		first_name VARCHAR(50),
 		last_name VARCHAR(50),
 		activated BOOLEAN DEFAULT FALSE,
+		profile_complete BOOLEAN DEFAULT FALSE,
 		gender VARCHAR(10) CHECK (gender IN ('male', 'female', 'other')),
 		sexual_orientation VARCHAR(20) DEFAULT 'bisexual' CHECK (sexual_orientation IN ('heterosexual', 'homosexual', 'bisexual')),
 		location geography(Point, 4326), -- PostGIS geography type for lat/lng

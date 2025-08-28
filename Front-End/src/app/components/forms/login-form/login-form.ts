@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, EventEmitter, inject, Output } from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import { HttpEndpoint, HttpMethod, HttpRequestService } from '../../../services/http-request';
 import { components } from '../../../../types/api'; // Adjust the path as necessary
@@ -92,6 +92,9 @@ export class LoginForm {
 	password: new FormControl('', {nonNullable: true, validators: [Validators.required, Validators.minLength(6)]})
   });
 
+  @Output() loginSuccess = new EventEmitter<LoginResponse>();
+  @Output() loginError = new EventEmitter<any>();
+
   onSubmit() {
 	if (this.loginForm.valid) {
 	  const credentials = this.loginForm.value as LoginRequest;
@@ -100,9 +103,11 @@ export class LoginForm {
 	  this.auth.request(credentials, this.httpEndpoint, this.httpMethod).subscribe({
       next: (response : LoginResponse) => {
         console.log('Login success:', response);
+        this.loginSuccess.emit(response);
       },
       error: (error) => {
         console.error('Login error:', error);
+        this.loginError.emit(error);
       }
     });
 	} else {

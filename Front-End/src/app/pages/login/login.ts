@@ -1,13 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { LoginForm } from '../../components/forms/login-form/login-form';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   imports: [LoginForm],
   template: `
   <div class="login-container">
-	<p>Login</p>
-	<app-login-form></app-login-form>
+    <p>Login</p>
+    <app-login-form
+      (loginSuccess)="onLoginSuccess($event)"
+      (loginError)="onLoginError($event)">
+    ></app-login-form>
   </div>
   `,
   styles: `
@@ -32,5 +36,15 @@ import { LoginForm } from '../../components/forms/login-form/login-form';
   `
 })
 export class Login {
+  private router = inject(Router);
+
+  onLoginSuccess(response: any) {
+    console.log('Login successful:', response);
+    this.router.navigate(['/home']);
+  }
+  onLoginError(error: any) {
+    console.error('Login failed:', error);
+
+  }
 
 }

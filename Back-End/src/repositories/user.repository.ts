@@ -167,6 +167,18 @@ export class UserRepository extends BaseRepository<User> {
 			location_manual: userData.location_manual ?? false,
 		};
 
+		if (
+			userData.location &&
+			typeof userData.location === "object" &&
+			"coordinates" in userData.location &&
+			Array.isArray((userData.location as any).coordinates)
+		) {
+			const coords = (userData.location as { coordinates: [number, number] })
+				.coordinates;
+			userWithDefaults.location = `POINT(${coords[0]} ${coords[1]})`;
+		} else {
+			userWithDefaults.location = "POINT(0 0)"; // Set to default location
+		}
 		return this.create(userWithDefaults);
 	}
 
@@ -317,6 +329,7 @@ export class UserRepository extends BaseRepository<User> {
 			)
 		`;
 
+
 		const params: unknown[] = [currentUserId];
 		const countParams: unknown[] = [currentUserId];
 		let paramIndex = 2; // Start at 2 since $1 is currentUserId
@@ -407,7 +420,9 @@ export class UserRepository extends BaseRepository<User> {
 		const totalPages = Math.ceil(totalResults / perPage);
 
 		// Add GROUP BY and pagination to main query
-		dataQuery += ` GROUP BY u.id ORDER BY u.created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+		dataQuery += ` GROUP BY u.id ORDER BY u.created_at DESC LIMIT $${paramIndex} OFFSET $${
+			paramIndex + 1
+		}`;
 		params.push(perPage, offset);
 
 		const result = await this.pool.query(dataQuery, params);
@@ -418,6 +433,7 @@ export class UserRepository extends BaseRepository<User> {
 			queryParts.push(`page=${pageNum}`);
 			queryParts.push(`per_page=${perPage}`);
 
+
 			if (criteria.query) queryParts.push(`query=${encodeURIComponent(criteria.query)}`);
 			if (criteria.ageMin !== undefined) queryParts.push(`age_min=${criteria.ageMin}`);
 			if (criteria.ageMax !== undefined) queryParts.push(`age_max=${criteria.ageMax}`);
@@ -425,8 +441,11 @@ export class UserRepository extends BaseRepository<User> {
 			if (criteria.sexualOrientation)
 				queryParts.push(`sexual_orientation=${criteria.sexualOrientation}`);
 			if (criteria.location) {
-				queryParts.push(`location=${criteria.location.lat},${criteria.location.lng}`);
-				if (criteria.location.radius) queryParts.push(`radius=${criteria.location.radius}`);
+				queryParts.push(
+					`location=${criteria.location.lat},${criteria.location.lng}`
+				);
+				if (criteria.location.radius)
+					queryParts.push(`radius=${criteria.location.radius}`);
 			}
 			if (criteria.interests && criteria.interests.length > 0) {
 				queryParts.push(`interests=${criteria.interests.join(",")}`);

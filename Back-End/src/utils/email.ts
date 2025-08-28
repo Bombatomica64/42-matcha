@@ -7,7 +7,7 @@ import { logger } from "../server";
  * Email service for sending various types of emails
  */
 export class EmailService {
-	constructor(private baseUrl: string = "https://localhost:3000/") {}
+	constructor(private baseUrl: string = "http://localhost:4200/") {} //TODO ADD TO ENV
 	private transporter = nodemailer.createTransport({
 		host: process.env.EMAIL_HOST,
 		port: Number(process.env.EMAIL_PORT),
@@ -29,7 +29,7 @@ export class EmailService {
 	 */
 	async sendVerificationEmail(email: string, token: string): Promise<void> {
 		try {
-			const verificationLink = `${this.baseUrl}/auth/verifyEmail?token=${token}`;
+			const verificationLink = `${this.baseUrl}auth/verifyEmail?token=${token}`;
 
 			const ret = await this.transporter.sendMail({
 				from: process.env.EMAIL_FROM,
