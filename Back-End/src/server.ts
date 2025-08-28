@@ -37,7 +37,6 @@ app.use(
 app.use(helmet());
 
 pool.connect((err, _client, release) => {
-
 	if (err) {
 		logger.error("Database connection failed:", err);
 		process.exit(1); // Exit if DB is not connected
@@ -66,7 +65,6 @@ pool.connect((err, _client, release) => {
 		});
 		release(); // Release the client back to the pool
 	}
-
 });
 
 // Swagger Configuration

@@ -13,10 +13,12 @@ export interface User {
 	activated: boolean;
 	gender: "male" | "female" | "other";
 	sexual_orientation: "heterosexual" | "homosexual" | "bisexual";
-	location?: {
-		type: "Point";
-		coordinates: [number, number]; // [longitude, latitude]
-	};
+	location?:
+		| {
+				type: "Point";
+				coordinates: [number, number]; // [longitude, latitude]
+		  }
+		| string;
 	location_manual: boolean;
 	fame_rating: number;
 	profile_complete: boolean;

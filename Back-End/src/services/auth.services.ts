@@ -89,7 +89,6 @@ export class AuthService {
 			id: user.id,
 			username: user.username,
 			location: user.location,
-
 		});
 
 		// Return user WITHOUT password hash
