@@ -1,21 +1,13 @@
 import { pool } from "../database";
 import { MatchRepository } from "@repositories/match.repository";
-import { LikeRepository } from "@repositories/like.repository";
-import { BlockRepository } from "@repositories/block.repository";
-import { UserRepository } from "@repositories/user.repository";
-import type { Match, MatchWithUser } from "@repositories/match.repository";
+import type {  MatchWithUser } from "@repositories/match.repository";
 
 export class MatchService {
   private matchRepository: MatchRepository;
-  private likeRepository: LikeRepository;
-  private blockRepository: BlockRepository;
-  private userRepository: UserRepository;
+
 
   constructor() {
     this.matchRepository = new MatchRepository(pool);
-    this.likeRepository = new LikeRepository(pool);
-    this.blockRepository = new BlockRepository(pool);
-    this.userRepository = new UserRepository(pool);
   }
 
   /**

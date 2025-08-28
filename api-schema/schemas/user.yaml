@@ -379,8 +379,14 @@ paths:
                 message: "You must be logged in to like a user"
                 code: "UNAUTHORIZED"
     get:
-      summary: Get user likes
-      description: Retrieve a list of users that liked the specified user.
+      summary: Get likes for a specific user
+      description: |
+        Retrieve likes for a specific user profile.
+        
+        **Privacy Rules:**
+        - Only returns likes if the requested user ID matches the authenticated user
+        - Cannot view other users' likes for privacy reasons
+        - Use `/users/likes` endpoint instead for current user's likes
       tags:
         - User
         - Match
@@ -391,7 +397,7 @@ paths:
         - name: id
           in: path
           required: true
-          description: The ID of the user to retrieve likes for
+          description: The ID of the user to retrieve likes for (must be current user)
           schema:
             type: string
             format: uuid
@@ -405,6 +411,16 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
+        '403':
+          description: Forbidden - can only view your own likes
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Forbidden"
+                message: "You can only view your own likes. Use /users/likes instead."
+                code: "PRIVACY_VIOLATION"
         '404':
           description: User not found
           content:
@@ -480,10 +496,17 @@ paths:
                 code: "UNAUTHORIZED"
   blockUser:
     get:
-      summary: Get blocked users
-      description: Retrieve a list of users that the selected user has blocked.
+      summary: Get blocked users for a specific user
+      description: |
+        Retrieve blocked users for a specific user profile.
+        
+        **Privacy Rules:**
+        - Only returns blocks if the requested user ID matches the authenticated user
+        - Cannot view other users' block lists for privacy and safety reasons
+        - Use `/users/blocks` endpoint instead for current user's blocks
       tags:
         - User
+        - Blocks
       operationId: getBlockedUsers
       security:
         - bearerAuth: []
@@ -491,7 +514,7 @@ paths:
         - name: id
           in: path
           required: true
-          description: The ID of the user to retrieve blocked users for
+          description: The ID of the user to retrieve blocked users for (must be current user)
           schema:
             type: string
             format: uuid
@@ -521,6 +544,16 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
+        '403':
+          description: Forbidden - can only view your own block list
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Forbidden"
+                message: "You can only view your own block list. Use /users/blocks instead."
+                code: "PRIVACY_VIOLATION"
         '404':
           description: User not found
           content:
@@ -624,40 +657,77 @@ paths:
     
   userMatches:
     get:
-      summary: Get user matches
-      description: Retrieve a list of matches for the selected user.
+      summary: Get current user's matches
+      description: |
+        Retrieve a list of matches for the current authenticated user.
+        
+        **Privacy Rules:**
+        - Only returns matches for the authenticated user
+        - Cannot view other users' matches for privacy reasons
       tags:
         - User
-      operationId: userMatches
+        - Matches
+      operationId: getCurrentUserMatches
       security:
         - bearerAuth: []
       parameters:
-        - name: id
-          in: path
-          required: true
-          description: The ID of the user to retrieve matches for
+        - name: page
+          in: query
+          required: false
+          description: Page number for pagination
           schema:
-            type: string
-            format: uuid
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          required: false
+          description: Number of results per page
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
       responses:
         '200':
           description: List of user matches retrieved successfully
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
-        '404':
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: './common.yaml#/components/schemas/ErrorResponse'
-              example:
-                error: "Not Found"
-                message: "User not found"
-                code: "USER_NOT_FOUND"
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: Total number of matches
+                  page:
+                    type: integer
+                    description: Current page number
+                  totalPages:
+                    type: integer
+                    description: Total number of pages
+                  matches:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user:
+                          $ref: '#/components/schemas/User'
+                        matchedAt:
+                          type: string
+                          format: date-time
+                          description: When the match was created
+                        lastMessageAt:
+                          type: string
+                          format: date-time
+                          description: When the last message was sent (if any)
+                        unreadMessages:
+                          type: integer
+                          description: Number of unread messages from this match
+                          minimum: 0
+                      required:
+                        - user
+                        - matchedAt
+                        - unreadMessages
         '401':
           description: Unauthorized
           content:
@@ -667,6 +737,178 @@ paths:
               example:
                 error: "Unauthorized"
                 message: "You must be logged in to view matches"
+                code: "UNAUTHORIZED"
+  
+  userLikes:
+    get:
+      summary: Get current user's likes
+      description: |
+        Retrieve lists of users that the current user has liked and users who have liked the current user.
+        
+        **Privacy Rules:**
+        - Users can only see their own likes (given and received)
+        - Returns separate lists for likes given and likes received
+        - Includes like timestamps and status
+      tags:
+        - User
+        - Likes
+      operationId: getCurrentUserLikes
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          required: false
+          description: Filter by like type
+          schema:
+            type: string
+            enum: [given, received, mutual]
+            default: received
+        - name: page
+          in: query
+          required: false
+          description: Page number for pagination
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          required: false
+          description: Number of results per page
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: User likes retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    enum: [given, received, mutual]
+                    description: Type of likes returned
+                  total:
+                    type: integer
+                    description: Total number of likes of this type
+                  page:
+                    type: integer
+                    description: Current page number
+                  totalPages:
+                    type: integer
+                    description: Total number of pages
+                  likes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user:
+                          $ref: '#/components/schemas/User'
+                        likedAt:
+                          type: string
+                          format: date-time
+                          description: When the like was created
+                        isMatch:
+                          type: boolean
+                          description: Whether this like resulted in a mutual match
+                      required:
+                        - user
+                        - likedAt
+                        - isMatch
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Unauthorized"
+                message: "You must be logged in to view likes"
+                code: "UNAUTHORIZED"
+
+  userBlocks:
+    get:
+      summary: Get current user's blocked users
+      description: |
+        Retrieve the list of users that the current user has blocked.
+        
+        **Privacy Rules:**
+        - Users can only see their own block list
+        - Does not reveal who has blocked the current user (for safety)
+        - Includes block timestamps
+      tags:
+        - User
+        - Blocks
+      operationId: getCurrentUserBlocks
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Page number for pagination
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          required: false
+          description: Number of results per page
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Blocked users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: Total number of blocked users
+                  page:
+                    type: integer
+                    description: Current page number
+                  totalPages:
+                    type: integer
+                    description: Total number of pages
+                  blockedUsers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user:
+                          $ref: '#/components/schemas/User'
+                        blockedAt:
+                          type: string
+                          format: date-time
+                          description: When the user was blocked
+                        reason:
+                          type: string
+                          description: Optional reason for blocking (if provided)
+                          example: "Inappropriate behavior"
+                      required:
+                        - user
+                        - blockedAt
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: "Unauthorized"
+                message: "You must be logged in to view blocked users"
                 code: "UNAUTHORIZED"
   search:
     get:

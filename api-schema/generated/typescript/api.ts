@@ -248,8 +248,14 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get user likes
-         * @description Retrieve a list of users that liked the specified user.
+         * Get likes for a specific user
+         * @description Retrieve likes for a specific user profile.
+         *
+         *     **Privacy Rules:**
+         *     - Only returns likes if the requested user ID matches the authenticated user
+         *     - Cannot view other users' likes for privacy reasons
+         *     - Use `/users/likes` endpoint instead for current user's likes
+         *
          */
         get: operations["getUserLikes"];
         put?: never;
@@ -259,7 +265,11 @@ export interface paths {
          *
          */
         post: operations["likeUser"];
-        delete?: never;
+        /**
+         * Remove like/Dislike
+         * @description Remove a like/dislike from a user profile.
+         */
+        delete: operations["removeUserLike"];
         options?: never;
         head?: never;
         patch?: never;
@@ -273,8 +283,14 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get blocked users
-         * @description Retrieve a list of users that the selected user has blocked.
+         * Get blocked users for a specific user
+         * @description Retrieve blocked users for a specific user profile.
+         *
+         *     **Privacy Rules:**
+         *     - Only returns blocks if the requested user ID matches the authenticated user
+         *     - Cannot view other users' block lists for privacy and safety reasons
+         *     - Use `/users/blocks` endpoint instead for current user's blocks
+         *
          */
         get: operations["getBlockedUsers"];
         put?: never;
@@ -293,7 +309,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users/{id}/matches": {
+    "/users/matches": {
         parameters: {
             query?: never;
             header?: never;
@@ -301,10 +317,67 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get user matches
-         * @description Retrieve a list of matches for the selected user.
+         * Get current user's matches
+         * @description Retrieve a list of matches for the current authenticated user.
+         *
+         *     **Privacy Rules:**
+         *     - Only returns matches for the authenticated user
+         *     - Cannot view other users' matches for privacy reasons
+         *
          */
-        get: operations["userMatches"];
+        get: operations["getCurrentUserMatches"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/likes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get current user's likes
+         * @description Retrieve lists of users that the current user has liked and users who have liked the current user.
+         *
+         *     **Privacy Rules:**
+         *     - Users can only see their own likes (given and received)
+         *     - Returns separate lists for likes given and likes received
+         *     - Includes like timestamps and status
+         *
+         */
+        get: operations["getCurrentUserLikes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/blocks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get current user's blocked users
+         * @description Retrieve the list of users that the current user has blocked.
+         *
+         *     **Privacy Rules:**
+         *     - Users can only see their own block list
+         *     - Does not reveal who has blocked the current user (for safety)
+         *     - Includes block timestamps
+         *
+         */
+        get: operations["getCurrentUserBlocks"];
         put?: never;
         post?: never;
         delete?: never;
@@ -381,7 +454,7 @@ export interface components {
              *       "lat": 40.7128,
              *       "lng": -74.006
              *     } */
-            location?: {
+            location: {
                 /**
                  * Format: float
                  * @example 40.7128
@@ -1249,7 +1322,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description The ID of the user to retrieve likes for */
+                /** @description The ID of the user to retrieve likes for (must be current user) */
                 id: string;
             };
             cookie?: never;
@@ -1275,6 +1348,20 @@ export interface operations {
                      *       "error": "Unauthorized",
                      *       "message": "You must be logged in to like a user",
                      *       "code": "UNAUTHORIZED"
+                     *     } */
+                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                };
+            };
+            /** @description Forbidden - can only view your own likes */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /** @example {
+                     *       "error": "Forbidden",
+                     *       "message": "You can only view your own likes. Use /users/likes instead.",
+                     *       "code": "PRIVACY_VIOLATION"
                      *     } */
                     "application/json": components["schemas"]["schemas-ErrorResponse"];
                 };
@@ -1305,7 +1392,14 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description Whether to like or dislike the user */
+                    like: boolean;
+                };
+            };
+        };
         responses: {
             /** @description User liked successfully */
             201: {
@@ -1344,6 +1438,62 @@ export interface operations {
             };
         };
     };
+    removeUserLike: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The ID of the user to remove like/dislike for */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description Whether to like or dislike the user */
+                    like: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description Like/Dislike removed successfully */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /** @example {
+                     *       "error": "Unauthorized",
+                     *       "message": "You must be logged in to remove a like/dislike",
+                     *       "code": "UNAUTHORIZED"
+                     *     } */
+                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                };
+            };
+            /** @description User not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /** @example {
+                     *       "error": "Not Found",
+                     *       "message": "User not found",
+                     *       "code": "USER_NOT_FOUND"
+                     *     } */
+                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                };
+            };
+        };
+    };
     getBlockedUsers: {
         parameters: {
             query?: {
@@ -1354,7 +1504,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                /** @description The ID of the user to retrieve blocked users for */
+                /** @description The ID of the user to retrieve blocked users for (must be current user) */
                 id: string;
             };
             cookie?: never;
@@ -1380,6 +1530,20 @@ export interface operations {
                      *       "error": "Unauthorized",
                      *       "message": "You must be logged in to block a user",
                      *       "code": "UNAUTHORIZED"
+                     *     } */
+                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                };
+            };
+            /** @description Forbidden - can only view your own block list */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /** @example {
+                     *       "error": "Forbidden",
+                     *       "message": "You can only view your own block list. Use /users/blocks instead.",
+                     *       "code": "PRIVACY_VIOLATION"
                      *     } */
                     "application/json": components["schemas"]["schemas-ErrorResponse"];
                 };
@@ -1498,14 +1662,16 @@ export interface operations {
             };
         };
     };
-    userMatches: {
+    getCurrentUserMatches: {
         parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The ID of the user to retrieve matches for */
-                id: string;
+            query?: {
+                /** @description Page number for pagination */
+                page?: number;
+                /** @description Number of results per page */
+                limit?: number;
             };
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -1516,7 +1682,29 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["User"][];
+                    "application/json": {
+                        /** @description Total number of matches */
+                        total?: number;
+                        /** @description Current page number */
+                        page?: number;
+                        /** @description Total number of pages */
+                        totalPages?: number;
+                        matches?: {
+                            user: components["schemas"]["User"];
+                            /**
+                             * Format: date-time
+                             * @description When the match was created
+                             */
+                            matchedAt: string;
+                            /**
+                             * Format: date-time
+                             * @description When the last message was sent (if any)
+                             */
+                            lastMessageAt?: string;
+                            /** @description Number of unread messages from this match */
+                            unreadMessages: number;
+                        }[];
+                    };
                 };
             };
             /** @description Unauthorized */
@@ -1533,16 +1721,124 @@ export interface operations {
                     "application/json": components["schemas"]["schemas-ErrorResponse"];
                 };
             };
-            /** @description User not found */
-            404: {
+        };
+    };
+    getCurrentUserLikes: {
+        parameters: {
+            query?: {
+                /** @description Filter by like type */
+                type?: "given" | "received" | "mutual";
+                /** @description Page number for pagination */
+                page?: number;
+                /** @description Number of results per page */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description User likes retrieved successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Type of likes returned
+                         * @enum {string}
+                         */
+                        type?: "given" | "received" | "mutual";
+                        /** @description Total number of likes of this type */
+                        total?: number;
+                        /** @description Current page number */
+                        page?: number;
+                        /** @description Total number of pages */
+                        totalPages?: number;
+                        likes?: {
+                            user: components["schemas"]["User"];
+                            /**
+                             * Format: date-time
+                             * @description When the like was created
+                             */
+                            likedAt: string;
+                            /** @description Whether this like resulted in a mutual match */
+                            isMatch: boolean;
+                        }[];
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     /** @example {
-                     *       "error": "Not Found",
-                     *       "message": "User not found",
-                     *       "code": "USER_NOT_FOUND"
+                     *       "error": "Unauthorized",
+                     *       "message": "You must be logged in to view likes",
+                     *       "code": "UNAUTHORIZED"
+                     *     } */
+                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                };
+            };
+        };
+    };
+    getCurrentUserBlocks: {
+        parameters: {
+            query?: {
+                /** @description Page number for pagination */
+                page?: number;
+                /** @description Number of results per page */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Blocked users retrieved successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Total number of blocked users */
+                        total?: number;
+                        /** @description Current page number */
+                        page?: number;
+                        /** @description Total number of pages */
+                        totalPages?: number;
+                        blockedUsers?: {
+                            user: components["schemas"]["User"];
+                            /**
+                             * Format: date-time
+                             * @description When the user was blocked
+                             */
+                            blockedAt: string;
+                            /**
+                             * @description Optional reason for blocking (if provided)
+                             * @example Inappropriate behavior
+                             */
+                            reason?: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /** @example {
+                     *       "error": "Unauthorized",
+                     *       "message": "You must be logged in to view blocked users",
+                     *       "code": "UNAUTHORIZED"
                      *     } */
                     "application/json": components["schemas"]["schemas-ErrorResponse"];
                 };

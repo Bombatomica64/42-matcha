@@ -194,4 +194,135 @@ export class LikeService {
   async getRecentActivity(userId: string, days = 7): Promise<UserLike[]> {
     return this.likeRepository.getRecentLikeActivity(userId, days);
   }
+
+  /**
+   * Get current user's likes with type filtering (for dedicated endpoint)
+   */
+  async getCurrentUserLikes(
+    userId: string, 
+    type: 'given' | 'received' | 'mutual', 
+    page = 1, 
+    limit = 20
+  ): Promise<{
+    likes: Array<{
+      user: UserLike;
+      likedAt: Date;
+      isMatch: boolean;
+    }>;
+    total: number;
+    pagination: {
+      page: number;
+      totalPages: number;
+      hasNext: boolean;
+      hasPrev: boolean;
+    };
+  }> {
+    let likes: Array<{
+      user: UserLike;
+      likedAt: Date;
+      isMatch: boolean;
+    }>;
+    let total: number;
+
+    switch (type) {
+      case 'received': {
+        const receivedResult = await this.getUserLikes(userId, page, limit);
+        likes = receivedResult.likes.map(like => ({
+          user: like,
+          likedAt: like.created_at,
+          isMatch: false // TODO: Check if it's a match
+        }));
+        total = receivedResult.pagination.total;
+        break;
+      }
+
+      case 'given': {
+        const givenResult = await this.getUserLikedBy(userId, page, limit);
+        likes = givenResult.likes.map(like => ({
+          user: like,
+          likedAt: like.created_at,
+          isMatch: false // TODO: Check if it's a match
+        }));
+        total = givenResult.pagination.total;
+        break;
+      }
+
+      case 'mutual': {
+        // Get mutual likes (matches)
+        const mutualLikes = await this.getMutualLikes(userId, page, limit);
+        likes = mutualLikes.likes;
+        total = mutualLikes.total;
+        break;
+      }
+
+      default:
+        throw new Error(`Invalid type: ${type}`);
+    }
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      likes,
+      total,
+      pagination: {
+        page,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1
+      }
+    };
+  }
+
+  /**
+   * Get mutual likes (matches) for a user
+   */
+  private async getMutualLikes(userId: string, page = 1, limit = 20): Promise<{
+    likes: Array<{
+      user: UserLike;
+      likedAt: Date;
+      isMatch: boolean;
+    }>;
+    total: number;
+  }> {
+    const offset = (page - 1) * limit;
+    
+    const query = `
+      SELECT DISTINCT
+        u2.*,
+        ul1.created_at as liked_at,
+        true as is_match
+      FROM user_likes ul1
+      INNER JOIN user_likes ul2 ON ul1.liked_id = ul2.liker_id AND ul1.liker_id = ul2.liked_id
+      INNER JOIN users u2 ON ul1.liked_id = u2.id
+      WHERE ul1.liker_id = $1 
+        AND ul1.is_like = true 
+        AND ul2.is_like = true
+      ORDER BY ul1.created_at DESC
+      LIMIT $2 OFFSET $3
+    `;
+
+    const countQuery = `
+      SELECT COUNT(DISTINCT ul1.liked_id) as count
+      FROM user_likes ul1
+      INNER JOIN user_likes ul2 ON ul1.liked_id = ul2.liker_id AND ul1.liker_id = ul2.liked_id
+      WHERE ul1.liker_id = $1 
+        AND ul1.is_like = true 
+        AND ul2.is_like = true
+    `;
+
+    const [likesResult, countResult] = await Promise.all([
+      this.likeRepository.query(query, [userId, limit, offset]),
+      this.likeRepository.query(countQuery, [userId])
+    ]);
+
+    const likes = likesResult.rows.map((row: UserLike & {liked_at: Date}) => ({
+      user: row,
+      likedAt: row.liked_at,
+      isMatch: true
+    }));
+
+    const total = parseInt(countResult.rows[0].count);
+
+    return { likes, total };
+  }
 }

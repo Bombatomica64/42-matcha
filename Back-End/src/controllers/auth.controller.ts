@@ -3,13 +3,16 @@ import { logger } from "../server";
 import type { AuthService } from "@services/auth.services";
 import { ValidationSchemas } from "@utils/validation";
 import { env } from "@config/env";
-import type {
-	RegisterRequest,
-	RegisterResponse,
-	LoginRequest,
-	LoginResponse,
-	ErrorResponse,
-} from "@generated/types";
+import type { components } from "@generated/typescript/api";
+
+type RegisterRequest = components['schemas']['RegisterRequest'];
+type RegisterResponse = components['schemas']['RegisterResponse'];
+type LoginRequest = components['schemas']['LoginRequest'];
+type LoginResponse = components['schemas']['LoginResponse'];
+type LogoutResponse = components['schemas']['LogoutResponse'];
+type verifyEmailResponse = components['schemas']['verifyEmailResponse'];
+type ResetPasswordResponse = components['schemas']['ResetPasswordResponse'];
+type ErrorResponse = components['schemas']['ErrorResponse'];
 
 export class AuthController {
 	private authService: AuthService;
@@ -37,7 +40,9 @@ export class AuthController {
 				!registerData.sexual_orientation
 			) {
 				const errorResponse: ErrorResponse = {
+					error: "Bad Request",
 					message: "Missing required fields",
+					code: "VALIDATION_ERROR"
 				};
 				res.status(400).json(errorResponse);
 				return;
@@ -46,7 +51,9 @@ export class AuthController {
 			// Validate email format
 			if (!ValidationSchemas.validateEmail(registerData.email)) {
 				const errorResponse: ErrorResponse = {
+					error: "Bad Request",
 					message: "Invalid email format",
+					code: "INVALID_EMAIL"
 				};
 				res.status(400).json(errorResponse);
 				return;
@@ -55,8 +62,10 @@ export class AuthController {
 			// Validate password strength
 			if (!ValidationSchemas.validatePassword(registerData.password)) {
 				const errorResponse: ErrorResponse = {
+					error: "Bad Request",
 					message:
 						"Password must be at least 8 characters with uppercase, lowercase, and number",
+					code: "INVALID_PASSWORD"
 				};
 				res.status(400).json(errorResponse);
 				return;
@@ -65,8 +74,10 @@ export class AuthController {
 			// Validate username format
 			if (!ValidationSchemas.validateUsername(registerData.username)) {
 				const errorResponse: ErrorResponse = {
+					error: "Bad Request",
 					message:
 						"Username must be 3-20 characters, alphanumeric and underscore only",
+					code: "INVALID_USERNAME"
 				};
 				res.status(400).json(errorResponse);
 				return;
@@ -79,7 +90,7 @@ export class AuthController {
 				password: registerData.password,
 				first_name: registerData.first_name,
 				last_name: registerData.last_name,
-				birth_date: registerData.birth_date,
+				birth_date: new Date(registerData.birth_date),
 				bio: registerData.bio,
 				gender: registerData.gender,
 				sexual_orientation: registerData.sexual_orientation,
@@ -109,7 +120,9 @@ export class AuthController {
 			logger.error("Registration error:", error);
 
 			const errorResponse: ErrorResponse = {
+				error: "Bad Request",
 				message: error instanceof Error ? error.message : "Registration failed",
+				code: "REGISTRATION_FAILED"
 			};
 
 			res.status(400).json(errorResponse);
@@ -125,7 +138,9 @@ export class AuthController {
 
 			if (!loginData.email_or_username || !loginData.password) {
 				const errorResponse: ErrorResponse = {
+					error: "Bad Request",
 					message: "Email/username and password are required",
+					code: "VALIDATION_ERROR"
 				};
 				res.status(400).json(errorResponse);
 				return;
@@ -138,7 +153,9 @@ export class AuthController {
 
 			if (!result) {
 				const errorResponse: ErrorResponse = {
+					error: "Unauthorized",
 					message: "Invalid credentials",
+					code: "INVALID_CREDENTIALS"
 				};
 				res.status(401).json(errorResponse);
 				return;
@@ -163,7 +180,9 @@ export class AuthController {
 			logger.error("Login error:", error);
 
 			const errorResponse: ErrorResponse = {
+				error: "Unauthorized",
 				message: error instanceof Error ? error.message : "Login failed",
+				code: "LOGIN_FAILED"
 			};
 
 			res.status(401).json(errorResponse);
@@ -181,7 +200,9 @@ export class AuthController {
 
 			if (!refreshToken) {
 				const errorResponse: ErrorResponse = {
+					error: "Unauthorized",
 					message: "Refresh token is required",
+					code: "TOKEN_REQUIRED"
 				};
 				res.status(401).json(errorResponse);
 				return;
@@ -193,21 +214,26 @@ export class AuthController {
 
 			if (!result) {
 				const errorResponse: ErrorResponse = {
+					error: "Unauthorized",
 					message: "Invalid or expired refresh token",
+					code: "INVALID_TOKEN"
 				};
 				res.status(401).json(errorResponse);
 				return;
 			}
 
-			res.status(200).json({
+			const successResponse = {
 				message: "Token refreshed successfully",
-				access_token: result.accessToken,
-			});
+				access_token: result.accessToken
+			};
+			res.status(200).json(successResponse);
 		} catch (error) {
 			logger.error("Token refresh error:", error);
 
 			const errorResponse: ErrorResponse = {
+				error: "Unauthorized",
 				message: "Token refresh failed",
+				code: "TOKEN_REFRESH_FAILED"
 			};
 
 			res.status(401).json(errorResponse);
@@ -223,14 +249,17 @@ export class AuthController {
 			res.clearCookie("refreshToken");
 
 			// TODO: Implement JWT token blacklisting if needed
-			res.status(200).json({
-				message: "User logged out successfully",
-			});
+			const successResponse: LogoutResponse = {
+				message: "User logged out successfully"
+			};
+			res.status(200).json(successResponse);
 		} catch (error) {
 			logger.error("Logout error:", error);
 
 			const errorResponse: ErrorResponse = {
+				error: "Internal Server Error",
 				message: "Logout failed",
+				code: "LOGOUT_FAILED"
 			};
 
 			res.status(500).json(errorResponse);
@@ -246,7 +275,9 @@ export class AuthController {
 
 			if (!token || typeof token !== "string") {
 				const errorResponse: ErrorResponse = {
+					error: "Bad Request",
 					message: "Verification token is required",
+					code: "TOKEN_REQUIRED"
 				};
 				res.status(400).json(errorResponse);
 				return;
@@ -256,20 +287,25 @@ export class AuthController {
 
 			if (!result) {
 				const errorResponse: ErrorResponse = {
+					error: "Bad Request",
 					message: "Invalid or expired verification token",
+					code: "INVALID_TOKEN"
 				};
 				res.status(400).json(errorResponse);
 				return;
 			}
 
-			res.status(200).json({
-				message: "Email verified successfully",
-			});
+			const successResponse: verifyEmailResponse = {
+				message: "Email verified successfully"
+			};
+			res.status(200).json(successResponse);
 		} catch (error) {
 			logger.error("Email verification error:", error);
 
 			const errorResponse: ErrorResponse = {
+				error: "Bad Request",
 				message: "Email verification failed",
+				code: "VERIFICATION_FAILED"
 			};
 
 			res.status(400).json(errorResponse);
@@ -285,7 +321,9 @@ export class AuthController {
 
 			if (!email) {
 				const errorResponse: ErrorResponse = {
+					error: "Bad Request",
 					message: "Email is required",
+					code: "EMAIL_REQUIRED"
 				};
 				res.status(400).json(errorResponse);
 				return;
@@ -293,14 +331,17 @@ export class AuthController {
 
 			await this.authService.requestPasswordReset(email);
 
-			res.status(200).json({
-				message: "Email sent with password reset instructions",
-			});
+			const successResponse: ResetPasswordResponse = {
+				message: "Email sent with password reset instructions"
+			};
+			res.status(200).json(successResponse);
 		} catch (error) {
 			logger.error("Password reset error:", error);
 
 			const errorResponse: ErrorResponse = {
+				error: "Bad Request",
 				message: "Password reset request failed",
+				code: "RESET_REQUEST_FAILED"
 			};
 
 			res.status(400).json(errorResponse);
@@ -316,7 +357,9 @@ export class AuthController {
 
 			if (!token || typeof token !== "string") {
 				const errorResponse: ErrorResponse = {
+					error: "Bad Request",
 					message: "Password change token is required",
+					code: "TOKEN_REQUIRED"
 				};
 				res.status(400).json(errorResponse);
 				return;
@@ -326,7 +369,9 @@ export class AuthController {
 
 			if (!newPassword) {
 				const errorResponse: ErrorResponse = {
+					error: "Bad Request",
 					message: "New password is required",
+					code: "PASSWORD_REQUIRED"
 				};
 				res.status(400).json(errorResponse);
 				return;
@@ -336,20 +381,25 @@ export class AuthController {
 
 			if (!result) {
 				const errorResponse: ErrorResponse = {
+					error: "Bad Request",
 					message: "Failed to reset password",
+					code: "PASSWORD_RESET_FAILED"
 				};
 				res.status(400).json(errorResponse);
 				return;
 			}
 
-			res.status(200).json({
-				message: "Password reset successfully",
-			});
+			const successResponse: ResetPasswordResponse = {
+				message: "Password reset successfully"
+			};
+			res.status(200).json(successResponse);
 		} catch (error) {
 			logger.error("Password reset error:", error);
 
 			const errorResponse: ErrorResponse = {
+				error: "Internal Server Error",
 				message: "Password reset failed",
+				code: "PASSWORD_RESET_FAILED"
 			};
 
 			res.status(500).json(errorResponse);

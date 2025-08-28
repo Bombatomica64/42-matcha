@@ -3,6 +3,7 @@ import type { User } from "@models/user.entity";
 import { UserRepository } from "@repositories/user.repository";
 import { LikeService } from "./like.service";
 import { BlockService } from "./block.service";
+import { MatchService } from "./match.service";
 
 export class UserService {
 	private userRepository: UserRepository;
@@ -129,5 +130,24 @@ export class UserService {
 	 */
 	public async getUserMatches(userId: string, page = 1, limit = 20) {
 		return this.matchService.getUserMatches(userId, page, limit);
+	}
+
+	/**
+	 * Get current user's likes with type filtering (dedicated endpoint)
+	 */
+	public async getCurrentUserLikes(
+		userId: string, 
+		type: 'given' | 'received' | 'mutual', 
+		page = 1, 
+		limit = 20
+	) {
+		return this.likeService.getCurrentUserLikes(userId, type, page, limit);
+	}
+
+	/**
+	 * Get current user's blocked users (dedicated endpoint)
+	 */
+	public async getCurrentUserBlocks(userId: string, page = 1, limit = 20) {
+		return this.blockService.getCurrentUserBlocks(userId, page, limit);
 	}
 }

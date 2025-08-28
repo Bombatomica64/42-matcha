@@ -279,4 +279,45 @@ export class BlockService {
 
 		return { success, failed };
 	}
+
+	/**
+	 * Get current user's blocked users (dedicated endpoint)
+	 */
+	async getCurrentUserBlocks(
+		userId: string, 
+		page = 1, 
+		limit = 20
+	): Promise<{
+		blocks: Array<{
+			user: BlockedUserWithDetails;
+			blockedAt: Date;
+		}>;
+		total: number;
+		pagination: {
+			page: number;
+			totalPages: number;
+			hasNext: boolean;
+			hasPrev: boolean;
+		};
+	}> {
+		const result = await this.getBlockedUsers(userId, page, limit);
+		
+		const formattedBlocks = result.blocks.map(block => ({
+			user: block,
+			blockedAt: block.created_at
+		}));
+
+		const totalPages = Math.ceil(result.pagination.total / limit);
+
+		return {
+			blocks: formattedBlocks,
+			total: result.pagination.total,
+			pagination: {
+				page,
+				totalPages,
+				hasNext: page < totalPages,
+				hasPrev: page > 1
+			}
+		};
+	}
 }
