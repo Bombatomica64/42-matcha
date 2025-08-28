@@ -7,16 +7,16 @@ import swaggerUi from "swagger-ui-express";
 import { env } from "@config/env";
 import authRoutes from "@routes/auth.routes";
 import { jwtMiddleware } from "@middleware/jwt.middleware";
-import type { User } from "@models/user.entity";
 import { pool } from "./database";
 import process from "node:process";
+import type { components } from "@generated/typescript/api";
 
 const logger = pino({ name: "matcha-server" });
 const app: Express = express();
 
 declare module "express-serve-static-core" {
   interface Locals {
-    user?: User;
+    user?: components['schemas']['User'];
   }
 }
 

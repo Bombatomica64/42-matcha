@@ -3,6 +3,7 @@ import { decodeJwt } from "@utils/jwt";
 import type { Request, Response, NextFunction } from "express";
 import { pool } from "../database";
 import { logger } from "../server";
+import { dbUserToApiUser } from "src/mappers/user.mapper";
 
 const nonProtectedEndpoints: Array<string> = [
 	"/auth/login",
@@ -49,7 +50,7 @@ export const jwtMiddleware = async (
 			return res.status(401).json({ message: "User not found" });
 		}
 
-		res.locals.user = user;
+		res.locals.user = dbUserToApiUser(user);
 		next();
 	} catch (error) {
 		logger.error("JWT middleware error:", error);
