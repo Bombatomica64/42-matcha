@@ -4,1845 +4,1845 @@
  */
 
 export interface paths {
-    "/auth/register": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Register a new user */
-        post: operations["userRegister"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** User login */
-        post: operations["userLogin"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/logout": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** User logout */
-        post: operations["userLogout"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/verifyEmail": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Verify user email */
-        get: operations["userverifyEmail"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/resetPassword": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Reset user password */
-        post: operations["userResetPassword"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/users/profile": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get user profile */
-        get: operations["getUserProfile"];
-        /** Update user profile */
-        put: operations["updateUserProfile"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Partially update user profile */
-        patch: operations["patchUserProfile"];
-        trace?: never;
-    };
-    "/users/search": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Search for users
-         * @description Search for users based on various criteria.
-         */
-        get: operations["searchUsers"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/users/discover": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Discover potential matches
-         * @description Get potential matches using the matching algorithm.
-         *
-         *     **Algorithm Features:**
-         *     - Filters out already seen/liked/passed users
-         *     - Considers user preferences (age, location, orientation)
-         *     - Excludes blocked users and users who blocked you
-         *     - Uses fame rating and compatibility scoring
-         *     - Never shows the same user twice in a session
-         *
-         *     **Pagination Strategy:**
-         *     - Small batches (10-20 users) for better user experience
-         *     - Algorithm runs on each request with exclusion filters
-         *     - Client should request new batch when running low
-         *
-         */
-        get: operations["discoverUsers"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/photos": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get user photos */
-        get: operations["getUserPhotos"];
-        put?: never;
-        /** Upload a new photo */
-        post: operations["uploadUserPhoto"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/photos/{photoId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get user photo by ID */
-        get: operations["getUserPhotoById"];
-        put?: never;
-        post?: never;
-        /**
-         * Delete user photo
-         * @description Delete a specific photo.
-         *
-         *     **Authorization:**
-         *     - Users can only delete their own photos
-         *     - Admins can delete any photo
-         *     - Returns 403 if user tries to delete another user's photo
-         *
-         */
-        delete: operations["deleteUserPhoto"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/photos/{photoId}/main": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Set a photo as the main profile photo */
-        post: operations["setMainPhoto"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/users/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get user by ID */
-        get: operations["getUserById"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/users/{id}/like": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get likes for a specific user
-         * @description Retrieve likes for a specific user profile.
-         *
-         *     **Privacy Rules:**
-         *     - Only returns likes if the requested user ID matches the authenticated user
-         *     - Cannot view other users' likes for privacy reasons
-         *     - Use `/users/likes` endpoint instead for current user's likes
-         *
-         */
-        get: operations["getUserLikes"];
-        put?: never;
-        /**
-         * Like a user
-         * @description Like a user profile. This action is mutual and will notify the other user.
-         *
-         */
-        post: operations["likeUser"];
-        /**
-         * Remove like/Dislike
-         * @description Remove a like/dislike from a user profile.
-         */
-        delete: operations["removeUserLike"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/users/{id}/block": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get blocked users for a specific user
-         * @description Retrieve blocked users for a specific user profile.
-         *
-         *     **Privacy Rules:**
-         *     - Only returns blocks if the requested user ID matches the authenticated user
-         *     - Cannot view other users' block lists for privacy and safety reasons
-         *     - Use `/users/blocks` endpoint instead for current user's blocks
-         *
-         */
-        get: operations["getBlockedUsers"];
-        put?: never;
-        /**
-         * Block selected user
-         * @description Block a user from interacting with the current user.
-         */
-        post: operations["blockUser"];
-        /**
-         * Unblock selected user
-         * @description Unblock a previously blocked user.
-         */
-        delete: operations["unblockUser"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/users/matches": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get current user's matches
-         * @description Retrieve a list of matches for the current authenticated user.
-         *
-         *     **Privacy Rules:**
-         *     - Only returns matches for the authenticated user
-         *     - Cannot view other users' matches for privacy reasons
-         *
-         */
-        get: operations["getCurrentUserMatches"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/users/likes": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get current user's likes
-         * @description Retrieve lists of users that the current user has liked and users who have liked the current user.
-         *
-         *     **Privacy Rules:**
-         *     - Users can only see their own likes (given and received)
-         *     - Returns separate lists for likes given and likes received
-         *     - Includes like timestamps and status
-         *
-         */
-        get: operations["getCurrentUserLikes"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/users/blocks": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get current user's blocked users
-         * @description Retrieve the list of users that the current user has blocked.
-         *
-         *     **Privacy Rules:**
-         *     - Users can only see their own block list
-         *     - Does not reveal who has blocked the current user (for safety)
-         *     - Includes block timestamps
-         *
-         */
-        get: operations["getCurrentUserBlocks"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
+	"/auth/register": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		/** Register a new user */
+		post: operations["userRegister"];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	"/auth/login": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		/** User login */
+		post: operations["userLogin"];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	"/auth/logout": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		/** User logout */
+		post: operations["userLogout"];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	"/auth/verifyEmail": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/** Verify user email */
+		get: operations["userverifyEmail"];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	"/auth/resetPassword": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		/** Reset user password */
+		post: operations["userResetPassword"];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	"/users/profile": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/** Get user profile */
+		get: operations["getUserProfile"];
+		/** Update user profile */
+		put: operations["updateUserProfile"];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		/** Partially update user profile */
+		patch: operations["patchUserProfile"];
+		trace?: never;
+	};
+	"/users/search": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/**
+		 * Search for users
+		 * @description Search for users based on various criteria.
+		 */
+		get: operations["searchUsers"];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	"/users/discover": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/**
+		 * Discover potential matches
+		 * @description Get potential matches using the matching algorithm.
+		 *
+		 *     **Algorithm Features:**
+		 *     - Filters out already seen/liked/passed users
+		 *     - Considers user preferences (age, location, orientation)
+		 *     - Excludes blocked users and users who blocked you
+		 *     - Uses fame rating and compatibility scoring
+		 *     - Never shows the same user twice in a session
+		 *
+		 *     **Pagination Strategy:**
+		 *     - Small batches (10-20 users) for better user experience
+		 *     - Algorithm runs on each request with exclusion filters
+		 *     - Client should request new batch when running low
+		 *
+		 */
+		get: operations["discoverUsers"];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	"/photos": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/** Get user photos */
+		get: operations["getUserPhotos"];
+		put?: never;
+		/** Upload a new photo */
+		post: operations["uploadUserPhoto"];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	"/photos/{photoId}": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/** Get user photo by ID */
+		get: operations["getUserPhotoById"];
+		put?: never;
+		post?: never;
+		/**
+		 * Delete user photo
+		 * @description Delete a specific photo.
+		 *
+		 *     **Authorization:**
+		 *     - Users can only delete their own photos
+		 *     - Admins can delete any photo
+		 *     - Returns 403 if user tries to delete another user's photo
+		 *
+		 */
+		delete: operations["deleteUserPhoto"];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	"/photos/{photoId}/main": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		/** Set a photo as the main profile photo */
+		post: operations["setMainPhoto"];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	"/users/{id}": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/** Get user by ID */
+		get: operations["getUserById"];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	"/users/{id}/like": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/**
+		 * Get likes for a specific user
+		 * @description Retrieve likes for a specific user profile.
+		 *
+		 *     **Privacy Rules:**
+		 *     - Only returns likes if the requested user ID matches the authenticated user
+		 *     - Cannot view other users' likes for privacy reasons
+		 *     - Use `/users/likes` endpoint instead for current user's likes
+		 *
+		 */
+		get: operations["getUserLikes"];
+		put?: never;
+		/**
+		 * Like a user
+		 * @description Like a user profile. This action is mutual and will notify the other user.
+		 *
+		 */
+		post: operations["likeUser"];
+		/**
+		 * Remove like/Dislike
+		 * @description Remove a like/dislike from a user profile.
+		 */
+		delete: operations["removeUserLike"];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	"/users/{id}/block": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/**
+		 * Get blocked users for a specific user
+		 * @description Retrieve blocked users for a specific user profile.
+		 *
+		 *     **Privacy Rules:**
+		 *     - Only returns blocks if the requested user ID matches the authenticated user
+		 *     - Cannot view other users' block lists for privacy and safety reasons
+		 *     - Use `/users/blocks` endpoint instead for current user's blocks
+		 *
+		 */
+		get: operations["getBlockedUsers"];
+		put?: never;
+		/**
+		 * Block selected user
+		 * @description Block a user from interacting with the current user.
+		 */
+		post: operations["blockUser"];
+		/**
+		 * Unblock selected user
+		 * @description Unblock a previously blocked user.
+		 */
+		delete: operations["unblockUser"];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	"/users/matches": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/**
+		 * Get current user's matches
+		 * @description Retrieve a list of matches for the current authenticated user.
+		 *
+		 *     **Privacy Rules:**
+		 *     - Only returns matches for the authenticated user
+		 *     - Cannot view other users' matches for privacy reasons
+		 *
+		 */
+		get: operations["getCurrentUserMatches"];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	"/users/likes": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/**
+		 * Get current user's likes
+		 * @description Retrieve lists of users that the current user has liked and users who have liked the current user.
+		 *
+		 *     **Privacy Rules:**
+		 *     - Users can only see their own likes (given and received)
+		 *     - Returns separate lists for likes given and likes received
+		 *     - Includes like timestamps and status
+		 *
+		 */
+		get: operations["getCurrentUserLikes"];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	"/users/blocks": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/**
+		 * Get current user's blocked users
+		 * @description Retrieve the list of users that the current user has blocked.
+		 *
+		 *     **Privacy Rules:**
+		 *     - Users can only see their own block list
+		 *     - Does not reveal who has blocked the current user (for safety)
+		 *     - Includes block timestamps
+		 *
+		 */
+		get: operations["getCurrentUserBlocks"];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        ErrorResponse: {
-            /** @example Invalid request */
-            error: string;
-            /** @example The provided data is invalid */
-            message: string;
-            /** @example VALIDATION_ERROR */
-            code?: string;
-            /** @example {
-             *       "field": "email",
-             *       "reason": "Invalid email format"
-             *     } */
-            details?: {
-                [key: string]: unknown;
-            };
-        };
-        SuccessResponse: {
-            /** @example User liked successfully */
-            message?: string;
-            /** @example {
-             *       "userId": "123e4567-e89b-12d3-a456-426614174000"
-             *     } */
-            data?: {
-                [key: string]: unknown;
-            };
-        };
-        registerRequest: components["schemas"]["RegisterRequest"];
-        registerResponse: components["schemas"]["RegisterResponse"];
-        loginRequest: components["schemas"]["LoginRequest"];
-        loginResponse: components["schemas"]["LoginResponse"];
-        logoutResponse: components["schemas"]["LogoutResponse"];
-        user: components["schemas"]["User"];
-        userProfilePatchRequest: components["schemas"]["UserProfilePatchRequest"];
-        photo: components["schemas"]["Photo"];
-        photoUploadRequest: components["schemas"]["PhotoUploadRequest"];
-        photoResponse: components["schemas"]["PhotoResponse"];
-        photoListResponse: components["schemas"]["PhotoListResponse"];
-        RegisterRequest: {
-            /** @example lollo */
-            username: string;
-            /**
-             * Format: email
-             * @example lollo@example.com
-             */
-            email: string;
-            /**
-             * Format: password
-             * @example securepassword123
-             */
-            password: string;
-            /** @example Lollo */
-            first_name: string;
-            /** @example Smith */
-            last_name: string;
-            /**
-             * Format: date
-             * @example 1998-01-01
-             */
-            birth_date: string;
-            /** @example Hello, I'm Lollo! I love hiking and outdoor adventures. */
-            bio?: string;
-            /** @example {
-             *       "lat": 40.7128,
-             *       "lng": -74.006
-             *     } */
-            location: {
-                /**
-                 * Format: float
-                 * @example 40.7128
-                 */
-                lat?: number;
-                /**
-                 * Format: float
-                 * @example -74.006
-                 */
-                lng?: number;
-            };
-            /** @example false */
-            location_manual?: boolean;
-            /** @enum {string} */
-            sexual_orientation: "heterosexual" | "homosexual" | "bisexual";
-            /** @enum {string} */
-            gender: "male" | "female" | "other";
-        };
-        RegisterResponse: {
-            /** @example User registered successfully */
-            message?: string;
-            /** @example 1234567890abcdef */
-            user_id?: string;
-        };
-        "schemas-ErrorResponse": {
-            /**
-             * @description Error type
-             * @example Bad Request
-             */
-            error: string;
-            /**
-             * @description Human-readable error message
-             * @example The request could not be processed
-             */
-            message: string;
-            /**
-             * @description Application-specific error code
-             * @example VALIDATION_ERROR
-             */
-            code?: string;
-            /**
-             * @description Additional error details
-             * @example {
-             *       "field": "email",
-             *       "issue": "Invalid email format"
-             *     }
-             */
-            details?: {
-                [key: string]: unknown;
-            };
-        };
-        LoginRequest: {
-            /**
-             * Format: email
-             * @example lollo@example.com
-             */
-            email_or_username: string;
-            /**
-             * Format: password
-             * @example securepassword123
-             */
-            password: string;
-        };
-        LoginResponse: {
-            /** @example Login successful */
-            message?: string;
-            /** @example eyJhbGciOi */
-            token?: string;
-            /** @example 1234567890abcdef */
-            user_id?: string;
-        };
-        LogoutResponse: {
-            /** @example User logged out successfully */
-            message?: string;
-        };
-        verifyEmailResponse: {
-            /** @example Email verified successfully */
-            message?: string;
-        };
-        ResetPasswordRequest: {
-            /**
-             * Format: email
-             * @example lollo@example.com
-             */
-            email?: string;
-        };
-        ResetPasswordResponse: {
-            /** @example Email sent with password reset instructions */
-            message?: string;
-        };
-        Photo: {
-            /**
-             * Format: uuid
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            id: string;
-            /**
-             * Format: uuid
-             * @example 550e8400-e29b-41d4-a716-446655440001
-             */
-            user_id: string;
-            /**
-             * Format: uri
-             * @example /uploads/photos/550e8400-e29b-41d4-a716-446655440000.jpg
-             */
-            image_url: string;
-            /** @example false */
-            is_main: boolean;
-            /**
-             * Format: date-time
-             * @example 2024-01-15T10:30:00Z
-             */
-            uploaded_at: string;
-        };
-        User: {
-            /** Format: uuid */
-            id?: string;
-            /** Format: email */
-            email?: string;
-            name?: string;
-            /** Format: date */
-            birth_date?: string;
-            bio?: string;
-            first_name?: string;
-            last_name?: string;
-            /** @enum {string} */
-            gender?: "male" | "female" | "other";
-            /** @enum {string} */
-            sexual_orientation?: "heterosexual" | "homosexual" | "bisexual" | "other";
-            location?: {
-                /** Format: float */
-                latitude?: number;
-                /** Format: float */
-                longitude?: number;
-            };
-            fame_rating?: number;
-            online_status?: boolean;
-            likes_received?: number;
-            views?: number;
-            matches?: number;
-            photos?: components["schemas"]["Photo"][];
-            hashtags?: string[];
-        };
-        UserProfilePatchRequest: {
-            username?: string;
-            bio?: string;
-            first_name?: string;
-            last_name?: string;
-            /** Format: date */
-            birth_date?: string;
-            /** Format: email */
-            email?: string;
-            /**
-             * @default bisexual
-             * @enum {string}
-             */
-            sexual_orientation: "heterosexual" | "homosexual" | "bisexual";
-            /**
-             * @default other
-             * @enum {string}
-             */
-            gender: "male" | "female" | "other";
-            location?: {
-                /** Format: float */
-                latitude?: number;
-                /** Format: float */
-                longitude?: number;
-            };
-        };
-        PhotoListResponse: {
-            photos?: components["schemas"]["Photo"][];
-            /** @example 3 */
-            total?: number;
-        };
-        PhotoUploadRequest: {
-            /**
-             * Format: binary
-             * @description Photo file (JPEG, PNG, WebP)
-             */
-            photo: string;
-            /**
-             * @description Set as main profile photo
-             * @default false
-             */
-            is_main: boolean;
-        };
-        PhotoResponse: components["schemas"]["Photo"] & {
-            /** @example Photo uploaded successfully */
-            message?: string;
-        };
-        "schemas-SuccessResponse": {
-            /** @example Operation completed successfully */
-            message?: string;
-            /** @example {
-             *       "userId": "123e4567-e89b-12d3-a456-426614174000"
-             *     } */
-            data?: {
-                [key: string]: unknown;
-            };
-        };
-    };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+	schemas: {
+		ErrorResponse: {
+			/** @example Invalid request */
+			error: string;
+			/** @example The provided data is invalid */
+			message: string;
+			/** @example VALIDATION_ERROR */
+			code?: string;
+			/** @example {
+			 *       "field": "email",
+			 *       "reason": "Invalid email format"
+			 *     } */
+			details?: {
+				[key: string]: unknown;
+			};
+		};
+		SuccessResponse: {
+			/** @example User liked successfully */
+			message?: string;
+			/** @example {
+			 *       "userId": "123e4567-e89b-12d3-a456-426614174000"
+			 *     } */
+			data?: {
+				[key: string]: unknown;
+			};
+		};
+		registerRequest: components["schemas"]["RegisterRequest"];
+		registerResponse: components["schemas"]["RegisterResponse"];
+		loginRequest: components["schemas"]["LoginRequest"];
+		loginResponse: components["schemas"]["LoginResponse"];
+		logoutResponse: components["schemas"]["LogoutResponse"];
+		user: components["schemas"]["User"];
+		userProfilePatchRequest: components["schemas"]["UserProfilePatchRequest"];
+		photo: components["schemas"]["Photo"];
+		photoUploadRequest: components["schemas"]["PhotoUploadRequest"];
+		photoResponse: components["schemas"]["PhotoResponse"];
+		photoListResponse: components["schemas"]["PhotoListResponse"];
+		RegisterRequest: {
+			/** @example lollo */
+			username: string;
+			/**
+			 * Format: email
+			 * @example lollo@example.com
+			 */
+			email: string;
+			/**
+			 * Format: password
+			 * @example securepassword123
+			 */
+			password: string;
+			/** @example Lollo */
+			first_name: string;
+			/** @example Smith */
+			last_name: string;
+			/**
+			 * Format: date
+			 * @example 1998-01-01
+			 */
+			birth_date: string;
+			/** @example Hello, I'm Lollo! I love hiking and outdoor adventures. */
+			bio?: string;
+			/** @example {
+			 *       "lat": 40.7128,
+			 *       "lng": -74.006
+			 *     } */
+			location: {
+				/**
+				 * Format: float
+				 * @example 40.7128
+				 */
+				lat?: number;
+				/**
+				 * Format: float
+				 * @example -74.006
+				 */
+				lng?: number;
+			};
+			/** @example false */
+			location_manual?: boolean;
+			/** @enum {string} */
+			sexual_orientation: "heterosexual" | "homosexual" | "bisexual";
+			/** @enum {string} */
+			gender: "male" | "female" | "other";
+		};
+		RegisterResponse: {
+			/** @example User registered successfully */
+			message?: string;
+			/** @example 1234567890abcdef */
+			user_id?: string;
+		};
+		"schemas-ErrorResponse": {
+			/**
+			 * @description Error type
+			 * @example Bad Request
+			 */
+			error: string;
+			/**
+			 * @description Human-readable error message
+			 * @example The request could not be processed
+			 */
+			message: string;
+			/**
+			 * @description Application-specific error code
+			 * @example VALIDATION_ERROR
+			 */
+			code?: string;
+			/**
+			 * @description Additional error details
+			 * @example {
+			 *       "field": "email",
+			 *       "issue": "Invalid email format"
+			 *     }
+			 */
+			details?: {
+				[key: string]: unknown;
+			};
+		};
+		LoginRequest: {
+			/**
+			 * Format: email
+			 * @example lollo@example.com
+			 */
+			email_or_username: string;
+			/**
+			 * Format: password
+			 * @example securepassword123
+			 */
+			password: string;
+		};
+		LoginResponse: {
+			/** @example Login successful */
+			message?: string;
+			/** @example eyJhbGciOi */
+			token?: string;
+			/** @example 1234567890abcdef */
+			user_id?: string;
+		};
+		LogoutResponse: {
+			/** @example User logged out successfully */
+			message?: string;
+		};
+		verifyEmailResponse: {
+			/** @example Email verified successfully */
+			message?: string;
+		};
+		ResetPasswordRequest: {
+			/**
+			 * Format: email
+			 * @example lollo@example.com
+			 */
+			email?: string;
+		};
+		ResetPasswordResponse: {
+			/** @example Email sent with password reset instructions */
+			message?: string;
+		};
+		Photo: {
+			/**
+			 * Format: uuid
+			 * @example 550e8400-e29b-41d4-a716-446655440000
+			 */
+			id: string;
+			/**
+			 * Format: uuid
+			 * @example 550e8400-e29b-41d4-a716-446655440001
+			 */
+			user_id: string;
+			/**
+			 * Format: uri
+			 * @example /uploads/photos/550e8400-e29b-41d4-a716-446655440000.jpg
+			 */
+			image_url: string;
+			/** @example false */
+			is_main: boolean;
+			/**
+			 * Format: date-time
+			 * @example 2024-01-15T10:30:00Z
+			 */
+			uploaded_at: string;
+		};
+		User: {
+			/** Format: uuid */
+			id?: string;
+			/** Format: email */
+			email?: string;
+			name?: string;
+			/** Format: date */
+			birth_date?: string;
+			bio?: string;
+			first_name?: string;
+			last_name?: string;
+			/** @enum {string} */
+			gender?: "male" | "female" | "other";
+			/** @enum {string} */
+			sexual_orientation?: "heterosexual" | "homosexual" | "bisexual" | "other";
+			location?: {
+				/** Format: float */
+				latitude?: number;
+				/** Format: float */
+				longitude?: number;
+			};
+			fame_rating?: number;
+			online_status?: boolean;
+			likes_received?: number;
+			views?: number;
+			matches?: number;
+			photos?: components["schemas"]["Photo"][];
+			hashtags?: string[];
+		};
+		UserProfilePatchRequest: {
+			username?: string;
+			bio?: string;
+			first_name?: string;
+			last_name?: string;
+			/** Format: date */
+			birth_date?: string;
+			/** Format: email */
+			email?: string;
+			/**
+			 * @default bisexual
+			 * @enum {string}
+			 */
+			sexual_orientation: "heterosexual" | "homosexual" | "bisexual";
+			/**
+			 * @default other
+			 * @enum {string}
+			 */
+			gender: "male" | "female" | "other";
+			location?: {
+				/** Format: float */
+				latitude?: number;
+				/** Format: float */
+				longitude?: number;
+			};
+		};
+		PhotoListResponse: {
+			photos?: components["schemas"]["Photo"][];
+			/** @example 3 */
+			total?: number;
+		};
+		PhotoUploadRequest: {
+			/**
+			 * Format: binary
+			 * @description Photo file (JPEG, PNG, WebP)
+			 */
+			photo: string;
+			/**
+			 * @description Set as main profile photo
+			 * @default false
+			 */
+			is_main: boolean;
+		};
+		PhotoResponse: components["schemas"]["Photo"] & {
+			/** @example Photo uploaded successfully */
+			message?: string;
+		};
+		"schemas-SuccessResponse": {
+			/** @example Operation completed successfully */
+			message?: string;
+			/** @example {
+			 *       "userId": "123e4567-e89b-12d3-a456-426614174000"
+			 *     } */
+			data?: {
+				[key: string]: unknown;
+			};
+		};
+	};
+	responses: never;
+	parameters: never;
+	requestBodies: never;
+	headers: never;
+	pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    userRegister: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RegisterRequest"];
-            };
-        };
-        responses: {
-            /** @description User registered successfully */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RegisterResponse"];
-                };
-            };
-            /** @description Bad request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    userLogin: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["LoginRequest"];
-            };
-        };
-        responses: {
-            /** @description User logged in successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["LoginResponse"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    userLogout: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User logged out successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["LogoutResponse"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    userverifyEmail: {
-        parameters: {
-            query: {
-                token: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Email verified successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["verifyEmailResponse"];
-                };
-            };
-            /** @description Unauthorized */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    userResetPassword: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ResetPasswordRequest"];
-            };
-        };
-        responses: {
-            /** @description Password reset successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ResetPasswordResponse"];
-                };
-            };
-            /** @description Bad request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    getUserProfile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User profile retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["User"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-            /** @description User not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    updateUserProfile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["User"];
-            };
-        };
-        responses: {
-            /** @description User profile updated successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["User"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-            /** @description User not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    patchUserProfile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserProfilePatchRequest"];
-            };
-        };
-        responses: {
-            /** @description User profile partially updated successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["User"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-            /** @description User not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    searchUsers: {
-        parameters: {
-            query?: {
-                /** @description Search query string (e.g., name, interests) */
-                query?: string;
-                /** @description Minimum age filter */
-                age_min?: number;
-                /** @description Maximum age filter */
-                age_max?: number;
-                /** @description Location filter (e.g., city or coordinates) */
-                location?: string;
-                /** @description Comma-separated list of interests to filter by */
-                interests?: string;
-                /** @description Page number for pagination (default is 1) */
-                page?: number;
-                /** @description Number of results per page (default is 10, max is 50) */
-                per_page?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of users matching the search criteria retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @example 42 */
-                        total_results?: number;
-                        /** @example 5 */
-                        total_pages?: number;
-                        /** @example 1 */
-                        current_page?: number;
-                        users?: components["schemas"]["User"][];
-                    };
-                };
-            };
-            /** @description Bad request - invalid query parameters */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "error": "Bad Request",
-                     *       "message": "Invalid query parameters",
-                     *       "code": "BAD_REQUEST"
-                     *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    discoverUsers: {
-        parameters: {
-            query?: {
-                /** @description Number of users to return (recommended 10-20) */
-                limit?: number;
-                /** @description Force refresh algorithm (ignore recent cache) */
-                refresh?: boolean;
-                /** @description Override max distance preference (km) */
-                maxDistance?: number;
-                /** @description Algorithm seed for consistent ordering in session */
-                seed?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Potential matches retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["User"][];
-                };
-            };
-            /** @description No more users to discover */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @example No more potential matches available */
-                        message?: string;
-                        /** @example [
-                         *       "Try expanding your distance preferences",
-                         *       "Consider adjusting your age range",
-                         *       "Add more interests to your profile"
-                         *     ] */
-                        suggestions?: string[];
-                    };
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    getUserPhotos: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User photos retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PhotoListResponse"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    uploadUserPhoto: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": components["schemas"]["PhotoUploadRequest"];
-            };
-        };
-        responses: {
-            /** @description Photo uploaded successfully */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PhotoResponse"];
-                };
-            };
-            /** @description Bad request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    getUserPhotoById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The ID of the photo to retrieve */
-                photoId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User photo retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PhotoResponse"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-            /** @description Photo not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    deleteUserPhoto: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The ID of the photo to delete */
-                photoId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Photo deleted successfully */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-            /** @description Forbidden - insufficient permissions */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "error": "Forbidden",
-                     *       "message": "You can only delete your own photos",
-                     *       "code": "INSUFFICIENT_PERMISSIONS"
-                     *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-            /** @description Photo not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    setMainPhoto: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The ID of the photo to set as main */
-                photoId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Main photo set successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-            /** @description Forbidden - insufficient permissions */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "error": "Forbidden",
-                     *       "message": "You can only set your own photos as main",
-                     *       "code": "INSUFFICIENT_PERMISSIONS"
-                     *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-            /** @description Photo not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    getUserById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The ID of the user to retrieve */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["User"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-            /** @description User not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    getUserLikes: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The ID of the user to retrieve likes for (must be current user) */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of liked users retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["User"][];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "error": "Unauthorized",
-                     *       "message": "You must be logged in to like a user",
-                     *       "code": "UNAUTHORIZED"
-                     *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-            /** @description Forbidden - can only view your own likes */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "error": "Forbidden",
-                     *       "message": "You can only view your own likes. Use /users/likes instead.",
-                     *       "code": "PRIVACY_VIOLATION"
-                     *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-            /** @description User not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "error": "Not Found",
-                     *       "message": "User not found",
-                     *       "code": "USER_NOT_FOUND"
-                     *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    likeUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The ID of the user to like */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    /** @description Whether to like or dislike the user */
-                    like: boolean;
-                };
-            };
-        };
-        responses: {
-            /** @description User liked successfully */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "message": "User liked successfully"
-                     *     } */
-                    "application/json": components["schemas"]["schemas-SuccessResponse"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "error": "Unauthorized",
-                     *       "message": "You must be logged in to like a user",
-                     *       "code": "UNAUTHORIZED"
-                     *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-            /** @description User not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    removeUserLike: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The ID of the user to remove like/dislike for */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    /** @description Whether to like or dislike the user */
-                    like: boolean;
-                };
-            };
-        };
-        responses: {
-            /** @description Like/Dislike removed successfully */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "error": "Unauthorized",
-                     *       "message": "You must be logged in to remove a like/dislike",
-                     *       "code": "UNAUTHORIZED"
-                     *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-            /** @description User not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "error": "Not Found",
-                     *       "message": "User not found",
-                     *       "code": "USER_NOT_FOUND"
-                     *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    getBlockedUsers: {
-        parameters: {
-            query?: {
-                /** @description Maximum number of results to return */
-                limit?: number;
-                /** @description Page number for pagination */
-                page?: number;
-            };
-            header?: never;
-            path: {
-                /** @description The ID of the user to retrieve blocked users for (must be current user) */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of blocked users retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["User"][];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "error": "Unauthorized",
-                     *       "message": "You must be logged in to block a user",
-                     *       "code": "UNAUTHORIZED"
-                     *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-            /** @description Forbidden - can only view your own block list */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "error": "Forbidden",
-                     *       "message": "You can only view your own block list. Use /users/blocks instead.",
-                     *       "code": "PRIVACY_VIOLATION"
-                     *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-            /** @description User not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "error": "Not Found",
-                     *       "message": "User not found",
-                     *       "code": "USER_NOT_FOUND"
-                     *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    blockUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The ID of the user to block */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User blocked successfully */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "error": "Unauthorized",
-                     *       "message": "You must be logged in to block a user",
-                     *       "code": "UNAUTHORIZED"
-                     *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-            /** @description User not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "error": "Not Found",
-                     *       "message": "User not found",
-                     *       "code": "USER_NOT_FOUND"
-                     *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    unblockUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The ID of the user to unblock */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User unblocked successfully */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "error": "Unauthorized",
-                     *       "message": "You must be logged in to unblock a user",
-                     *       "code": "UNAUTHORIZED"
-                     *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-            /** @description User not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "error": "Not Found",
-                     *       "message": "User not found",
-                     *       "code": "USER_NOT_FOUND"
-                     *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    getCurrentUserMatches: {
-        parameters: {
-            query?: {
-                /** @description Page number for pagination */
-                page?: number;
-                /** @description Number of results per page */
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of user matches retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @description Total number of matches */
-                        total?: number;
-                        /** @description Current page number */
-                        page?: number;
-                        /** @description Total number of pages */
-                        totalPages?: number;
-                        matches?: {
-                            user: components["schemas"]["User"];
-                            /**
-                             * Format: date-time
-                             * @description When the match was created
-                             */
-                            matchedAt: string;
-                            /**
-                             * Format: date-time
-                             * @description When the last message was sent (if any)
-                             */
-                            lastMessageAt?: string;
-                            /** @description Number of unread messages from this match */
-                            unreadMessages: number;
-                        }[];
-                    };
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "error": "Unauthorized",
-                     *       "message": "You must be logged in to view matches",
-                     *       "code": "UNAUTHORIZED"
-                     *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    getCurrentUserLikes: {
-        parameters: {
-            query?: {
-                /** @description Filter by like type */
-                type?: "given" | "received" | "mutual";
-                /** @description Page number for pagination */
-                page?: number;
-                /** @description Number of results per page */
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User likes retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /**
-                         * @description Type of likes returned
-                         * @enum {string}
-                         */
-                        type?: "given" | "received" | "mutual";
-                        /** @description Total number of likes of this type */
-                        total?: number;
-                        /** @description Current page number */
-                        page?: number;
-                        /** @description Total number of pages */
-                        totalPages?: number;
-                        likes?: {
-                            user: components["schemas"]["User"];
-                            /**
-                             * Format: date-time
-                             * @description When the like was created
-                             */
-                            likedAt: string;
-                            /** @description Whether this like resulted in a mutual match */
-                            isMatch: boolean;
-                        }[];
-                    };
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "error": "Unauthorized",
-                     *       "message": "You must be logged in to view likes",
-                     *       "code": "UNAUTHORIZED"
-                     *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
-    getCurrentUserBlocks: {
-        parameters: {
-            query?: {
-                /** @description Page number for pagination */
-                page?: number;
-                /** @description Number of results per page */
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Blocked users retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @description Total number of blocked users */
-                        total?: number;
-                        /** @description Current page number */
-                        page?: number;
-                        /** @description Total number of pages */
-                        totalPages?: number;
-                        blockedUsers?: {
-                            user: components["schemas"]["User"];
-                            /**
-                             * Format: date-time
-                             * @description When the user was blocked
-                             */
-                            blockedAt: string;
-                            /**
-                             * @description Optional reason for blocking (if provided)
-                             * @example Inappropriate behavior
-                             */
-                            reason?: string;
-                        }[];
-                    };
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "error": "Unauthorized",
-                     *       "message": "You must be logged in to view blocked users",
-                     *       "code": "UNAUTHORIZED"
-                     *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
-                };
-            };
-        };
-    };
+	userRegister: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				"application/json": components["schemas"]["RegisterRequest"];
+			};
+		};
+		responses: {
+			/** @description User registered successfully */
+			201: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["RegisterResponse"];
+				};
+			};
+			/** @description Bad request */
+			400: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	userLogin: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				"application/json": components["schemas"]["LoginRequest"];
+			};
+		};
+		responses: {
+			/** @description User logged in successfully */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["LoginResponse"];
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	userLogout: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description User logged out successfully */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["LogoutResponse"];
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	userverifyEmail: {
+		parameters: {
+			query: {
+				token: string;
+			};
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description Email verified successfully */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["verifyEmailResponse"];
+				};
+			};
+			/** @description Unauthorized */
+			400: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	userResetPassword: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				"application/json": components["schemas"]["ResetPasswordRequest"];
+			};
+		};
+		responses: {
+			/** @description Password reset successfully */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["ResetPasswordResponse"];
+				};
+			};
+			/** @description Bad request */
+			400: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	getUserProfile: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description User profile retrieved successfully */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["User"];
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+			/** @description User not found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	updateUserProfile: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				"application/json": components["schemas"]["User"];
+			};
+		};
+		responses: {
+			/** @description User profile updated successfully */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["User"];
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+			/** @description User not found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	patchUserProfile: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				"application/json": components["schemas"]["UserProfilePatchRequest"];
+			};
+		};
+		responses: {
+			/** @description User profile partially updated successfully */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["User"];
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+			/** @description User not found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	searchUsers: {
+		parameters: {
+			query?: {
+				/** @description Search query string (e.g., name, interests) */
+				query?: string;
+				/** @description Minimum age filter */
+				age_min?: number;
+				/** @description Maximum age filter */
+				age_max?: number;
+				/** @description Location filter (e.g., city or coordinates) */
+				location?: string;
+				/** @description Comma-separated list of interests to filter by */
+				interests?: string;
+				/** @description Page number for pagination (default is 1) */
+				page?: number;
+				/** @description Number of results per page (default is 10, max is 50) */
+				per_page?: number;
+			};
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description List of users matching the search criteria retrieved successfully */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": {
+						/** @example 42 */
+						total_results?: number;
+						/** @example 5 */
+						total_pages?: number;
+						/** @example 1 */
+						current_page?: number;
+						users?: components["schemas"]["User"][];
+					};
+				};
+			};
+			/** @description Bad request - invalid query parameters */
+			400: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Bad Request",
+					 *       "message": "Invalid query parameters",
+					 *       "code": "BAD_REQUEST"
+					 *     } */
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	discoverUsers: {
+		parameters: {
+			query?: {
+				/** @description Number of users to return (recommended 10-20) */
+				limit?: number;
+				/** @description Force refresh algorithm (ignore recent cache) */
+				refresh?: boolean;
+				/** @description Override max distance preference (km) */
+				maxDistance?: number;
+				/** @description Algorithm seed for consistent ordering in session */
+				seed?: string;
+			};
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description Potential matches retrieved successfully */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["User"][];
+				};
+			};
+			/** @description No more users to discover */
+			204: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": {
+						/** @example No more potential matches available */
+						message?: string;
+						/** @example [
+						 *       "Try expanding your distance preferences",
+						 *       "Consider adjusting your age range",
+						 *       "Add more interests to your profile"
+						 *     ] */
+						suggestions?: string[];
+					};
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	getUserPhotos: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description User photos retrieved successfully */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["PhotoListResponse"];
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	uploadUserPhoto: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				"multipart/form-data": components["schemas"]["PhotoUploadRequest"];
+			};
+		};
+		responses: {
+			/** @description Photo uploaded successfully */
+			201: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["PhotoResponse"];
+				};
+			};
+			/** @description Bad request */
+			400: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	getUserPhotoById: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				/** @description The ID of the photo to retrieve */
+				photoId: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description User photo retrieved successfully */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["PhotoResponse"];
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+			/** @description Photo not found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	deleteUserPhoto: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				/** @description The ID of the photo to delete */
+				photoId: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description Photo deleted successfully */
+			204: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+			/** @description Forbidden - insufficient permissions */
+			403: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Forbidden",
+					 *       "message": "You can only delete your own photos",
+					 *       "code": "INSUFFICIENT_PERMISSIONS"
+					 *     } */
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+			/** @description Photo not found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	setMainPhoto: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				/** @description The ID of the photo to set as main */
+				photoId: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description Main photo set successfully */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+			/** @description Forbidden - insufficient permissions */
+			403: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Forbidden",
+					 *       "message": "You can only set your own photos as main",
+					 *       "code": "INSUFFICIENT_PERMISSIONS"
+					 *     } */
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+			/** @description Photo not found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	getUserById: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				/** @description The ID of the user to retrieve */
+				id: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description User retrieved successfully */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["User"];
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+			/** @description User not found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	getUserLikes: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				/** @description The ID of the user to retrieve likes for (must be current user) */
+				id: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description List of liked users retrieved successfully */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["User"][];
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Unauthorized",
+					 *       "message": "You must be logged in to like a user",
+					 *       "code": "UNAUTHORIZED"
+					 *     } */
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+			/** @description Forbidden - can only view your own likes */
+			403: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Forbidden",
+					 *       "message": "You can only view your own likes. Use /users/likes instead.",
+					 *       "code": "PRIVACY_VIOLATION"
+					 *     } */
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+			/** @description User not found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Not Found",
+					 *       "message": "User not found",
+					 *       "code": "USER_NOT_FOUND"
+					 *     } */
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	likeUser: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				/** @description The ID of the user to like */
+				id: string;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				"application/json": {
+					/** @description Whether to like or dislike the user */
+					like: boolean;
+				};
+			};
+		};
+		responses: {
+			/** @description User liked successfully */
+			201: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "message": "User liked successfully"
+					 *     } */
+					"application/json": components["schemas"]["schemas-SuccessResponse"];
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Unauthorized",
+					 *       "message": "You must be logged in to like a user",
+					 *       "code": "UNAUTHORIZED"
+					 *     } */
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+			/** @description User not found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	removeUserLike: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				/** @description The ID of the user to remove like/dislike for */
+				id: string;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				"application/json": {
+					/** @description Whether to like or dislike the user */
+					like: boolean;
+				};
+			};
+		};
+		responses: {
+			/** @description Like/Dislike removed successfully */
+			204: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Unauthorized",
+					 *       "message": "You must be logged in to remove a like/dislike",
+					 *       "code": "UNAUTHORIZED"
+					 *     } */
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+			/** @description User not found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Not Found",
+					 *       "message": "User not found",
+					 *       "code": "USER_NOT_FOUND"
+					 *     } */
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	getBlockedUsers: {
+		parameters: {
+			query?: {
+				/** @description Maximum number of results to return */
+				limit?: number;
+				/** @description Page number for pagination */
+				page?: number;
+			};
+			header?: never;
+			path: {
+				/** @description The ID of the user to retrieve blocked users for (must be current user) */
+				id: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description List of blocked users retrieved successfully */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["User"][];
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Unauthorized",
+					 *       "message": "You must be logged in to block a user",
+					 *       "code": "UNAUTHORIZED"
+					 *     } */
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+			/** @description Forbidden - can only view your own block list */
+			403: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Forbidden",
+					 *       "message": "You can only view your own block list. Use /users/blocks instead.",
+					 *       "code": "PRIVACY_VIOLATION"
+					 *     } */
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+			/** @description User not found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Not Found",
+					 *       "message": "User not found",
+					 *       "code": "USER_NOT_FOUND"
+					 *     } */
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	blockUser: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				/** @description The ID of the user to block */
+				id: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description User blocked successfully */
+			204: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Unauthorized",
+					 *       "message": "You must be logged in to block a user",
+					 *       "code": "UNAUTHORIZED"
+					 *     } */
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+			/** @description User not found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Not Found",
+					 *       "message": "User not found",
+					 *       "code": "USER_NOT_FOUND"
+					 *     } */
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	unblockUser: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				/** @description The ID of the user to unblock */
+				id: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description User unblocked successfully */
+			204: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Unauthorized",
+					 *       "message": "You must be logged in to unblock a user",
+					 *       "code": "UNAUTHORIZED"
+					 *     } */
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+			/** @description User not found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Not Found",
+					 *       "message": "User not found",
+					 *       "code": "USER_NOT_FOUND"
+					 *     } */
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	getCurrentUserMatches: {
+		parameters: {
+			query?: {
+				/** @description Page number for pagination */
+				page?: number;
+				/** @description Number of results per page */
+				limit?: number;
+			};
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description List of user matches retrieved successfully */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": {
+						/** @description Total number of matches */
+						total?: number;
+						/** @description Current page number */
+						page?: number;
+						/** @description Total number of pages */
+						totalPages?: number;
+						matches?: {
+							user: components["schemas"]["User"];
+							/**
+							 * Format: date-time
+							 * @description When the match was created
+							 */
+							matchedAt: string;
+							/**
+							 * Format: date-time
+							 * @description When the last message was sent (if any)
+							 */
+							lastMessageAt?: string;
+							/** @description Number of unread messages from this match */
+							unreadMessages: number;
+						}[];
+					};
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Unauthorized",
+					 *       "message": "You must be logged in to view matches",
+					 *       "code": "UNAUTHORIZED"
+					 *     } */
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	getCurrentUserLikes: {
+		parameters: {
+			query?: {
+				/** @description Filter by like type */
+				type?: "given" | "received" | "mutual";
+				/** @description Page number for pagination */
+				page?: number;
+				/** @description Number of results per page */
+				limit?: number;
+			};
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description User likes retrieved successfully */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": {
+						/**
+						 * @description Type of likes returned
+						 * @enum {string}
+						 */
+						type?: "given" | "received" | "mutual";
+						/** @description Total number of likes of this type */
+						total?: number;
+						/** @description Current page number */
+						page?: number;
+						/** @description Total number of pages */
+						totalPages?: number;
+						likes?: {
+							user: components["schemas"]["User"];
+							/**
+							 * Format: date-time
+							 * @description When the like was created
+							 */
+							likedAt: string;
+							/** @description Whether this like resulted in a mutual match */
+							isMatch: boolean;
+						}[];
+					};
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Unauthorized",
+					 *       "message": "You must be logged in to view likes",
+					 *       "code": "UNAUTHORIZED"
+					 *     } */
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
+	getCurrentUserBlocks: {
+		parameters: {
+			query?: {
+				/** @description Page number for pagination */
+				page?: number;
+				/** @description Number of results per page */
+				limit?: number;
+			};
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description Blocked users retrieved successfully */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": {
+						/** @description Total number of blocked users */
+						total?: number;
+						/** @description Current page number */
+						page?: number;
+						/** @description Total number of pages */
+						totalPages?: number;
+						blockedUsers?: {
+							user: components["schemas"]["User"];
+							/**
+							 * Format: date-time
+							 * @description When the user was blocked
+							 */
+							blockedAt: string;
+							/**
+							 * @description Optional reason for blocking (if provided)
+							 * @example Inappropriate behavior
+							 */
+							reason?: string;
+						}[];
+					};
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Unauthorized",
+					 *       "message": "You must be logged in to view blocked users",
+					 *       "code": "UNAUTHORIZED"
+					 *     } */
+					"application/json": components["schemas"]["schemas-ErrorResponse"];
+				};
+			};
+		};
+	};
 }

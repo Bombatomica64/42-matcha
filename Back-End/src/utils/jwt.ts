@@ -10,7 +10,7 @@ if (!JWT_SECRET) {
 export interface JwtPayload {
 	userId: string;
 	username: string;
-	type?: 'access' | 'refresh'; // Add token type
+	type?: "access" | "refresh"; // Add token type
 	location?: {
 		type: "Point";
 		coordinates: [number, number]; // [longitude, latitude]
@@ -21,16 +21,16 @@ export interface JwtPayload {
 
 export function signJwt(
 	payload: Omit<JwtPayload, "iat" | "exp">,
-	expiresIn: number = 15 * 60 // 15 minutes in seconds for access tokens
+	expiresIn: number = 15 * 60, // 15 minutes in seconds for access tokens
 ): string {
 	return jwt.sign(payload, JWT_SECRET, { expiresIn });
 }
 
 export function signRefreshToken(
 	payload: Omit<JwtPayload, "iat" | "exp" | "type">,
-	expiresIn: number = 7 * 24 * 60 * 60 // 7 days in seconds
+	expiresIn: number = 7 * 24 * 60 * 60, // 7 days in seconds
 ): string {
-	const refreshPayload = { ...payload, type: 'refresh' as const };
+	const refreshPayload = { ...payload, type: "refresh" as const };
 	return jwt.sign(refreshPayload, JWT_SECRET, { expiresIn });
 }
 
@@ -65,7 +65,7 @@ export function generateAuthToken(user: {
 		location: user.location,
 	};
 
-	return signJwt({ ...payload, type: 'access' });
+	return signJwt({ ...payload, type: "access" });
 }
 
 export function generateRefreshToken(user: {
@@ -101,7 +101,7 @@ export function generateTokenPair(user: {
 
 export function refreshAccessToken(refreshToken: string): string | null {
 	const payload = verifyJwt(refreshToken);
-	if (!payload || payload.type !== 'refresh') {
+	if (!payload || payload.type !== "refresh") {
 		return null;
 	}
 
@@ -109,5 +109,5 @@ export function refreshAccessToken(refreshToken: string): string | null {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { iat: _iat, exp: _exp, type: _type, ...userPayload } = payload;
 
-	return signJwt({ ...userPayload, type: 'access' });
+	return signJwt({ ...userPayload, type: "access" });
 }

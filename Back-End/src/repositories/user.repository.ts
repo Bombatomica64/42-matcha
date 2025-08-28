@@ -1,5 +1,5 @@
+import type { CreateUserData, UpdateUserData, User } from "@models/user.entity";
 import { BaseRepository } from "@orm/base-repository";
-import type { User, CreateUserData, UpdateUserData } from "@models/user.entity";
 import type { Pool } from "pg";
 
 export class UserRepository extends BaseRepository<User> {
@@ -44,7 +44,7 @@ export class UserRepository extends BaseRepository<User> {
 			WHERE u.id = $1
 			GROUP BY u.id
 		`;
-		
+
 		const result = await this.pool.query(query, [id]);
 		return result.rows[0] || null;
 	}
@@ -93,7 +93,7 @@ export class UserRepository extends BaseRepository<User> {
 			WHERE u.email = $1
 			GROUP BY u.id
 		`;
-		
+
 		const result = await this.pool.query(query, [email]);
 		return result.rows[0] || null;
 	}
@@ -135,7 +135,7 @@ export class UserRepository extends BaseRepository<User> {
 			WHERE u.username = $1
 			GROUP BY u.id
 		`;
-		
+
 		const result = await this.pool.query(query, [username]);
 		return result.rows[0] || null;
 	}
@@ -173,10 +173,7 @@ export class UserRepository extends BaseRepository<User> {
 	/**
 	 * Update user profile
 	 */
-	async updateProfile(
-		id: string,
-		profileData: UpdateUserData
-	): Promise<User | null> {
+	async updateProfile(id: string, profileData: UpdateUserData): Promise<User | null> {
 		return this.update(id, profileData);
 	}
 
@@ -193,10 +190,7 @@ export class UserRepository extends BaseRepository<User> {
 	/**
 	 * Update user's online status
 	 */
-	async updateOnlineStatus(
-		id: string,
-		isOnline: boolean
-	): Promise<User | null> {
+	async updateOnlineStatus(id: string, isOnline: boolean): Promise<User | null> {
 		const updateData: Partial<User> = {
 			online_status: isOnline,
 			last_seen: new Date(),
@@ -210,7 +204,7 @@ export class UserRepository extends BaseRepository<User> {
 	async findByLocation(
 		latitude: number,
 		longitude: number,
-		radiusKm: number = 50
+		radiusKm: number = 50,
 	): Promise<User[]> {
 		const query = `
       SELECT * FROM ${this.tableName}
@@ -226,11 +220,7 @@ export class UserRepository extends BaseRepository<User> {
       )
     `;
 
-		const result = await this.pool.query(query, [
-			longitude,
-			latitude,
-			radiusKm,
-		]);
+		const result = await this.pool.query(query, [longitude, latitude, radiusKm]);
 		return result.rows;
 	}
 
@@ -249,7 +239,7 @@ export class UserRepository extends BaseRepository<User> {
 			interests?: string[];
 			page?: number;
 			perPage?: number;
-		}
+		},
 	): Promise<{
 		total_results: number;
 		total_pages: number;
@@ -326,7 +316,7 @@ export class UserRepository extends BaseRepository<User> {
 				WHERE ub2.blocker_id = u.id AND ub2.blocked_id = $1
 			)
 		`;
-		
+
 		const params: unknown[] = [currentUserId];
 		const countParams: unknown[] = [currentUserId];
 		let paramIndex = 2; // Start at 2 since $1 is currentUserId
@@ -340,7 +330,7 @@ export class UserRepository extends BaseRepository<User> {
 				u.bio ILIKE $${paramIndex}
 			)`;
 			const searchValue = `%${criteria.query}%`;
-			
+
 			dataQuery += searchCondition;
 			countQuery += searchCondition;
 			params.push(searchValue);
@@ -427,21 +417,22 @@ export class UserRepository extends BaseRepository<User> {
 			const queryParts: string[] = [];
 			queryParts.push(`page=${pageNum}`);
 			queryParts.push(`per_page=${perPage}`);
-			
+
 			if (criteria.query) queryParts.push(`query=${encodeURIComponent(criteria.query)}`);
 			if (criteria.ageMin !== undefined) queryParts.push(`age_min=${criteria.ageMin}`);
 			if (criteria.ageMax !== undefined) queryParts.push(`age_max=${criteria.ageMax}`);
 			if (criteria.gender) queryParts.push(`gender=${criteria.gender}`);
-			if (criteria.sexualOrientation) queryParts.push(`sexual_orientation=${criteria.sexualOrientation}`);
+			if (criteria.sexualOrientation)
+				queryParts.push(`sexual_orientation=${criteria.sexualOrientation}`);
 			if (criteria.location) {
 				queryParts.push(`location=${criteria.location.lat},${criteria.location.lng}`);
 				if (criteria.location.radius) queryParts.push(`radius=${criteria.location.radius}`);
 			}
 			if (criteria.interests && criteria.interests.length > 0) {
-				queryParts.push(`interests=${criteria.interests.join(',')}`);
+				queryParts.push(`interests=${criteria.interests.join(",")}`);
 			}
-			
-			return `/api/user/search?${queryParts.join('&')}`;
+
+			return `/api/user/search?${queryParts.join("&")}`;
 		};
 
 		return {

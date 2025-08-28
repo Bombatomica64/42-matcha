@@ -1,23 +1,23 @@
+import process from "node:process";
+import { env } from "@config/env";
+import type { components } from "@generated/typescript/api";
+import { jwtMiddleware } from "@middleware/jwt.middleware";
+import authRoutes from "@routes/auth.routes";
 import cors from "cors";
 import express, { type Express } from "express";
 import helmet from "helmet";
 import { pino } from "pino";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
-import { env } from "@config/env";
-import authRoutes from "@routes/auth.routes";
-import { jwtMiddleware } from "@middleware/jwt.middleware";
 import { pool } from "./database";
-import process from "node:process";
-import type { components } from "@generated/typescript/api";
 
 const logger = pino({ name: "matcha-server" });
 const app: Express = express();
 
 declare module "express-serve-static-core" {
-  interface Locals {
-    user?: components['schemas']['User'];
-  }
+	interface Locals {
+		user?: components["schemas"]["User"];
+	}
 }
 
 // Set the application to trust the reverse proxy
@@ -30,18 +30,18 @@ app.use(
 	cors({
 		origin: env.CORS_ORIGIN,
 		credentials: true,
-	})
+	}),
 );
 app.use(helmet());
 
 pool.connect((err, _client, release) => {
-  if (err) {
-    logger.error("Database connection failed:", err);
-    process.exit(1);  // Exit if DB is not connected
-  } else {
-    logger.info("Database connected successfully");
-    release();  // Release the client back to the pool
-  }
+	if (err) {
+		logger.error("Database connection failed:", err);
+		process.exit(1); // Exit if DB is not connected
+	} else {
+		logger.info("Database connected successfully");
+		release(); // Release the client back to the pool
+	}
 });
 // Swagger Configuration
 const swaggerOptions = {
@@ -50,8 +50,7 @@ const swaggerOptions = {
 		info: {
 			title: "Matcha Dating App API",
 			version: "1.0.0",
-			description:
-				"A comprehensive dating app API with location-based matching",
+			description: "A comprehensive dating app API with location-based matching",
 		},
 		servers: [
 			{

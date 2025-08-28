@@ -1,12 +1,12 @@
-import { pool } from "../database";
-import { BlockRepository } from "@repositories/block.repository";
-import { MatchRepository } from "@repositories/match.repository";
-import { LikeRepository } from "@repositories/like.repository";
 import type {
-	UserBlock,
-	CreateBlockData,
 	BlockedUserWithDetails,
+	CreateBlockData,
+	UserBlock,
 } from "@repositories/block.repository";
+import { BlockRepository } from "@repositories/block.repository";
+import { LikeRepository } from "@repositories/like.repository";
+import { MatchRepository } from "@repositories/match.repository";
+import { pool } from "../database";
 
 export class BlockService {
 	private blockRepository: BlockRepository;
@@ -24,7 +24,7 @@ export class BlockService {
 	 */
 	async blockUser(
 		blockerId: string,
-		blockedId: string
+		blockedId: string,
 	): Promise<{
 		block: UserBlock;
 		matchRemoved: boolean;
@@ -45,10 +45,7 @@ export class BlockService {
 
 		// Remove any existing match between the users
 		let matchRemoved = false;
-		const existingMatch = await this.matchRepository.findMatch(
-			blockerId,
-			blockedId
-		);
+		const existingMatch = await this.matchRepository.findMatch(blockerId, blockedId);
 		if (existingMatch) {
 			await this.matchRepository.removeMatch(blockerId, blockedId);
 			matchRemoved = true;
@@ -60,14 +57,8 @@ export class BlockService {
 
 		// Remove any likes between the users
 		let likesRemoved = false;
-		const like1 = await this.likeRepository.getLikeBetweenUsers(
-			blockerId,
-			blockedId
-		);
-		const like2 = await this.likeRepository.getLikeBetweenUsers(
-			blockedId,
-			blockerId
-		);
+		const like1 = await this.likeRepository.getLikeBetweenUsers(blockerId, blockedId);
+		const like2 = await this.likeRepository.getLikeBetweenUsers(blockedId, blockerId);
 
 		if (like1) {
 			await this.likeRepository.removeLike(blockerId, blockedId);
@@ -105,7 +96,7 @@ export class BlockService {
 	async getBlockedUsers(
 		blockerId: string,
 		page = 1,
-		limit = 20
+		limit = 20,
 	): Promise<{
 		blocks: BlockedUserWithDetails[];
 		pagination: {
@@ -117,11 +108,7 @@ export class BlockService {
 		};
 	}> {
 		const offset = (page - 1) * limit;
-		const blocks = await this.blockRepository.getBlockedUsers(
-			blockerId,
-			limit + 1,
-			offset
-		);
+		const blocks = await this.blockRepository.getBlockedUsers(blockerId, limit + 1, offset);
 
 		// Get total count
 		const total = await this.blockRepository.getBlockedCount(blockerId);
@@ -153,7 +140,7 @@ export class BlockService {
 	 */
 	async getBlockStatus(
 		user1Id: string,
-		user2Id: string
+		user2Id: string,
 	): Promise<{
 		user1BlockedUser2: boolean;
 		user2BlockedUser1: boolean;
@@ -175,7 +162,7 @@ export class BlockService {
 	 */
 	async canUsersInteract(
 		user1Id: string,
-		user2Id: string
+		user2Id: string,
 	): Promise<{
 		canInteract: boolean;
 		reason?: string;
@@ -217,7 +204,7 @@ export class BlockService {
 	 */
 	async validateBlockAction(
 		blockerId: string,
-		blockedId: string
+		blockedId: string,
 	): Promise<{
 		isValid: boolean;
 		error?: string;
@@ -256,7 +243,7 @@ export class BlockService {
 	 */
 	async bulkUnblockUsers(
 		blockerId: string,
-		blockedUserIds: string[]
+		blockedUserIds: string[],
 	): Promise<{
 		success: number;
 		failed: number;
@@ -284,9 +271,9 @@ export class BlockService {
 	 * Get current user's blocked users (dedicated endpoint)
 	 */
 	async getCurrentUserBlocks(
-		userId: string, 
-		page = 1, 
-		limit = 20
+		userId: string,
+		page = 1,
+		limit = 20,
 	): Promise<{
 		blocks: Array<{
 			user: BlockedUserWithDetails;
@@ -301,10 +288,10 @@ export class BlockService {
 		};
 	}> {
 		const result = await this.getBlockedUsers(userId, page, limit);
-		
-		const formattedBlocks = result.blocks.map(block => ({
+
+		const formattedBlocks = result.blocks.map((block) => ({
 			user: block,
-			blockedAt: block.created_at
+			blockedAt: block.created_at,
 		}));
 
 		const totalPages = Math.ceil(result.pagination.total / limit);
@@ -316,8 +303,8 @@ export class BlockService {
 				page,
 				totalPages,
 				hasNext: page < totalPages,
-				hasPrev: page > 1
-			}
+				hasPrev: page > 1,
+			},
 		};
 	}
 }

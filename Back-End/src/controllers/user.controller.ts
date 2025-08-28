@@ -1,16 +1,13 @@
+import type { components } from "@generated/typescript/api";
+import type { UpdateUserData } from "@models/user.entity";
+import type { UserService } from "@services/user.services";
+import { validatePatchRequest, validatePutRequest } from "@utils/user-validation";
 import type { Request, Response } from "express";
 import { logger } from "../server";
-import type { UserService } from "@services/user.services";
-import type { UpdateUserData } from "@models/user.entity";
-import type { components } from "@generated/typescript/api";
-import {
-	validatePatchRequest,
-	validatePutRequest,
-} from "@utils/user-validation";
 
-type ErrorResponse = components['schemas']['ErrorResponse'];
-type SuccessResponse = components['schemas']['SuccessResponse'];
-type User = components['schemas']['User'];
+type ErrorResponse = components["schemas"]["ErrorResponse"];
+type SuccessResponse = components["schemas"]["SuccessResponse"];
+type User = components["schemas"]["User"];
 
 export class UserController {
 	private userService: UserService;
@@ -26,7 +23,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Unauthorized",
 				message: "Authentication required to access this resource",
-				code: "AUTH_REQUIRED"
+				code: "AUTH_REQUIRED",
 			};
 			return res.status(401).json(errorResponse);
 		}
@@ -36,9 +33,9 @@ export class UserController {
 
 			if (!user) {
 				const errorResponse: ErrorResponse = {
-					error: "Not Found", 
+					error: "Not Found",
 					message: "User profile not found",
-					code: "USER_NOT_FOUND"
+					code: "USER_NOT_FOUND",
 				};
 				return res.status(404).json(errorResponse);
 			}
@@ -50,7 +47,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to retrieve user profile",
-				code: "SERVER_ERROR"
+				code: "SERVER_ERROR",
 			};
 			return res.status(500).json(errorResponse);
 		}
@@ -69,7 +66,7 @@ export class UserController {
 				const errorResponse: ErrorResponse = {
 					error: "Not Found",
 					message: "User not found",
-					code: "USER_NOT_FOUND"
+					code: "USER_NOT_FOUND",
 				};
 				res.status(404).json(errorResponse);
 				return;
@@ -82,7 +79,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to retrieve user",
-				code: "SERVER_ERROR"
+				code: "SERVER_ERROR",
 			};
 			res.status(500).json(errorResponse);
 		}
@@ -98,7 +95,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Unauthorized",
 				message: "Authentication required to update profile",
-				code: "AUTH_REQUIRED"
+				code: "AUTH_REQUIRED",
 			};
 			res.status(401).json(errorResponse);
 			return;
@@ -112,7 +109,7 @@ export class UserController {
 				error: "Validation Error",
 				message: "Invalid data provided for profile update",
 				code: "VALIDATION_ERROR",
-				details: validation.errors as unknown as { [key: string]: unknown }
+				details: validation.errors as unknown as { [key: string]: unknown },
 			};
 			res.status(400).json(errorResponse);
 			return;
@@ -123,7 +120,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Bad Request",
 				message: "No valid fields to update provided",
-				code: "NO_UPDATE_DATA"
+				code: "NO_UPDATE_DATA",
 			};
 			res.status(400).json(errorResponse);
 			return;
@@ -132,14 +129,14 @@ export class UserController {
 		try {
 			const updatedUser = await this.userService.updateUser(
 				userId,
-				validation.cleanedData as Partial<UpdateUserData>
+				validation.cleanedData as Partial<UpdateUserData>,
 			);
 
 			if (!updatedUser) {
 				const errorResponse: ErrorResponse = {
 					error: "Not Found",
 					message: "User profile not found",
-					code: "USER_NOT_FOUND"
+					code: "USER_NOT_FOUND",
 				};
 				res.status(404).json(errorResponse);
 				return;
@@ -152,7 +149,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to update profile",
-				code: "SERVER_ERROR"
+				code: "SERVER_ERROR",
 			};
 			res.status(500).json(errorResponse);
 		}
@@ -168,7 +165,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Unauthorized",
 				message: "Authentication required to replace profile",
-				code: "AUTH_REQUIRED"
+				code: "AUTH_REQUIRED",
 			};
 			res.status(401).json(errorResponse);
 			return;
@@ -182,7 +179,7 @@ export class UserController {
 				error: "Validation Error",
 				message: "Invalid data provided for profile replacement",
 				code: "VALIDATION_ERROR",
-				details: validation.errors as unknown as { [key: string]: unknown }
+				details: validation.errors as unknown as { [key: string]: unknown },
 			};
 			res.status(400).json(errorResponse);
 			return;
@@ -191,14 +188,14 @@ export class UserController {
 		try {
 			const updatedUser = await this.userService.updateUser(
 				userId,
-				validation.cleanedData as UpdateUserData
+				validation.cleanedData as UpdateUserData,
 			);
 
 			if (!updatedUser) {
 				const errorResponse: ErrorResponse = {
 					error: "Not Found",
 					message: "User profile not found",
-					code: "USER_NOT_FOUND"
+					code: "USER_NOT_FOUND",
 				};
 				res.status(404).json(errorResponse);
 				return;
@@ -211,7 +208,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to replace profile",
-				code: "SERVER_ERROR"
+				code: "SERVER_ERROR",
 			};
 			res.status(500).json(errorResponse);
 		}
@@ -228,7 +225,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Unauthorized",
 				message: "Authentication required to like users",
-				code: "AUTH_REQUIRED"
+				code: "AUTH_REQUIRED",
 			};
 			res.status(401).json(errorResponse);
 			return;
@@ -238,7 +235,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Bad Request",
 				message: "Cannot like or dislike yourself",
-				code: "SELF_INTERACTION_FORBIDDEN"
+				code: "SELF_INTERACTION_FORBIDDEN",
 			};
 			res.status(400).json(errorResponse);
 			return;
@@ -250,18 +247,14 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Bad Request",
 				message: "Invalid request body. 'like' field must be a boolean",
-				code: "INVALID_LIKE_VALUE"
+				code: "INVALID_LIKE_VALUE",
 			};
 			res.status(400).json(errorResponse);
 			return;
 		}
 
 		try {
-			const result = await this.userService.likeUser(
-				userId,
-				targetUserId,
-				like
-			);
+			const result = await this.userService.likeUser(userId, targetUserId, like);
 
 			const successResponse: SuccessResponse = {
 				message: like ? "User liked successfully" : "User disliked successfully",
@@ -269,8 +262,8 @@ export class UserController {
 					isMatch: result.isMatch,
 					matchId: result.matchId,
 					action: like ? "liked" : "disliked",
-					targetUserId
-				}
+					targetUserId,
+				},
 			};
 			res.status(201).json(successResponse);
 		} catch (error) {
@@ -278,7 +271,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: `Failed to ${like ? "like" : "dislike"} user`,
-				code: "LIKE_ACTION_FAILED"
+				code: "LIKE_ACTION_FAILED",
 			};
 			res.status(500).json(errorResponse);
 		}
@@ -295,7 +288,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Unauthorized",
 				message: "Authentication required to unlike users",
-				code: "AUTH_REQUIRED"
+				code: "AUTH_REQUIRED",
 			};
 			res.status(401).json(errorResponse);
 			return;
@@ -310,7 +303,7 @@ export class UserController {
 				const errorResponse: ErrorResponse = {
 					error: "Not Found",
 					message: "Like relationship not found",
-					code: "LIKE_NOT_FOUND"
+					code: "LIKE_NOT_FOUND",
 				};
 				res.status(404).json(errorResponse);
 			}
@@ -319,7 +312,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to remove like",
-				code: "UNLIKE_ACTION_FAILED"
+				code: "UNLIKE_ACTION_FAILED",
 			};
 			res.status(500).json(errorResponse);
 		}
@@ -338,7 +331,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Unauthorized",
 				message: "Authentication required to view likes",
-				code: "AUTH_REQUIRED"
+				code: "AUTH_REQUIRED",
 			};
 			res.status(401).json(errorResponse);
 			return;
@@ -349,7 +342,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Forbidden",
 				message: "You can only view your own likes. Use /users/likes instead.",
-				code: "PRIVACY_VIOLATION"
+				code: "PRIVACY_VIOLATION",
 			};
 			res.status(403).json(errorResponse);
 			return;
@@ -362,8 +355,8 @@ export class UserController {
 				message: "User likes retrieved successfully",
 				data: {
 					likes: result.likes,
-					pagination: result.pagination
-				}
+					pagination: result.pagination,
+				},
 			};
 			res.json(successResponse);
 		} catch (error) {
@@ -371,7 +364,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to retrieve user likes",
-				code: "SERVER_ERROR"
+				code: "SERVER_ERROR",
 			};
 			res.status(500).json(errorResponse);
 		}
@@ -390,7 +383,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Unauthorized",
 				message: "Authentication required to view blocked users",
-				code: "AUTH_REQUIRED"
+				code: "AUTH_REQUIRED",
 			};
 			res.status(401).json(errorResponse);
 			return;
@@ -401,33 +394,29 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Forbidden",
 				message: "You can only view your own blocked users. Use /users/blocks instead.",
-				code: "PRIVACY_VIOLATION"
+				code: "PRIVACY_VIOLATION",
 			};
 			res.status(403).json(errorResponse);
 			return;
 		}
 
 		try {
-			const result = await this.userService.getBlockedUsers(
-				userId,
-				page,
-				limit
-			);
+			const result = await this.userService.getBlockedUsers(userId, page, limit);
 
 			const successResponse: SuccessResponse = {
 				message: "Blocked users retrieved successfully",
 				data: {
 					blocks: result.blocks,
-					pagination: result.pagination
-				}
+					pagination: result.pagination,
+				},
 			};
 			res.json(successResponse);
 		} catch (error) {
 			logger.error(`Failed to get blocked users: ${userId}`, error);
 			const errorResponse: ErrorResponse = {
-				error: "Internal Server Error", 
+				error: "Internal Server Error",
 				message: "Failed to retrieve blocked users",
-				code: "SERVER_ERROR"
+				code: "SERVER_ERROR",
 			};
 			res.status(500).json(errorResponse);
 		}
@@ -444,7 +433,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Unauthorized",
 				message: "Authentication required to block users",
-				code: "AUTH_REQUIRED"
+				code: "AUTH_REQUIRED",
 			};
 			res.status(401).json(errorResponse);
 			return;
@@ -454,29 +443,23 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Bad Request",
 				message: "Cannot block yourself",
-				code: "SELF_BLOCK_FORBIDDEN"
+				code: "SELF_BLOCK_FORBIDDEN",
 			};
 			res.status(400).json(errorResponse);
 			return;
 		}
 
 		try {
-			await this.userService.blockUser(
-				currentUserId,
-				targetUserId
-			);
+			await this.userService.blockUser(currentUserId, targetUserId);
 
 			// According to OpenAPI spec, block should return 204 No Content
 			res.status(204).send();
 		} catch (error) {
-			logger.error(
-				`Failed to block user: ${currentUserId} -> ${targetUserId}`,
-				error
-			);
+			logger.error(`Failed to block user: ${currentUserId} -> ${targetUserId}`, error);
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to block user",
-				code: "BLOCK_ACTION_FAILED"
+				code: "BLOCK_ACTION_FAILED",
 			};
 			res.status(500).json(errorResponse);
 		}
@@ -493,7 +476,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Unauthorized",
 				message: "Authentication required to unblock users",
-				code: "AUTH_REQUIRED"
+				code: "AUTH_REQUIRED",
 			};
 			res.status(401).json(errorResponse);
 			return;
@@ -505,14 +488,11 @@ export class UserController {
 			// According to OpenAPI spec, unblock should return 204 No Content
 			res.status(204).send();
 		} catch (error) {
-			logger.error(
-				`Failed to unblock user: ${currentUserId} -> ${targetUserId}`,
-				error
-			);
+			logger.error(`Failed to unblock user: ${currentUserId} -> ${targetUserId}`, error);
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to unblock user",
-				code: "UNBLOCK_ACTION_FAILED"
+				code: "UNBLOCK_ACTION_FAILED",
 			};
 			res.status(500).json(errorResponse);
 		}
@@ -531,7 +511,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Unauthorized",
 				message: "Authentication required to access matches",
-				code: "AUTH_REQUIRED"
+				code: "AUTH_REQUIRED",
 			};
 			res.status(401).json(errorResponse);
 			return;
@@ -542,7 +522,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Forbidden",
 				message: "Forbidden: You can only view your own matches. Use /users/matches instead.",
-				code: "PRIVACY_VIOLATION"
+				code: "PRIVACY_VIOLATION",
 			};
 			res.status(403).json(errorResponse);
 			return;
@@ -555,8 +535,8 @@ export class UserController {
 				message: "Matches retrieved successfully",
 				data: {
 					matches: result.matches,
-					pagination: result.pagination
-				}
+					pagination: result.pagination,
+				},
 			};
 			res.status(200).json(successResponse);
 		} catch (error) {
@@ -564,7 +544,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to fetch matches",
-				code: "SERVER_ERROR"
+				code: "SERVER_ERROR",
 			};
 			res.status(500).json(errorResponse);
 		}
@@ -575,7 +555,7 @@ export class UserController {
 	 */
 	public async getCurrentUserLikes(req: Request, res: Response): Promise<void> {
 		const currentUserId = res.locals?.user?.id;
-		const type = req.query.type as 'given' | 'received' | 'mutual' || 'received';
+		const type = (req.query.type as "given" | "received" | "mutual") || "received";
 		const page = parseInt(req.query.page as string) || 1;
 		const limit = parseInt(req.query.limit as string) || 20;
 
@@ -583,18 +563,18 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Unauthorized",
 				message: "Authentication required to access likes",
-				code: "AUTH_REQUIRED"
+				code: "AUTH_REQUIRED",
 			};
 			res.status(401).json(errorResponse);
 			return;
 		}
 
 		// Validate type parameter
-		if (!['given', 'received', 'mutual'].includes(type)) {
+		if (!["given", "received", "mutual"].includes(type)) {
 			const errorResponse: ErrorResponse = {
 				error: "Bad Request",
 				message: "Invalid type parameter. Must be 'given', 'received', or 'mutual'",
-				code: "INVALID_PARAMETER"
+				code: "INVALID_PARAMETER",
 			};
 			res.status(400).json(errorResponse);
 			return;
@@ -610,8 +590,8 @@ export class UserController {
 					total: result.total,
 					page: result.pagination.page,
 					totalPages: result.pagination.totalPages,
-					likes: result.likes
-				}
+					likes: result.likes,
+				},
 			};
 			res.status(200).json(successResponse);
 		} catch (error) {
@@ -619,7 +599,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to fetch likes",
-				code: "SERVER_ERROR"
+				code: "SERVER_ERROR",
 			};
 			res.status(500).json(errorResponse);
 		}
@@ -637,7 +617,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Unauthorized",
 				message: "Authentication required to access blocked users",
-				code: "AUTH_REQUIRED"
+				code: "AUTH_REQUIRED",
 			};
 			res.status(401).json(errorResponse);
 			return;
@@ -652,8 +632,8 @@ export class UserController {
 					total: result.total,
 					page: result.pagination.page,
 					totalPages: result.pagination.totalPages,
-					blockedUsers: result.blocks
-				}
+					blockedUsers: result.blocks,
+				},
 			};
 			res.status(200).json(successResponse);
 		} catch (error) {
@@ -661,7 +641,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to fetch blocked users",
-				code: "SERVER_ERROR"
+				code: "SERVER_ERROR",
 			};
 			res.status(500).json(errorResponse);
 		}
@@ -679,7 +659,7 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Unauthorized",
 				message: "Authentication required to access matches",
-				code: "AUTH_REQUIRED"
+				code: "AUTH_REQUIRED",
 			};
 			res.status(401).json(errorResponse);
 			return;
@@ -694,8 +674,8 @@ export class UserController {
 					total: result.pagination.total,
 					page: result.pagination.page,
 					totalPages: Math.ceil(result.pagination.total / limit),
-					matches: result.matches
-				}
+					matches: result.matches,
+				},
 			};
 			res.status(200).json(successResponse);
 		} catch (error) {
@@ -703,10 +683,9 @@ export class UserController {
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to fetch matches",
-				code: "SERVER_ERROR"
+				code: "SERVER_ERROR",
 			};
 			res.status(500).json(errorResponse);
 		}
 	}
-
 }

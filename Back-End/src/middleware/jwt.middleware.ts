@@ -1,9 +1,9 @@
 import { UserRepository } from "@repositories/user.repository";
 import { decodeJwt } from "@utils/jwt";
-import type { Request, Response, NextFunction } from "express";
+import type { NextFunction, Request, Response } from "express";
+import { dbUserToApiUser } from "src/mappers/user.mapper";
 import { pool } from "../database";
 import { logger } from "../server";
-import { dbUserToApiUser } from "src/mappers/user.mapper";
 
 const nonProtectedEndpoints: Array<string> = [
 	"/auth/login",
@@ -15,11 +15,7 @@ const nonProtectedEndpoints: Array<string> = [
 
 const userRepository = new UserRepository(pool);
 
-export const jwtMiddleware = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
-) => {
+export const jwtMiddleware = async (req: Request, res: Response, next: NextFunction) => {
 	if (nonProtectedEndpoints.includes(req.path)) {
 		return next();
 	}
@@ -35,7 +31,7 @@ export const jwtMiddleware = async (
 		const userId: string = decoded?.userId || "";
 
 		// Check if token is an access token
-		if (decoded?.type !== 'access') {
+		if (decoded?.type !== "access") {
 			return res.status(401).json({ message: "Invalid token type" });
 		}
 

@@ -1,8 +1,8 @@
-import { pool } from "../database";
 import type { User } from "@models/user.entity";
 import { UserRepository } from "@repositories/user.repository";
-import { LikeService } from "./like.service";
+import { pool } from "../database";
 import { BlockService } from "./block.service";
+import { LikeService } from "./like.service";
 import { MatchService } from "./match.service";
 
 export class UserService {
@@ -28,10 +28,7 @@ export class UserService {
 	/**
 	 * Update user by ID
 	 */
-	public async updateUser(
-		id: string,
-		data: Partial<User>
-	): Promise<User | null> {
+	public async updateUser(id: string, data: Partial<User>): Promise<User | null> {
 		return this.userRepository.update(id, data);
 	}
 
@@ -41,7 +38,7 @@ export class UserService {
 	public async likeUser(
 		userId: string,
 		targetUserId: string,
-		like: boolean
+		like: boolean,
 	): Promise<{
 		success: boolean;
 		isMatch: boolean;
@@ -59,10 +56,7 @@ export class UserService {
 	/**
 	 * Unlike a user
 	 */
-	public async unlikeUser(
-		userId: string,
-		targetUserId: string
-	): Promise<boolean> {
+	public async unlikeUser(userId: string, targetUserId: string): Promise<boolean> {
 		return this.likeService.unlikeUser(userId, targetUserId);
 	}
 
@@ -90,17 +84,20 @@ export class UserService {
 	/**
 	 * Block a user
 	 */
-	public async blockUser(blockerId: string, blockedId: string): Promise<{
+	public async blockUser(
+		blockerId: string,
+		blockedId: string,
+	): Promise<{
 		success: boolean;
 		matchRemoved: boolean;
 		likesRemoved: boolean;
 	}> {
 		const result = await this.blockService.blockUser(blockerId, blockedId);
-		
+
 		return {
 			success: true,
 			matchRemoved: result.matchRemoved,
-			likesRemoved: result.likesRemoved
+			likesRemoved: result.likesRemoved,
 		};
 	}
 
@@ -136,10 +133,10 @@ export class UserService {
 	 * Get current user's likes with type filtering (dedicated endpoint)
 	 */
 	public async getCurrentUserLikes(
-		userId: string, 
-		type: 'given' | 'received' | 'mutual', 
-		page = 1, 
-		limit = 20
+		userId: string,
+		type: "given" | "received" | "mutual",
+		page = 1,
+		limit = 20,
 	) {
 		return this.likeService.getCurrentUserLikes(userId, type, page, limit);
 	}
