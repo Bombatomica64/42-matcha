@@ -76,7 +76,7 @@ export abstract class BaseRepository<T> {
 	/**
 	 * Create new entity
 	 */
-	async create(entity: Omit<T, "id" | "created_at" | "updated_at">): Promise<T> {
+	async create(entity: Omit<T, "id" | "created_at" | "updated_at" | "photos" | "hashtags">): Promise<T> {
 		const keys = Object.keys(entity);
 		const values = Object.values(entity);
 		const placeholders = keys.map((_, index) => `$${index + 1}`).join(", ");

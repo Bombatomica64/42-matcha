@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS users (
 		password_reset_token VARCHAR(255),
 		password_reset_expires_at TIMESTAMP,
 		likes_received_count INTEGER DEFAULT 0,
+		likes_given_count INTEGER DEFAULT 0,
 		views_count INTEGER DEFAULT 0,
 		matches_count INTEGER DEFAULT 0,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

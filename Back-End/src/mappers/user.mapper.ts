@@ -15,6 +15,14 @@ type ApiPhoto = components["schemas"]["Photo"];
  * This handles the complex database relations and flattens them for API consumption
  */
 export function dbUserToApiUser(dbUser: DbUser): ApiUser {
+	const location =
+		dbUser.location && typeof dbUser.location === "object" && "coordinates" in dbUser.location
+			? {
+					latitude: dbUser.location.coordinates[0],
+					longitude: dbUser.location.coordinates[1],
+				}
+			: undefined;
+
 	return {
 		id: dbUser.id,
 		email: dbUser.email,
@@ -25,12 +33,7 @@ export function dbUserToApiUser(dbUser: DbUser): ApiUser {
 		last_name: dbUser.last_name,
 		gender: dbUser.gender,
 		sexual_orientation: dbUser.sexual_orientation,
-		location: dbUser.location
-			? {
-					latitude: dbUser.location.coordinates[1],
-					longitude: dbUser.location.coordinates[0],
-				}
-			: undefined,
+		location: location,
 		fame_rating: dbUser.fame_rating,
 		online_status: dbUser.online_status,
 		likes_received: dbUser.likes_received_count,

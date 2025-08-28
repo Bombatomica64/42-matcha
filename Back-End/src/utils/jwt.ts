@@ -14,7 +14,7 @@ export interface JwtPayload {
 	location?: {
 		type: "Point";
 		coordinates: [number, number]; // [longitude, latitude]
-	};
+	} | string;
 	iat?: number; // issued at
 	exp?: number; // expiration
 }
@@ -57,7 +57,7 @@ export function generateAuthToken(user: {
 	location?: {
 		type: "Point";
 		coordinates: [number, number];
-	};
+	} | string;
 }): string {
 	const payload: Omit<JwtPayload, "iat" | "exp" | "type"> = {
 		userId: user.id,
@@ -74,7 +74,7 @@ export function generateRefreshToken(user: {
 	location?: {
 		type: "Point";
 		coordinates: [number, number];
-	};
+	} | string;
 }): string {
 	const payload: Omit<JwtPayload, "iat" | "exp" | "type"> = {
 		userId: user.id,
@@ -91,7 +91,7 @@ export function generateTokenPair(user: {
 	location?: {
 		type: "Point";
 		coordinates: [number, number];
-	};
+	} | string;
 }): { accessToken: string; refreshToken: string } {
 	return {
 		accessToken: generateAuthToken(user),

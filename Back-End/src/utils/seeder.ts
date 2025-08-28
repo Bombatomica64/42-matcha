@@ -249,11 +249,14 @@ class UserSeeder {
 		let paramIndex = 1;
 
 		for (const userData of usersData) {
+			// Build the location as a literal PostGIS function call
+			const locationSql = `ST_SetSRID(ST_MakePoint(${userData.location.lng}, ${userData.location.lat}), 4326)`;
+
 			values.push(`(
 				$${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3}, 
 				$${paramIndex + 4}, $${paramIndex + 5}, $${paramIndex + 6}, $${paramIndex + 7}, 
-				$${paramIndex + 8}, ST_SetSRID(ST_MakePoint($${paramIndex + 9}, $${paramIndex + 10}), 4326),
-				$${paramIndex + 11}, $${paramIndex + 12}, $${paramIndex + 13}, $${paramIndex + 14}, $${paramIndex + 15}
+				$${paramIndex + 8}, ${locationSql},
+				$${paramIndex + 9}, $${paramIndex + 10}, $${paramIndex + 11}, $${paramIndex + 12}, $${paramIndex + 13}
 			)`);
 
 			params.push(
@@ -266,8 +269,7 @@ class UserSeeder {
 				userData.gender,
 				userData.sexualOrientation,
 				userData.bio,
-				userData.location.lng, // longitude first for PostGIS
-				userData.location.lat,
+				// Note: location is now a literal SQL function, not a parameter
 				userData.fameRating,
 				userData.activated,
 				userData.profileComplete,
@@ -275,9 +277,8 @@ class UserSeeder {
 				userData.lastSeen,
 			);
 
-			paramIndex += 16;
+			paramIndex += 14; // Now we have 14 parameters instead of 16
 		}
-
 		const query = `
 			INSERT INTO users (
 				username, email, first_name, last_name, password, birth_date,
@@ -352,7 +353,7 @@ class UserSeeder {
 		if (values.length > 0) {
 			const query = `
 				INSERT INTO user_photos (
-					user_uuid, filename, original_filename, file_path,
+					user_id, filename, original_filename, file_path,
 					file_size, mime_type, is_primary, display_order
 				) VALUES ${values.join(", ")}
 			`;

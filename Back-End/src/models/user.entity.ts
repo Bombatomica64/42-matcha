@@ -49,6 +49,8 @@ export type CreateUserData = Omit<
 	| "fame_rating"
 	| "last_seen"
 	| "online_status"
+	| "photos"
+	| "hashtags"
 >;
 
 export type UpdateUserData = Partial<Omit<User, "id" | "created_at" | "updated_at">>;
