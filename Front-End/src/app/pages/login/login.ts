@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { LoginForm } from '../../components/forms/login-form/login-form';
 import { Router } from '@angular/router';
+import { TokenStore } from '../../services/token-store';
 
 @Component({
   selector: 'app-login',
@@ -37,9 +38,11 @@ import { Router } from '@angular/router';
 })
 export class Login {
   private router = inject(Router);
+  private tokenStore = inject(TokenStore);
 
   onLoginSuccess(response: any) {
     console.log('Login successful:', response);
+    this.tokenStore.setTokens(response.accessToken, response.refreshToken);
     this.router.navigate(['/home']);
   }
   onLoginError(error: any) {
