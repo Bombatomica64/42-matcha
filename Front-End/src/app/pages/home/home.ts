@@ -4,11 +4,23 @@ import { Component } from '@angular/core';
   selector: 'app-home',
   imports: [],
   template: `
-    <p>
-      home works!
-    </p>
+    <div class="content"></div>
   `,
-  styles: ``
+  styles: `
+    :host {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+    .content {
+      padding: 1rem;
+      width: 100%;
+      height: 100%;
+    }
+  `
 })
 export class Home {
 
