@@ -1,6 +1,8 @@
 import type { CreateUserData, UpdateUserData, User } from "@models/user.entity";
 import { BaseRepository } from "@orm/base-repository";
 import type { Pool } from "pg";
+import type { PaginatedResponse } from "../types/api";
+import { createPaginatedResponse } from "../types/pagination";
 
 export class UserRepository extends BaseRepository<User> {
 	constructor(pool: Pool) {
@@ -250,18 +252,7 @@ export class UserRepository extends BaseRepository<User> {
 			page?: number;
 			perPage?: number;
 		},
-	): Promise<{
-		total_results: number;
-		total_pages: number;
-		current_page: number;
-		users: User[];
-		links: {
-			first: string;
-			last: string;
-			prev: string | null;
-			next: string | null;
-		};
-	}> {
+	): Promise<PaginatedResponse<User>> {
 		const page = criteria.page || 1;
 		const perPage = Math.min(criteria.perPage || 10, 50); // Max 50 per page
 		const offset = (page - 1) * perPage;
@@ -414,7 +405,6 @@ export class UserRepository extends BaseRepository<User> {
 		// Get total count
 		const countResult = await this.pool.query(countQuery, countParams);
 		const totalResults = parseInt(countResult.rows[0].total, 10);
-		const totalPages = Math.ceil(totalResults / perPage);
 
 		// Add GROUP BY and pagination to main query
 		dataQuery += ` GROUP BY u.id ORDER BY u.created_at DESC LIMIT $${paramIndex} OFFSET $${
@@ -424,40 +414,27 @@ export class UserRepository extends BaseRepository<User> {
 
 		const result = await this.pool.query(dataQuery, params);
 
-		// Build query string for pagination links
-		const buildQueryString = (pageNum: number) => {
-			const queryParts: string[] = [];
-			queryParts.push(`page=${pageNum}`);
-			queryParts.push(`per_page=${perPage}`);
-
-			if (criteria.query) queryParts.push(`query=${encodeURIComponent(criteria.query)}`);
-			if (criteria.ageMin !== undefined) queryParts.push(`age_min=${criteria.ageMin}`);
-			if (criteria.ageMax !== undefined) queryParts.push(`age_max=${criteria.ageMax}`);
-			if (criteria.gender) queryParts.push(`gender=${criteria.gender}`);
-			if (criteria.sexualOrientation)
-				queryParts.push(`sexual_orientation=${criteria.sexualOrientation}`);
-			if (criteria.location) {
-				queryParts.push(`location=${criteria.location.lat},${criteria.location.lng}`);
-				if (criteria.location.radius) queryParts.push(`radius=${criteria.location.radius}`);
-			}
-			if (criteria.interests && criteria.interests.length > 0) {
-				queryParts.push(`interests=${criteria.interests.join(",")}`);
-			}
-
-			return `/api/user/search?${queryParts.join("&")}`;
+		// Use the standardized pagination response format
+		const queryParams = {
+			...(criteria.query && { query: criteria.query }),
+			...(criteria.ageMin !== undefined && { age_min: criteria.ageMin }),
+			...(criteria.ageMax !== undefined && { age_max: criteria.ageMax }),
+			...(criteria.gender && { gender: criteria.gender }),
+			...(criteria.sexualOrientation && { sexual_orientation: criteria.sexualOrientation }),
+			...(criteria.location && {
+				location: `${criteria.location.lat},${criteria.location.lng}`,
+				...(criteria.location.radius && { radius: criteria.location.radius }),
+			}),
+			...(criteria.interests?.length && { interests: criteria.interests.join(",") }),
 		};
 
-		return {
-			total_results: totalResults,
-			total_pages: totalPages,
-			current_page: page,
-			users: result.rows,
-			links: {
-				first: buildQueryString(1),
-				last: buildQueryString(totalPages),
-				prev: page > 1 ? buildQueryString(page - 1) : null,
-				next: page < totalPages ? buildQueryString(page + 1) : null,
-			},
-		};
+		return createPaginatedResponse<User>(
+			result.rows,
+			totalResults,
+			page,
+			perPage,
+			"/api/users/search",
+			queryParams,
+		);
 	}
 }

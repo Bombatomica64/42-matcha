@@ -1,9 +1,9 @@
 import type { Pool, QueryResult } from "pg";
-import { 
-  calculatePagination,
-  createPaginatedResponse,
-  type PaginationRequest, 
-  type PaginatedResponse
+import {
+	calculatePagination,
+	createPaginatedResponse,
+	type PaginatedResponse,
+	type PaginationRequest,
 } from "../types/pagination";
 
 export abstract class BaseRepository<T> {
@@ -169,7 +169,7 @@ export abstract class BaseRepository<T> {
 	async findByUserId(
 		userId: string,
 		junctionTable: string,
-		junctionLocalKey: string = 'hashtag_id'
+		junctionLocalKey: string = "hashtag_id",
 	): Promise<T[]> {
 		const query = `
     SELECT t.* 
@@ -193,13 +193,13 @@ export abstract class BaseRepository<T> {
 			offset?: number;
 			textFields?: string[]; // Fields to use ILIKE on
 			orderBy?: string;
-			orderDirection?: 'ASC' | 'DESC';
-		} = {}
+			orderDirection?: "ASC" | "DESC";
+		} = {},
 	): Promise<T[]> {
 		const keys = Object.keys(searchCriteria);
 		if (keys.length === 0) return this.findAll(options.limit, options.offset);
 
-		const { textFields = [], orderBy, orderDirection = 'ASC' } = options;
+		const { textFields = [], orderBy, orderDirection = "ASC" } = options;
 		const values = Object.values(searchCriteria);
 		const params: unknown[] = [];
 
@@ -210,7 +210,7 @@ export abstract class BaseRepository<T> {
 			const paramIndex = params.length;
 
 			// Use ILIKE for text fields, exact match for others
-			if (textFields.includes(key) && typeof value === 'string') {
+			if (textFields.includes(key) && typeof value === "string") {
 				return `${key} ILIKE $${paramIndex}`;
 			}
 			return `${key} = $${paramIndex}`;
@@ -219,12 +219,12 @@ export abstract class BaseRepository<T> {
 		// Wrap string values with % for ILIKE
 		params.forEach((param, index) => {
 			const key = keys[index];
-			if (textFields.includes(key) && typeof param === 'string') {
+			if (textFields.includes(key) && typeof param === "string") {
 				params[index] = `%${param}%`;
 			}
 		});
 
-		let query = `SELECT * FROM ${this.tableName} WHERE ${conditions.join(' AND ')}`;
+		let query = `SELECT * FROM ${this.tableName} WHERE ${conditions.join(" AND ")}`;
 
 		// Add ORDER BY if specified
 		if (orderBy) {
@@ -253,51 +253,50 @@ export abstract class BaseRepository<T> {
 		searchCriteria: {
 			[K in keyof Partial<T>]: {
 				value: T[K];
-				operator?: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'like' | 'ilike' | 'in';
+				operator?: "eq" | "ne" | "gt" | "gte" | "lt" | "lte" | "like" | "ilike" | "in";
 			};
 		},
 		options: {
 			limit?: number;
 			offset?: number;
 			orderBy?: string;
-			orderDirection?: 'ASC' | 'DESC';
-			logicalOperator?: 'AND' | 'OR';
-		} = {}
+			orderDirection?: "ASC" | "DESC";
+			logicalOperator?: "AND" | "OR";
+		} = {},
 	): Promise<T[]> {
 		const keys = Object.keys(searchCriteria);
 		if (keys.length === 0) return this.findAll(options.limit, options.offset);
 
-		const { orderBy, orderDirection = 'ASC', logicalOperator = 'AND' } = options;
+		const { orderBy, orderDirection = "ASC", logicalOperator = "AND" } = options;
 		const params: unknown[] = [];
 
 		// Build WHERE conditions with operators
 		const conditions = keys.map((key) => {
 			const criteria = searchCriteria[key as keyof T] as { value: unknown; operator?: string };
-			const { value, operator = 'eq' } = criteria;
+			const { value, operator = "eq" } = criteria;
 
 			params.push(value);
 			const paramIndex = params.length;
 
 			switch (operator) {
-				case 'ne':
+				case "ne":
 					return `${key} != $${paramIndex}`;
-				case 'gt':
+				case "gt":
 					return `${key} > $${paramIndex}`;
-				case 'gte':
+				case "gte":
 					return `${key} >= $${paramIndex}`;
-				case 'lt':
+				case "lt":
 					return `${key} < $${paramIndex}`;
-				case 'lte':
+				case "lte":
 					return `${key} <= $${paramIndex}`;
-				case 'like':
+				case "like":
 					params[paramIndex - 1] = `%${value}%`;
 					return `${key} LIKE $${paramIndex}`;
-				case 'ilike':
+				case "ilike":
 					params[paramIndex - 1] = `%${value}%`;
 					return `${key} ILIKE $${paramIndex}`;
-				case 'in':
+				case "in":
 					return `${key} = ANY($${paramIndex})`;
-				case 'eq':
 				default:
 					return `${key} = $${paramIndex}`;
 			}
@@ -330,10 +329,10 @@ export abstract class BaseRepository<T> {
 	 */
 	async findAllPaginated(
 		pagination: PaginationRequest,
-		baseUrl: string
+		baseUrl: string,
 	): Promise<PaginatedResponse<T>> {
 		const { offset, limit, page } = calculatePagination(pagination);
-		
+
 		// Get total count
 		const countQuery = `SELECT COUNT(*) as total FROM ${this.tableName}`;
 		const countResult = await this.pool.query(countQuery);
@@ -345,7 +344,7 @@ export abstract class BaseRepository<T> {
 
 		// Add sorting
 		if (pagination.sort) {
-			const direction = pagination.order || 'desc';
+			const direction = pagination.order || "desc";
 			query += ` ORDER BY ${pagination.sort} ${direction.toUpperCase()}`;
 		}
 
@@ -361,14 +360,7 @@ export abstract class BaseRepository<T> {
 		if (pagination.sort) queryParams.sort = pagination.sort;
 		if (pagination.order) queryParams.order = pagination.order;
 
-		return createPaginatedResponse(
-			result.rows,
-			totalItems,
-			page,
-			limit,
-			baseUrl,
-			queryParams
-		);
+		return createPaginatedResponse(result.rows, totalItems, page, limit, baseUrl, queryParams);
 	}
 
 	/**
@@ -380,7 +372,7 @@ export abstract class BaseRepository<T> {
 		baseUrl: string,
 		options: {
 			textFields?: string[];
-		} = {}
+		} = {},
 	): Promise<PaginatedResponse<T>> {
 		const { offset, limit, page } = calculatePagination(pagination);
 		const { textFields = [] } = options;
@@ -400,7 +392,7 @@ export abstract class BaseRepository<T> {
 			const paramIndex = params.length;
 
 			// Use ILIKE for text fields, exact match for others
-			if (textFields.includes(key) && typeof value === 'string') {
+			if (textFields.includes(key) && typeof value === "string") {
 				return `${key} ILIKE $${paramIndex}`;
 			}
 			return `${key} = $${paramIndex}`;
@@ -409,12 +401,12 @@ export abstract class BaseRepository<T> {
 		// Wrap string values with % for ILIKE
 		params.forEach((param, index) => {
 			const key = keys[index];
-			if (textFields.includes(key) && typeof param === 'string') {
+			if (textFields.includes(key) && typeof param === "string") {
 				params[index] = `%${param}%`;
 			}
 		});
 
-		const whereClause = conditions.join(' AND ');
+		const whereClause = conditions.join(" AND ");
 
 		// Get total count
 		const countQuery = `SELECT COUNT(*) as total FROM ${this.tableName} WHERE ${whereClause}`;
@@ -426,7 +418,7 @@ export abstract class BaseRepository<T> {
 
 		// Add sorting
 		if (pagination.sort) {
-			const direction = pagination.order || 'desc';
+			const direction = pagination.order || "desc";
 			query += ` ORDER BY ${pagination.sort} ${direction.toUpperCase()}`;
 		}
 
@@ -441,19 +433,12 @@ export abstract class BaseRepository<T> {
 		if (pagination.limit) queryParams.limit = pagination.limit;
 		if (pagination.sort) queryParams.sort = pagination.sort;
 		if (pagination.order) queryParams.order = pagination.order;
-		
+
 		// Add search criteria to query params
 		keys.forEach((key, index) => {
 			queryParams[key] = values[index] as string | number;
 		});
 
-		return createPaginatedResponse(
-			result.rows,
-			totalItems,
-			page,
-			limit,
-			baseUrl,
-			queryParams
-		);
+		return createPaginatedResponse(result.rows, totalItems, page, limit, baseUrl, queryParams);
 	}
 }

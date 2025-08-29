@@ -3,9 +3,9 @@ import path from "node:path";
 import process from "node:process";
 import type { components } from "@generated/typescript/api";
 import type { UpdatePhotoData } from "@models/photo.entity";
+import { BaseRepository } from "@orm/base-repository";
 import type { Express } from "express";
 import { pool } from "../database";
-import { BaseRepository } from "@orm/base-repository";
 
 type Photo = components["schemas"]["Photo"];
 
