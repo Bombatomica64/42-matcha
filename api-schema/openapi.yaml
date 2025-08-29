@@ -61,6 +61,10 @@ paths:
   /users/blocks:
     $ref: './schemas/user.yaml#/paths/userBlocks'
 
+  # Hashtags endpoints
+  /hashtags:
+    $ref: './schemas/hashtags.yaml#/paths/hashtags'
+
 components:
   schemas:
     # Reference schemas from other files
@@ -79,38 +83,38 @@ components:
    
     # Match:
     #   $ref: './schemas/match.yaml#/components/schemas/Match'
-    ErrorResponse:
-      type: object
-      properties:
-        error:
-          type: string
-          example: "Invalid request"
-        message:
-          type: string
-          example: "The provided data is invalid"
-        code:
-          type: string
-          example: "VALIDATION_ERROR"
-        details:
-          type: object
-          additionalProperties: true
-          example: 
-            field: "email"
-            reason: "Invalid email format"
-      required:
-        - error
-        - message
-    SuccessResponse:
-      type: object
-      properties:
-        message:
-          type: string
-          example: "User liked successfully"
-        data:
-          type: object
-          additionalProperties: true
-          example:
-            userId: "123e4567-e89b-12d3-a456-426614174000"
+    # ErrorResponse:
+    #   type: object
+    #   properties:
+    #     error:
+    #       type: string
+    #       example: "Invalid request"
+    #     message:
+    #       type: string
+    #       example: "The provided data is invalid"
+    #     code:
+    #       type: string
+    #       example: "VALIDATION_ERROR"
+    #     details:
+    #       type: object
+    #       additionalProperties: true
+    #       example: 
+    #         field: "email"
+    #         reason: "Invalid email format"
+    #   required:
+    #     - error
+    #     - message
+    # SuccessResponse:
+    #   type: object
+    #   properties:
+    #     message:
+    #       type: string
+    #       example: "User liked successfully"
+    #     data:
+    #       type: object
+    #       additionalProperties: true
+    #       example:
+    #         userId: "123e4567-e89b-12d3-a456-426614174000"
 
     # Reference auth schemas
     registerRequest:

@@ -1,0 +1,67 @@
+openapi: 3.1.1
+info: 
+  title:   Hashtags schema
+  version: 1.0.0
+  description: Schema for hashtags used in the application
+
+paths:
+  hashtags:
+    get:
+      summary: Get all hashtags
+      operationId: getAllHashtags
+      security:
+        - bearerAuth: []
+      parameters: 
+        - name: query
+          in: query
+          required: false
+          description: Search query for filtering hashtags
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of hashtags
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Hashtag'
+        '204':
+          description: No hashtags found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No hashtags found"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized access"
+
+components: 
+  schemas:
+    Hashtag:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+          description: The name of the hashtag
+          example: "#example"
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
