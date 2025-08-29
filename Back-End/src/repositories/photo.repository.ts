@@ -5,10 +5,11 @@ import type { components } from "@generated/typescript/api";
 import type { UpdatePhotoData } from "@models/photo.entity";
 import type { Express } from "express";
 import { pool } from "../database";
+import { BaseRepository } from "@orm/base-repository";
 
 type Photo = components["schemas"]["Photo"];
 
-export class PhotoRepository {
+export class PhotoRepository extends BaseRepository<Photo> {
 	async findByUserId(userId: string): Promise<Photo[]> {
 		const query = `
 			SELECT 

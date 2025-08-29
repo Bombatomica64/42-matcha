@@ -1,0 +1,162 @@
+components:
+  schemas:
+    # Pagination request parameters
+    PaginationQuery:
+      type: object
+      properties:
+        page:
+          type: integer
+          minimum: 1
+          default: 1
+          description: Page number (1-based)
+          example: 1
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+          description: Number of items per page
+          example: 10
+        sort:
+          type: string
+          description: Field to sort by
+          example: "created_at"
+        order:
+          type: string
+          enum: [asc, desc]
+          default: desc
+          description: Sort direction
+          example: "desc"
+
+    # Pagination metadata
+    PaginationMeta:
+      type: object
+      properties:
+        total_items:
+          type: integer
+          description: Total number of items
+          example: 150
+        total_pages:
+          type: integer
+          description: Total number of pages
+          example: 15
+        current_page:
+          type: integer
+          description: Current page number
+          example: 3
+        per_page:
+          type: integer
+          description: Items per page
+          example: 10
+        has_previous:
+          type: boolean
+          description: Whether there's a previous page
+          example: true
+        has_next:
+          type: boolean
+          description: Whether there's a next page
+          example: true
+      required:
+        - total_items
+        - total_pages
+        - current_page
+        - per_page
+        - has_previous
+        - has_next
+
+    # Pagination links
+    PaginationLinks:
+      type: object
+      properties:
+        first:
+          type: string
+          format: uri
+          description: URL to first page
+          example: "/api/users?page=1&limit=10"
+        last:
+          type: string
+          format: uri
+          description: URL to last page
+          example: "/api/users?page=15&limit=10"
+        previous:
+          type: string
+          format: uri
+          description: URL to previous page (null if first page)
+          example: "/api/users?page=2&limit=10"
+        next:
+          type: string
+          format: uri
+          description: URL to next page (null if last page)
+          example: "/api/users?page=4&limit=10"
+        self:
+          type: string
+          format: uri
+          description: URL to current page
+          example: "/api/users?page=3&limit=10"
+      required:
+        - first
+        - last
+        - self
+
+    # Generic paginated response wrapper
+    PaginatedResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          description: Array of items for current page
+          items:
+            type: object
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+      required:
+        - data
+        - meta
+        - links
+
+  # Reusable pagination parameters
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Page number (1-based)
+      example: 1
+
+    LimitParam:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 10
+      description: Number of items per page
+      example: 10
+
+    SortParam:
+      name: sort
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Field to sort by
+      example: created_at
+
+    OrderParam:
+      name: order
+      in: query
+      required: false
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: desc
+      description: Sort direction
+      example: desc

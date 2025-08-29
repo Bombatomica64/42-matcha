@@ -1,0 +1,125 @@
+# Example: How to add pagination to your existing endpoints
+
+paths:
+  # Example: Paginated user listing
+  /users:
+    get:
+      summary: Get all users with pagination
+      description: Retrieve a paginated list of users
+      tags:
+        - users
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '../openapi.yaml#/components/parameters/pageParam'
+        - $ref: '../openapi.yaml#/components/parameters/limitParam'
+        - $ref: '../openapi.yaml#/components/parameters/sortParam'
+        - $ref: '../openapi.yaml#/components/parameters/orderParam'
+      responses:
+        '200':
+          description: Paginated list of users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: './user.yaml#/components/schemas/UserResponse'
+                  meta:
+                    $ref: '../openapi.yaml#/components/schemas/paginationMeta'
+                  links:
+                    $ref: '../openapi.yaml#/components/schemas/paginationLinks'
+                required:
+                  - data
+                  - meta
+                  - links
+              example:
+                data:
+                  - id: "123e4567-e89b-12d3-a456-426614174000"
+                    username: "john_doe"
+                    first_name: "John"
+                    last_name: "Doe"
+                    email: "john@example.com"
+                    # ... other user fields
+                meta:
+                  total_items: 150
+                  total_pages: 15
+                  current_page: 3
+                  per_page: 10
+                  has_previous: true
+                  has_next: true
+                links:
+                  first: "/api/users?page=1&limit=10"
+                  last: "/api/users?page=15&limit=10"
+                  previous: "/api/users?page=2&limit=10"
+                  next: "/api/users?page=4&limit=10"
+                  self: "/api/users?page=3&limit=10"
+        '401':
+          $ref: '../openapi.yaml#/components/responses/UnauthorizedError'
+
+  # Example: Paginated user search
+  /users/search:
+    get:
+      summary: Search users with pagination
+      description: Search for users with optional filters and pagination
+      tags:
+        - users
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '../openapi.yaml#/components/parameters/pageParam'
+        - $ref: '../openapi.yaml#/components/parameters/limitParam'
+        - $ref: '../openapi.yaml#/components/parameters/sortParam'
+        - $ref: '../openapi.yaml#/components/parameters/orderParam'
+        - name: query
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Search query for name or bio
+          example: "John"
+        - name: gender
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [male, female, other]
+          description: Filter by gender
+        - name: age_min
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 18
+            maximum: 100
+          description: Minimum age filter
+        - name: age_max
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 18
+            maximum: 100
+          description: Maximum age filter
+      responses:
+        '200':
+          description: Paginated search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: './user.yaml#/components/schemas/UserResponse'
+                  meta:
+                    $ref: '../openapi.yaml#/components/schemas/paginationMeta'
+                  links:
+                    $ref: '../openapi.yaml#/components/schemas/paginationLinks'
+                required:
+                  - data
+                  - meta
+                  - links

@@ -11,10 +11,12 @@ export interface JwtPayload {
 	userId: string;
 	username: string;
 	type?: "access" | "refresh"; // Add token type
-	location?: {
-		type: "Point";
-		coordinates: [number, number]; // [longitude, latitude]
-	} | string;
+	location?:
+		| {
+				type: "Point";
+				coordinates: [number, number]; // [longitude, latitude]
+		  }
+		| string;
 	iat?: number; // issued at
 	exp?: number; // expiration
 }
@@ -54,10 +56,12 @@ export function decodeJwt(token: string): JwtPayload | null {
 export function generateAuthToken(user: {
 	id: string;
 	username: string;
-	location?: {
-		type: "Point";
-		coordinates: [number, number];
-	} | string;
+	location?:
+		| {
+				type: "Point";
+				coordinates: [number, number];
+		  }
+		| string;
 }): string {
 	const payload: Omit<JwtPayload, "iat" | "exp" | "type"> = {
 		userId: user.id,
@@ -71,10 +75,12 @@ export function generateAuthToken(user: {
 export function generateRefreshToken(user: {
 	id: string;
 	username: string;
-	location?: {
-		type: "Point";
-		coordinates: [number, number];
-	} | string;
+	location?:
+		| {
+				type: "Point";
+				coordinates: [number, number];
+		  }
+		| string;
 }): string {
 	const payload: Omit<JwtPayload, "iat" | "exp" | "type"> = {
 		userId: user.id,
@@ -88,10 +94,12 @@ export function generateRefreshToken(user: {
 export function generateTokenPair(user: {
 	id: string;
 	username: string;
-	location?: {
-		type: "Point";
-		coordinates: [number, number];
-	} | string;
+	location?:
+		| {
+				type: "Point";
+				coordinates: [number, number];
+		  }
+		| string;
 }): { accessToken: string; refreshToken: string } {
 	return {
 		accessToken: generateAuthToken(user),

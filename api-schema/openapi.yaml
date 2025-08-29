@@ -143,6 +143,27 @@ components:
     photoListResponse:
       $ref: './schemas/photos.yaml#/components/schemas/PhotoListResponse'
 
+    # Pagination schemas
+    paginationQuery:
+      $ref: './schemas/pagination.yaml#/components/schemas/PaginationQuery'
+    paginationMeta:
+      $ref: './schemas/pagination.yaml#/components/schemas/PaginationMeta'
+    paginationLinks:
+      $ref: './schemas/pagination.yaml#/components/schemas/PaginationLinks'
+    paginatedResponse:
+      $ref: './schemas/pagination.yaml#/components/schemas/PaginatedResponse'
+
+  parameters:
+    # Pagination parameters
+    pageParam:
+      $ref: './schemas/pagination.yaml#/components/parameters/PageParam'
+    limitParam:
+      $ref: './schemas/pagination.yaml#/components/parameters/LimitParam'
+    sortParam:
+      $ref: './schemas/pagination.yaml#/components/parameters/SortParam'
+    orderParam:
+      $ref: './schemas/pagination.yaml#/components/parameters/OrderParam'
+
   securitySchemes:
     bearerAuth:
       type: http
