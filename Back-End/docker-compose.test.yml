@@ -1,0 +1,24 @@
+
+services:
+  test-db:
+    build:
+      context: ./tests/Db
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_DB: matcha_test
+      POSTGRES_USER: matcha
+      POSTGRES_PASSWORD: matcha
+    ports:
+      - "5433:5432"  # Different port to avoid conflict with main db
+    volumes:
+      - test_db_data:/var/lib/postgresql/data
+      - ../Db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ../Db/procedures.sql:/docker-entrypoint-initdb.d/procedures.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U matcha -d matcha_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  test_db_data:
