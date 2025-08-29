@@ -42,7 +42,7 @@ export class Login {
 
   onLoginSuccess(response: any) {
     console.log('Login successful:', response);
-    this.tokenStore.setTokens(response.accessToken, response.refreshToken);
+    this.tokenStore.setTokens(response.token, "");
     this.router.navigate(['/home']);
   }
   onLoginError(error: any) {

@@ -81,11 +81,11 @@ export class TokenStore {
 	 */
 	setTokens(accessToken: string, refreshToken: string): void {
 		this.accessTokenSignal.set(accessToken);
-		this.refreshTokenSignal.set(refreshToken);
+		// this.refreshTokenSignal.set(refreshToken);
 
 		if (isPlatformBrowser(this.platformId)) {
 			localStorage.setItem(this.TOKEN_KEY, accessToken);
-			localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
+			// localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
 		}
 	}
 
@@ -146,11 +146,11 @@ export class TokenStore {
 		}
 
 		// Check if refresh token exists as a fallback
-		const refreshToken = this.getRefreshToken();
-		if (refreshToken) {
-			const decoded = jwtDecode<TokenPayload>(refreshToken);
-			return decoded.exp * 1000 > Date.now();
-		}
+		// const refreshToken = this.getRefreshToken();
+		// if (refreshToken) {
+		// 	const decoded = jwtDecode<TokenPayload>(refreshToken);
+		// 	return decoded.exp * 1000 > Date.now();
+		// }
 		return false;
 	}
 
