@@ -1,8 +1,8 @@
+import type { PaginatedResponse } from "@generated/typescript/api";
 import type { CreateUserData, UpdateUserData, User } from "@models/user.entity";
 import { BaseRepository } from "@orm/base-repository";
+import { createPaginatedResponse } from "@utils/pagination";
 import type { Pool } from "pg";
-import type { PaginatedResponse } from "../types/api";
-import { createPaginatedResponse } from "../types/pagination";
 
 export class UserRepository extends BaseRepository<User> {
 	constructor(pool: Pool) {

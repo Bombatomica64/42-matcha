@@ -58,7 +58,7 @@ type SearchParams = paths['/users/search']['get']['parameters']['query'];
 
 ### Type-Safe Request Handlers
 ```typescript
-import { TypedRequest } from '../types/route-types';
+import { TypedRequest } from '@types/route-types';
 
 export async function getUserById(req: TypedRequest<'/users/{id}'>, res: Response) {
   const { id } = req.params; // TypeScript knows 'id' exists and is a string
@@ -88,7 +88,7 @@ type LoginResponse = operations['login']['responses']['200']['content']['applica
 
 ### Using Helper Types
 ```typescript
-import { RequestBody, ResponseBody } from '../types/api-types';
+import { RequestBody, ResponseBody } from '@types/api-types';
 
 // Cleaner syntax for extracting types
 type LoginRequest = RequestBody<'login'>;

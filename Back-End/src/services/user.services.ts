@@ -1,5 +1,7 @@
+import type { PaginatedResponse } from "@generated/typescript/api";
 import type { User } from "@models/user.entity";
 import { UserRepository } from "@repositories/user.repository";
+import { createPaginatedResponse } from "@utils/pagination";
 import { pool } from "../database";
 import { BlockService } from "./block.service";
 import { LikeService } from "./like.service";
@@ -149,7 +151,27 @@ export class UserService {
 	}
 
 	/**
-	 * Discover compatible users based on various factors
+	 * Search users with pagination and filters
+	 */
+	public async searchUsers(
+		currentUserId: string,
+		criteria: {
+			ageMin?: number;
+			ageMax?: number;
+			gender?: string;
+			sexualOrientation?: string;
+			location?: { lat: number; lng: number; radius?: number };
+			query?: string;
+			interests?: string[];
+			page?: number;
+			perPage?: number;
+		},
+	): Promise<PaginatedResponse<User>> {
+		return this.userRepository.searchUsers(currentUserId, criteria);
+	}
+
+	/**
+	 * Discover compatible users based on various factors with standardized pagination
 	 */
 	public async getDiscoverableUsers(
 		userId: string,
@@ -158,22 +180,21 @@ export class UserService {
 			ageMin?: number;
 			ageMax?: number;
 			minFameRating?: number;
+			page?: number;
 			limit?: number;
-			offset?: number;
 		} = {},
-	): Promise<{
-		users: User[];
-		total: number;
-		hasMore: boolean;
-	}> {
+	): Promise<PaginatedResponse<User>> {
 		const {
 			maxDistance = 50,
 			ageMin = 18,
 			ageMax = 100,
 			minFameRating = 0,
+			page = 1,
 			limit = 20,
-			offset = 0,
 		} = options;
+
+		// Calculate offset from page
+		const offset = (page - 1) * limit;
 
 		// Use stored procedure
 		const usersResult = await pool.query(
@@ -200,8 +221,13 @@ export class UserService {
 		})) as User[];
 
 		const total = parseInt(countResult.rows[0].total);
-		const hasMore = offset + limit < total;
 
-		return { users, total, hasMore };
+		// Create standardized paginated response
+		return createPaginatedResponse(users, total, page, limit, "/users/discover", {
+			maxDistance: maxDistance.toString(),
+			ageMin: ageMin.toString(),
+			ageMax: ageMax.toString(),
+			minFameRating: minFameRating.toString(),
+		});
 	}
 }

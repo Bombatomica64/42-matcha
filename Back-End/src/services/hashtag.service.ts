@@ -3,6 +3,7 @@ import { HashtagRepository } from "@repositories/hashtag.repository";
 import { pool } from "../database";
 
 type Hashtag = components["schemas"]["Hashtag"];
+type PaginationRequest = components["schemas"]["PaginationQuery"];
 
 export class HashtagService {
 	private hashtagRepository: HashtagRepository;
@@ -23,7 +24,7 @@ export class HashtagService {
 	 */
 	async searchHashtagsByKeyword(
 		keyword: string,
-		pagination = { page: 1, limit: 10 },
+		pagination = { page: 1, limit: 10, order: "desc" as const } as PaginationRequest,
 	): Promise<PaginatedResponse<Hashtag>> {
 		return this.hashtagRepository.hashtagSearchByKeyword(keyword, pagination);
 	}

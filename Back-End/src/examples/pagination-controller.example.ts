@@ -1,5 +1,5 @@
 // import type { Request, Response } from "express";
-// import type { PaginationRequest } from "../types/pagination";
+// import type { PaginationRequest } from "@types/pagination";
 
 // /**
 //  * Example controller showing how to use standardized pagination

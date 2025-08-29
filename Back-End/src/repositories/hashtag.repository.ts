@@ -3,6 +3,7 @@ import { BaseRepository } from "@orm/base-repository";
 import type { Pool } from "pg";
 
 type Hashtag = components["schemas"]["Hashtag"];
+type PaginationRequest = components["schemas"]["PaginationQuery"];
 
 export class HashtagRepository extends BaseRepository<Hashtag> {
 	constructor(pool: Pool) {
@@ -21,7 +22,7 @@ export class HashtagRepository extends BaseRepository<Hashtag> {
 	 */
 	async hashtagSearchByKeyword(
 		keyword: string,
-		pagination = { page: 1, limit: 10 },
+		pagination = { page: 1, limit: 10, sort: "name", order: "asc" } as PaginationRequest,
 	): Promise<PaginatedResponse<Hashtag>> {
 		return this.searchPaginated({ name: keyword }, pagination, "/api/hashtags", {
 			textFields: ["name"],

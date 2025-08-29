@@ -5,7 +5,7 @@
 //  */
 
 // // 1. Import the generic types
-// import type { PaginatedResponse, PaginatedUsers, User } from "../types/api";
+// import type { PaginatedResponse, PaginatedUsers, User } from "@types/api";
 
 // // 2. Use in function signatures
 // export async function searchUsers(req: any, res: any): Promise<void> {

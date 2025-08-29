@@ -117,7 +117,7 @@ export interface paths {
         };
         /**
          * Search for users
-         * @description Search for users based on various criteria.
+         * @description Search for users based on various criteria with standardized pagination.
          */
         get: operations["searchUsers"];
         put?: never;
@@ -137,7 +137,7 @@ export interface paths {
         };
         /**
          * Discover potential matches
-         * @description Get potential matches using the matching algorithm.
+         * @description Get potential matches using the matching algorithm with standardized pagination.
          *
          *     **Algorithm Features:**
          *     - Filters out already seen/liked/passed users
@@ -148,9 +148,9 @@ export interface paths {
          *     - Common hashtag/interest matching
          *
          *     **Pagination Strategy:**
-         *     - Uses limit/offset pagination for consistent results
+         *     - Uses standardized page/limit pagination for consistent results
          *     - Algorithm applies scoring and filtering on each request
-         *     - Client can request specific batches with offset
+         *     - Provides full pagination metadata and navigation links
          *
          */
         get: operations["discoverUsers"];
@@ -651,6 +651,76 @@ export interface components {
                 longitude?: number;
             };
         };
+        PaginationMeta: {
+            /**
+             * @description Total number of items
+             * @example 150
+             */
+            total_items: number;
+            /**
+             * @description Total number of pages
+             * @example 15
+             */
+            total_pages: number;
+            /**
+             * @description Current page number
+             * @example 3
+             */
+            current_page: number;
+            /**
+             * @description Items per page
+             * @example 10
+             */
+            per_page: number;
+            /**
+             * @description Whether there's a previous page
+             * @example true
+             */
+            has_previous: boolean;
+            /**
+             * @description Whether there's a next page
+             * @example true
+             */
+            has_next: boolean;
+        };
+        PaginationLinks: {
+            /**
+             * Format: uri
+             * @description URL to first page
+             * @example /api/users?page=1&limit=10
+             */
+            first: string;
+            /**
+             * Format: uri
+             * @description URL to last page
+             * @example /api/users?page=15&limit=10
+             */
+            last: string;
+            /**
+             * Format: uri
+             * @description URL to previous page (null if first page)
+             * @example /api/users?page=2&limit=10
+             */
+            previous?: string;
+            /**
+             * Format: uri
+             * @description URL to next page (null if last page)
+             * @example /api/users?page=4&limit=10
+             */
+            next?: string;
+            /**
+             * Format: uri
+             * @description URL to current page
+             * @example /api/users?page=3&limit=10
+             */
+            self: string;
+        };
+        PaginatedResponse: {
+            /** @description Array of items for current page */
+            data: Record<string, never>[];
+            meta: components["schemas"]["PaginationMeta"];
+            links: components["schemas"]["PaginationLinks"];
+        };
         PhotoListResponse: {
             /** @description User's photos ordered by display_order */
             photos: components["schemas"]["Photo"][];
@@ -727,76 +797,6 @@ export interface components {
              * @enum {string}
              */
             order: "asc" | "desc";
-        };
-        PaginationMeta: {
-            /**
-             * @description Total number of items
-             * @example 150
-             */
-            total_items: number;
-            /**
-             * @description Total number of pages
-             * @example 15
-             */
-            total_pages: number;
-            /**
-             * @description Current page number
-             * @example 3
-             */
-            current_page: number;
-            /**
-             * @description Items per page
-             * @example 10
-             */
-            per_page: number;
-            /**
-             * @description Whether there's a previous page
-             * @example true
-             */
-            has_previous: boolean;
-            /**
-             * @description Whether there's a next page
-             * @example true
-             */
-            has_next: boolean;
-        };
-        PaginationLinks: {
-            /**
-             * Format: uri
-             * @description URL to first page
-             * @example /api/users?page=1&limit=10
-             */
-            first: string;
-            /**
-             * Format: uri
-             * @description URL to last page
-             * @example /api/users?page=15&limit=10
-             */
-            last: string;
-            /**
-             * Format: uri
-             * @description URL to previous page (null if first page)
-             * @example /api/users?page=2&limit=10
-             */
-            previous?: string;
-            /**
-             * Format: uri
-             * @description URL to next page (null if last page)
-             * @example /api/users?page=4&limit=10
-             */
-            next?: string;
-            /**
-             * Format: uri
-             * @description URL to current page
-             * @example /api/users?page=3&limit=10
-             */
-            self: string;
-        };
-        PaginatedResponse: {
-            /** @description Array of items for current page */
-            data: Record<string, never>[];
-            meta: components["schemas"]["PaginationMeta"];
-            links: components["schemas"]["PaginationLinks"];
         };
     };
     responses: never;
@@ -1116,20 +1116,40 @@ export interface operations {
     searchUsers: {
         parameters: {
             query?: {
+                /**
+                 * @description Page number (1-based)
+                 * @example 1
+                 */
+                page?: components["parameters"]["PageParam"];
+                /**
+                 * @description Number of items per page
+                 * @example 10
+                 */
+                limit?: components["parameters"]["LimitParam"];
+                /**
+                 * @description Field to sort by
+                 * @example created_at
+                 */
+                sort?: components["parameters"]["SortParam"];
+                /**
+                 * @description Sort direction
+                 * @example desc
+                 */
+                order?: components["parameters"]["OrderParam"];
                 /** @description Search query string (e.g., name, interests) */
                 query?: string;
                 /** @description Minimum age filter */
                 age_min?: number;
                 /** @description Maximum age filter */
                 age_max?: number;
-                /** @description Location filter (e.g., city or coordinates) */
+                /** @description Filter by gender */
+                gender?: "male" | "female" | "other";
+                /** @description Location filter (lat,lng format) */
                 location?: string;
-                /** @description Comma-separated list of interests to filter by */
+                /** @description Maximum distance from location in kilometers */
+                max_distance?: number;
+                /** @description Comma-separated list of hashtags/interests to filter by */
                 interests?: string;
-                /** @description Page number for pagination (default is 1) */
-                page?: number;
-                /** @description Number of results per page (default is 10, max is 50) */
-                per_page?: number;
             };
             header?: never;
             path?: never;
@@ -1143,14 +1163,36 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        /** @example 42 */
-                        total_results?: number;
-                        /** @example 5 */
-                        total_pages?: number;
-                        /** @example 1 */
-                        current_page?: number;
-                        users?: components["schemas"]["User"][];
+                    /** @example {
+                     *       "data": [
+                     *         {
+                     *           "id": "550e8400-e29b-41d4-a716-446655440000",
+                     *           "first_name": "John",
+                     *           "last_name": "Doe",
+                     *           "birth_date": "1995-05-15",
+                     *           "gender": "male",
+                     *           "fame_rating": 4,
+                     *           "online_status": true
+                     *         }
+                     *       ],
+                     *       "meta": {
+                     *         "total_items": 42,
+                     *         "total_pages": 5,
+                     *         "current_page": 1,
+                     *         "per_page": 10,
+                     *         "has_previous": false,
+                     *         "has_next": true
+                     *       },
+                     *       "links": {
+                     *         "first": "https://127.0.0.1/api/users/search?page=1&limit=10",
+                     *         "last": "https://127.0.0.1/api/users/search?page=5&limit=10",
+                     *         "next": "https://127.0.0.1/api/users/search?page=2&limit=10",
+                     *         "self": "https://127.0.0.1/api/users/search?page=1&limit=10"
+                     *       }
+                     *     } */
+                    "application/json": components["schemas"]["PaginatedResponse"] & {
+                        /** @description Array of users matching search criteria */
+                        data?: components["schemas"]["User"][];
                     };
                 };
             };
@@ -1173,10 +1215,16 @@ export interface operations {
     discoverUsers: {
         parameters: {
             query?: {
-                /** @description Number of users to return (recommended 10-20) */
-                limit?: number;
-                /** @description Number of users to skip for pagination */
-                offset?: number;
+                /**
+                 * @description Page number (1-based)
+                 * @example 1
+                 */
+                page?: components["parameters"]["PageParam"];
+                /**
+                 * @description Number of items per page
+                 * @example 10
+                 */
+                limit?: components["parameters"]["LimitParam"];
                 /** @description Maximum distance in kilometers */
                 maxDistance?: number;
                 /** @description Minimum age filter */
@@ -1198,53 +1246,59 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        /** @example Discoverable users retrieved successfully */
-                        message: string;
-                        data: {
-                            /** @description Array of discoverable users */
-                            users?: components["schemas"]["User"][];
-                            /**
-                             * @description Total number of potential matches
-                             * @example 142
-                             */
-                            total?: number;
-                            /**
-                             * @description Whether there are more users to discover
-                             * @example true
-                             */
-                            hasMore?: boolean;
-                            /** @description Pagination metadata */
-                            pagination?: {
-                                /** @example 20 */
-                                limit?: number;
-                                /** @example 0 */
-                                offset?: number;
-                                /** @example 1 */
-                                currentPage?: number;
-                                /** @example 8 */
-                                totalPages?: number;
-                                /** @example 20 */
-                                nextOffset?: number | null;
-                                /** @example null */
-                                prevOffset?: number | null;
+                    /** @example {
+                     *       "data": [
+                     *         {
+                     *           "id": "550e8400-e29b-41d4-a716-446655440000",
+                     *           "first_name": "Alice",
+                     *           "last_name": "Johnson",
+                     *           "birth_date": "1995-03-15",
+                     *           "gender": "female",
+                     *           "fame_rating": 4,
+                     *           "online_status": true
+                     *         }
+                     *       ],
+                     *       "meta": {
+                     *         "total_items": 142,
+                     *         "total_pages": 8,
+                     *         "current_page": 1,
+                     *         "per_page": 20,
+                     *         "has_previous": false,
+                     *         "has_next": true
+                     *       },
+                     *       "links": {
+                     *         "first": "https://127.0.0.1/api/users/discover?page=1&limit=20",
+                     *         "last": "https://127.0.0.1/api/users/discover?page=8&limit=20",
+                     *         "next": "https://127.0.0.1/api/users/discover?page=2&limit=20",
+                     *         "self": "https://127.0.0.1/api/users/discover?page=1&limit=20"
+                     *       },
+                     *       "filters": {
+                     *         "maxDistance": 50,
+                     *         "ageRange": {
+                     *           "min": 18,
+                     *           "max": 100
+                     *         },
+                     *         "minFameRating": 0
+                     *       }
+                     *     } */
+                    "application/json": components["schemas"]["PaginatedResponse"] & {
+                        /** @description Array of discoverable users */
+                        data?: components["schemas"]["User"][];
+                        /** @description Applied filters for the request */
+                        filters?: {
+                            /** @example 50 */
+                            maxDistance?: number;
+                            ageRange?: {
+                                /** @example 18 */
+                                min?: number;
+                                /** @example 100 */
+                                max?: number;
                             };
-                            /** @description Applied filters for the request */
-                            filters?: {
-                                /** @example 50 */
-                                maxDistance?: number;
-                                ageRange?: {
-                                    /** @example 18 */
-                                    min?: number;
-                                    /** @example 100 */
-                                    max?: number;
-                                };
-                                /**
-                                 * Format: float
-                                 * @example 0
-                                 */
-                                minFameRating?: number;
-                            };
+                            /**
+                             * Format: float
+                             * @example 0
+                             */
+                            minFameRating?: number;
                         };
                     };
                 };

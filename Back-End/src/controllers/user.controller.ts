@@ -690,6 +690,112 @@ export class UserController {
 	}
 
 	/**
+	 * Search for users with filters and pagination
+	 */
+	public async searchUsers(req: Request, res: Response): Promise<void> {
+		const currentUserId = res.locals?.user?.id;
+
+		if (!currentUserId) {
+			const errorResponse: ErrorResponse = {
+				error: "Unauthorized",
+				message: "Authentication required to search users",
+				code: "AUTH_REQUIRED",
+			};
+			res.status(401).json(errorResponse);
+			return;
+		}
+
+		try {
+			// Parse and validate query parameters
+			const query = req.query.query as string;
+			const ageMin = req.query.age_min ? parseInt(req.query.age_min as string) : undefined;
+			const ageMax = req.query.age_max ? parseInt(req.query.age_max as string) : undefined;
+			const gender = req.query.gender as string;
+			const location = req.query.location as string;
+			const interests = req.query.interests as string;
+			const page = parseInt(req.query.page as string) || 1;
+			const perPage = Math.min(parseInt(req.query.per_page as string) || 10, 50);
+
+			// Validate parameters
+			if (ageMin !== undefined && (ageMin < 18 || ageMin > 100)) {
+				const errorResponse: ErrorResponse = {
+					error: "Bad Request",
+					message: "Minimum age must be between 18 and 100",
+					code: "VALIDATION_ERROR",
+				};
+				res.status(400).json(errorResponse);
+				return;
+			}
+
+			if (ageMax !== undefined && (ageMax < 18 || ageMax > 100)) {
+				const errorResponse: ErrorResponse = {
+					error: "Bad Request",
+					message: "Maximum age must be between 18 and 100",
+					code: "VALIDATION_ERROR",
+				};
+				res.status(400).json(errorResponse);
+				return;
+			}
+
+			if (ageMin !== undefined && ageMax !== undefined && ageMin > ageMax) {
+				const errorResponse: ErrorResponse = {
+					error: "Bad Request",
+					message: "Minimum age cannot be greater than maximum age",
+					code: "VALIDATION_ERROR",
+				};
+				res.status(400).json(errorResponse);
+				return;
+			}
+
+			// Parse location if provided
+			let locationCriteria: { lat: number; lng: number; radius?: number } | undefined;
+			if (location) {
+				const [lat, lng, radius] = location.split(",").map(Number);
+				if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+					locationCriteria = { lat, lng };
+					if (!Number.isNaN(radius) && radius > 0) {
+						locationCriteria.radius = Math.min(radius, 1000); // Max 1000km
+					}
+				}
+			}
+
+			// Parse interests if provided
+			const interestsList = interests
+				? interests
+						.split(",")
+						.map((s) => s.trim())
+						.filter(Boolean)
+				: undefined;
+
+			// Build search criteria
+			const searchCriteria = {
+				query,
+				ageMin,
+				ageMax,
+				gender,
+				location: locationCriteria,
+				interests: interestsList,
+				page,
+				perPage,
+			};
+
+			// Call the repository search method
+			const result = await this.userService.searchUsers(currentUserId, searchCriteria);
+
+			// Return standardized paginated response
+			res.status(200).json(result);
+		} catch (error) {
+			logger.error(`Failed to search users for: ${currentUserId}`, error);
+			const errorResponse: ErrorResponse = {
+				error: "Internal Server Error",
+				message: "Failed to search users",
+				code: "SERVER_ERROR",
+			};
+			res.status(500).json(errorResponse);
+		}
+	}
+
+	/**
 	 * Get discoverable users based on compatibility algorithm
 	 */
 	public async getDiscoverableUsers(req: Request, res: Response): Promise<void> {
@@ -706,7 +812,7 @@ export class UserController {
 		}
 
 		try {
-			// Parse query parameters
+			// Parse query parameters with page-based pagination
 			const maxDistance = req.query.maxDistance ? parseInt(req.query.maxDistance as string) : 10; //10 km default
 			const ageMin = req.query.ageMin
 				? parseInt(req.query.ageMin as string) < 18
@@ -723,8 +829,8 @@ export class UserController {
 					? 0
 					: parseFloat(req.query.minFameRating as string)
 				: 0; //0 fame rating default
+			const page = parseInt(req.query.page as string) || 1;
 			const limit = parseInt(req.query.limit as string) || 20;
-			const offset = parseInt(req.query.offset as string) || 0;
 
 			// Validate parameters
 			if (maxDistance !== undefined && (maxDistance < 1 || maxDistance > 1000)) {
@@ -782,12 +888,12 @@ export class UserController {
 				ageMin,
 				ageMax,
 				minFameRating,
+				page,
 				limit,
-				offset,
 			});
 
 			// If no users found and this is the first page, return 204
-			if (result.users.length === 0 && offset === 0) {
+			if (result.data.length === 0 && page === 1) {
 				const noUsersResponse = {
 					message: "No more potential matches available",
 					suggestions: [
@@ -800,31 +906,8 @@ export class UserController {
 				return;
 			}
 
-			const successResponse: SuccessResponse = {
-				message: "Discoverable users retrieved successfully",
-				data: {
-					users: result.users,
-					total: result.total,
-					hasMore: result.hasMore,
-					pagination: {
-						limit,
-						offset,
-						currentPage: Math.floor(offset / limit) + 1,
-						totalPages: Math.ceil(result.total / limit),
-						nextOffset: result.hasMore ? offset + limit : null,
-						prevOffset: offset > 0 ? Math.max(0, offset - limit) : null,
-					},
-					filters: {
-						maxDistance: maxDistance || 50,
-						ageRange: {
-							min: ageMin || 18,
-							max: ageMax || 100,
-						},
-						minFameRating: minFameRating || 0,
-					},
-				},
-			};
-			res.status(200).json(successResponse);
+			// Return the standardized paginated response
+			res.status(200).json(result);
 		} catch (error) {
 			logger.error(`Failed to get discoverable users for: ${currentUserId}`, error);
 			const errorResponse: ErrorResponse = {

@@ -1,11 +1,6 @@
+import type { PaginatedResponse, PaginationRequest } from "@generated/typescript/api";
+import { calculatePagination, createPaginatedResponse } from "@utils/pagination";
 import type { Pool, QueryResult } from "pg";
-import {
-	calculatePagination,
-	createPaginatedResponse,
-	type PaginatedResponse,
-	type PaginationRequest,
-} from "../types/pagination";
-
 export abstract class BaseRepository<T> {
 	protected pool: Pool;
 	protected tableName: string;

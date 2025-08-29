@@ -4,6 +4,7 @@ import type { Request, Response } from "express";
 import { logger } from "../server";
 
 type Hashtag = components["schemas"]["Hashtag"];
+type PaginationRequest = components["schemas"]["PaginationQuery"];
 export class HashtagController {
 	private hashtagService: HashtagService;
 
@@ -16,7 +17,11 @@ export class HashtagController {
 	 */
 	public async searchHashtagsByKeyword(req: Request, res: Response): Promise<Response> {
 		const { keyword } = req.query;
-		const pagination = { page: Number(req.query.page) || 1, limit: Number(req.query.limit) || 10 };
+		const pagination: PaginationRequest = {
+			page: Number(req.query.page) || 1,
+			limit: Number(req.query.limit) || 10,
+			order: "desc" as const,
+		};
 
 		try {
 			const result = await this.hashtagService.searchHashtagsByKeyword(

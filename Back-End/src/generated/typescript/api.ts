@@ -14,3 +14,6 @@ export interface PaginatedResponse<T> {
 	meta: components["schemas"]["PaginationMeta"];
 	links: components["schemas"]["PaginationLinks"];
 }
+
+// Type aliases for commonly used pagination types
+export type PaginationRequest = components["schemas"]["PaginationQuery"];

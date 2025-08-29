@@ -1,6 +1,7 @@
 import type { components } from "@generated/typescript/api";
 import { PhotoRepository } from "@repositories/photo.repository";
 import type { Express } from "express";
+import { pool } from "../database";
 
 type Photo = components["schemas"]["Photo"];
 
@@ -8,7 +9,7 @@ export class PhotoService {
 	private photoRepository: PhotoRepository;
 
 	constructor() {
-		this.photoRepository = new PhotoRepository();
+		this.photoRepository = new PhotoRepository(pool, "photos");
 	}
 
 	async getUserPhotos(userId: string): Promise<Photo[]> {

@@ -1,8 +1,9 @@
 import process from "node:process";
 import { env } from "@config/env";
-import type { components } from "@generated/typescript/api";
+import type { components } from "@generated/typescript/api-nonextended";
 import { jwtMiddleware } from "@middleware/jwt.middleware";
 import authRoutes from "@routes/auth.routes";
+import hashtagRoutes from "@routes/hashtag.routes";
 import photoRoutes from "@routes/photo.routes";
 import userRoutes from "@routes/user.routes";
 import cors from "cors";
@@ -123,5 +124,6 @@ app.use(jwtMiddleware);
 app.use("/auth", authRoutes());
 app.use("/users", userRoutes());
 app.use("/photos", photoRoutes());
+app.use("/hashtags", hashtagRoutes());
 
 export { app, logger };

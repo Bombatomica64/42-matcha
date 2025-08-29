@@ -913,19 +913,24 @@ paths:
   search:
     get:
       summary: Search for users
-      description: Search for users based on various criteria.
+      description: Search for users based on various criteria with standardized pagination.
       tags:
         - User
       operationId: searchUsers
       security:
         - bearerAuth: []
       parameters:
+        - $ref: './pagination.yaml#/components/parameters/PageParam'
+        - $ref: './pagination.yaml#/components/parameters/LimitParam'
+        - $ref: './pagination.yaml#/components/parameters/SortParam'
+        - $ref: './pagination.yaml#/components/parameters/OrderParam'
         - name: query
           in: query
           required: false
           description: Search query string (e.g., name, interests)
           schema:
             type: string
+            example: "john"
         - name: age_min
           in: query
           required: false
@@ -933,63 +938,86 @@ paths:
           schema:
             type: integer
             minimum: 18
+            maximum: 100
+            example: 21
         - name: age_max
           in: query
           required: false
           description: Maximum age filter
           schema:
             type: integer
+            minimum: 18
             maximum: 100
+            example: 35
+        - name: gender
+          in: query
+          required: false
+          description: Filter by gender
+          schema:
+            type: string
+            enum: [male, female, other]
+            example: "female"
         - name: location
           in: query
           required: false
-          description: Location filter (e.g., city or coordinates)
+          description: Location filter (lat,lng format)
           schema:
             type: string
+            pattern: '^-?\d+\.?\d*,-?\d+\.?\d*$'
+            example: "40.7128,-74.0060"
+        - name: max_distance
+          in: query
+          required: false
+          description: Maximum distance from location in kilometers
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 50
+            example: 25
         - name: interests
           in: query
           required: false
-          description: Comma-separated list of interests to filter by
+          description: Comma-separated list of hashtags/interests to filter by
           schema:
             type: string
-        - name: page
-          in: query
-          required: false
-          description: Page number for pagination (default is 1)
-          schema:
-            type: integer
-            default: 1
-            minimum: 1
-        - name: per_page
-          in: query
-          required: false
-          description: Number of results per page (default is 10, max is 50)
-          schema:
-            type: integer
-            default: 10
-            minimum: 1
-            maximum: 50
+            example: "hiking,photography,music"
       responses:
         '200':
           description: List of users matching the search criteria retrieved successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  total_results:
-                    type: integer
-                    example: 42
-                  total_pages:
-                    type: integer
-                    example: 5
-                  current_page:
-                    type: integer
-                    example: 1
-                  users:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/User'
+                allOf:
+                  - $ref: './pagination.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/User'
+                        description: Array of users matching search criteria
+              example:
+                data:
+                  - id: "550e8400-e29b-41d4-a716-446655440000"
+                    first_name: "John"
+                    last_name: "Doe"
+                    birth_date: "1995-05-15"
+                    gender: "male"
+                    fame_rating: 4
+                    online_status: true
+                meta:
+                  total_items: 42
+                  total_pages: 5
+                  current_page: 1
+                  per_page: 10
+                  has_previous: false
+                  has_next: true
+                links:
+                  first: "https://127.0.0.1/api/users/search?page=1&limit=10"
+                  last: "https://127.0.0.1/api/users/search?page=5&limit=10"
+                  next: "https://127.0.0.1/api/users/search?page=2&limit=10"
+                  self: "https://127.0.0.1/api/users/search?page=1&limit=10"
         '400':
           description: Bad request - invalid query parameters
           content:
@@ -1004,7 +1032,7 @@ paths:
     get:
       summary: Discover potential matches
       description: |
-        Get potential matches using the matching algorithm.
+        Get potential matches using the matching algorithm with standardized pagination.
         
         **Algorithm Features:**
         - Filters out already seen/liked/passed users
@@ -1015,9 +1043,9 @@ paths:
         - Common hashtag/interest matching
         
         **Pagination Strategy:**
-        - Uses limit/offset pagination for consistent results
+        - Uses standardized page/limit pagination for consistent results
         - Algorithm applies scoring and filtering on each request
-        - Client can request specific batches with offset
+        - Provides full pagination metadata and navigation links
       tags:
         - User
         - Discovery
@@ -1025,21 +1053,8 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: limit
-          in: query
-          description: Number of users to return (recommended 10-20)
-          schema:
-            type: integer
-            minimum: 5
-            maximum: 50
-            default: 20
-        - name: offset
-          in: query
-          description: Number of users to skip for pagination
-          schema:
-            type: integer
-            minimum: 0
-            default: 0
+        - $ref: './pagination.yaml#/components/parameters/PageParam'
+        - $ref: './pagination.yaml#/components/parameters/LimitParam'
         - name: maxDistance
           in: query
           description: Maximum distance in kilometers
@@ -1048,6 +1063,7 @@ paths:
             minimum: 1
             maximum: 1000
             default: 50
+            example: 25
         - name: ageMin
           in: query
           description: Minimum age filter
@@ -1056,6 +1072,7 @@ paths:
             minimum: 18
             maximum: 100
             default: 18
+            example: 21
         - name: ageMax
           in: query
           description: Maximum age filter
@@ -1064,6 +1081,7 @@ paths:
             minimum: 18
             maximum: 100
             default: 100
+            example: 35
         - name: minFameRating
           in: query
           description: Minimum fame rating filter
@@ -1073,58 +1091,25 @@ paths:
             minimum: 0
             maximum: 5
             default: 0
+            example: 2.5
       responses:
         '200':
           description: Potential matches retrieved successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "Discoverable users retrieved successfully"
-                  data:
-                    type: object
+                allOf:
+                  - $ref: './pagination.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
                     properties:
-                      users:
+                      data:
                         type: array
                         items:
                           $ref: '#/components/schemas/User'
-                        description: "Array of discoverable users"
-                      total:
-                        type: integer
-                        description: "Total number of potential matches"
-                        example: 142
-                      hasMore:
-                        type: boolean
-                        description: "Whether there are more users to discover"
-                        example: true
-                      pagination:
-                        type: object
-                        description: "Pagination metadata"
-                        properties:
-                          limit:
-                            type: integer
-                            example: 20
-                          offset:
-                            type: integer
-                            example: 0
-                          currentPage:
-                            type: integer
-                            example: 1
-                          totalPages:
-                            type: integer
-                            example: 8
-                          nextOffset:
-                            type: [integer, "null"]
-                            example: 20
-                          prevOffset:
-                            type: [integer, "null"]
-                            example: null
+                        description: Array of discoverable users
                       filters:
                         type: object
-                        description: "Applied filters for the request"
+                        description: Applied filters for the request
                         properties:
                           maxDistance:
                             type: integer
@@ -1142,9 +1127,33 @@ paths:
                             type: number
                             format: float
                             example: 0
-                required:
-                  - message
-                  - data
+              example:
+                data:
+                  - id: "550e8400-e29b-41d4-a716-446655440000"
+                    first_name: "Alice"
+                    last_name: "Johnson"
+                    birth_date: "1995-03-15"
+                    gender: "female"
+                    fame_rating: 4
+                    online_status: true
+                meta:
+                  total_items: 142
+                  total_pages: 8
+                  current_page: 1
+                  per_page: 20
+                  has_previous: false
+                  has_next: true
+                links:
+                  first: "https://127.0.0.1/api/users/discover?page=1&limit=20"
+                  last: "https://127.0.0.1/api/users/discover?page=8&limit=20"
+                  next: "https://127.0.0.1/api/users/discover?page=2&limit=20"
+                  self: "https://127.0.0.1/api/users/discover?page=1&limit=20"
+                filters:
+                  maxDistance: 50
+                  ageRange:
+                    min: 18
+                    max: 100
+                  minFameRating: 0
         '204':
           description: No more users to discover
           content:
