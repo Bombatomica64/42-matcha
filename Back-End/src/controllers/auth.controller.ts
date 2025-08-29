@@ -171,7 +171,7 @@ export class AuthController {
 				secure: env.NODE_ENV === "production",
 				sameSite: "strict",
 				maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-			});
+			}); //TODO: Implement refresh token rotation
 
 			res.status(200).json(successResponse);
 		} catch (error) {

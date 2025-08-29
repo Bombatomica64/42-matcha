@@ -28,4 +28,18 @@ export class HashtagService {
 	): Promise<PaginatedResponse<Hashtag>> {
 		return this.hashtagRepository.hashtagSearchByKeyword(keyword, pagination);
 	}
+
+	/**
+	 * Add a hashtag to a user's profile.
+	 */
+	async addHashtagToUser(userId: string, hashtagId: number): Promise<Hashtag> {
+		return this.hashtagRepository.hashtagAddToUser(userId, hashtagId);
+	}
+
+	/**
+	 * Remove a hashtag from a user's profile.
+	 */
+	async removeHashtagFromUser(userId: string, hashtagId: number): Promise<boolean> {
+		return this.hashtagRepository.hashtagRemoveFromUser(userId, hashtagId);
+	}
 }

@@ -9,7 +9,8 @@ const hashtagRoutes = (): Router => {
 	const hashtagController = new HashtagController(hashtagService);
 
 	router.get("/search", hashtagController.searchHashtagsByKeyword.bind(hashtagController));
-
+	router.post("/:id", hashtagController.addHashtagToUser.bind(hashtagController));
+	router.delete("/:id", hashtagController.removeHashtagFromUser.bind(hashtagController));
 	return router;
 };
 

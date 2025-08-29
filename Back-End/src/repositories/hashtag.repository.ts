@@ -7,7 +7,14 @@ type PaginationRequest = components["schemas"]["PaginationQuery"];
 
 export class HashtagRepository extends BaseRepository<Hashtag> {
 	constructor(pool: Pool) {
-		super(pool, "hashtags");
+		super(pool, {
+			tableName: "hashtags",
+			primaryKey: "id",
+			autoManagedColumns: ["id"],
+			defaultTextFields: ["name"],
+			defaultOrderBy: "name",
+			defaultOrderDirection: "ASC",
+		});
 	}
 
 	/**
@@ -27,5 +34,19 @@ export class HashtagRepository extends BaseRepository<Hashtag> {
 		return this.searchPaginated({ name: keyword }, pagination, "/api/hashtags", {
 			textFields: ["name"],
 		});
+	}
+
+	/**
+	 * Add a hashtag to a user's profile.
+	 */
+	async hashtagAddToUser(userId: string, hashtagId: number): Promise<Hashtag> {
+		return this.addUserRelationship(userId, hashtagId, "user_hashtags", "hashtag_id");
+	}
+
+	/**
+	 * Remove a hashtag from a user's profile.
+	 */
+	async hashtagRemoveFromUser(userId: string, hashtagId: number): Promise<boolean> {
+		return this.removeUserRelationship(userId, hashtagId, "user_hashtags", "hashtag_id");
 	}
 }
