@@ -3,15 +3,20 @@ import { Login } from './pages/login/login';
 import { Register } from './pages/register/register';
 import { VerifyEmail } from './pages/verify-email/verify-email';
 import { Home } from './pages/home/home';
+import { authGuard } from './guards/auth-guard';
+import { guestGuard } from './guards/guest-guard';
+import path from 'path';
 
 export const routes: Routes = [
 {
 	path: 'login',
-	component: Login
+	component: Login,
+  canActivate: [guestGuard]
 },
 {
 	path: 'register',
-	component: Register
+	component: Register,
+  canActivate: [guestGuard]
 },
 {
   path: 'auth/verifyEmail',
@@ -19,7 +24,8 @@ export const routes: Routes = [
 },
 {
   path: 'home',
-  component: Home
+  component: Home,
+  canActivate: [authGuard]
 },
 // {
 //   path: 'user/:username',
@@ -28,6 +34,10 @@ export const routes: Routes = [
 {
 	path: '',
 	redirectTo: '/login',
-	pathMatch: 'full'
+	pathMatch: 'full',
+},
+{
+  path: '**',
+  redirectTo: '/login',
 }
 ];

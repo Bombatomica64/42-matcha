@@ -12,6 +12,8 @@ import { AvatarModule } from 'primeng/avatar';
   templateUrl: './main-sidebar.html',
   styles: `
     :host {
+      overflow-y: hidden;
+      flex-shrink: 0;
     }
     :host ::ng-deep .p-menu {
       --p-menu-background: #ffffff00;
@@ -26,6 +28,8 @@ import { AvatarModule } from 'primeng/avatar';
     }
     .card {
       height: 100%;
+      overflow-y: hidden;
+
     }
   `
 })

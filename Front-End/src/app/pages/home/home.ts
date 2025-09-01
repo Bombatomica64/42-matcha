@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { TinderCard } from "../../components/tinder-card/tinder-card";
 
 @Component({
   selector: 'app-home',
-  imports: [],
+  imports: [TinderCard],
   template: `
-    <div class="content"></div>
+    <app-tinder-card [hostWidth]="hostWidth()" [hostHeight]="hostHeight()"></app-tinder-card>
   `,
   styles: `
     :host {
@@ -15,13 +16,33 @@ import { Component } from '@angular/core';
       width: 100%;
       overflow: hidden;
     }
-    .content {
-      padding: 1rem;
-      width: 100%;
-      height: 100%;
-    }
   `
 })
-export class Home {
+export class Home implements OnInit, OnDestroy {
+  // signals that hold current host size
+  hostWidth = signal(0);
+  hostHeight = signal(0);
 
+  // element and observer
+  private el = inject(ElementRef<HTMLElement>);
+  private ro?: ResizeObserver;
+
+  ngOnInit(): void {
+    // set initial size
+    this.updateSize();
+
+    // observe size changes
+    this.ro = new ResizeObserver(() => this.updateSize());
+    this.ro.observe(this.el.nativeElement);
+  }
+
+  ngOnDestroy(): void {
+    this.ro?.disconnect();
+  }
+
+  private updateSize(): void {
+    const rect = this.el.nativeElement.getBoundingClientRect();
+    this.hostWidth.set(Math.round(rect.width));
+    this.hostHeight.set(Math.round(rect.height));
+  }
 }

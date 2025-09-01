@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { Navbar } from './components/navbar/navbar';
 import { MainSidebar } from "./components/sidebars/mainsidebar/main-sidebar";
@@ -9,7 +9,9 @@ import { TokenStore } from './services/token-store';
   imports: [RouterOutlet, Navbar, MainSidebar],
   template: `
     <div class="app-sidebar">
-      <app-navbar />
+      @if (!isLoggedIn()) {
+        <app-navbar />
+      }
       @if (isLoggedIn()) {
         <app-main-sidebar />
       }
@@ -55,12 +57,9 @@ export class App {
   private router = inject(Router);
   private tokenStore = inject(TokenStore);
   protected readonly title = signal('Front-End');
-  isLoggedIn = signal(false);
 
-  constructor() {
-    // if (this.tokenStore.isLoggedin()) {
-      this.isLoggedIn.set(true);
-    // }
-    
-  }
+  isLoggedIn = computed(() => { //TODO implement proper auth check through router
+    // getAccessToken() already returns null for expired/invalid tokens
+    return !!this.tokenStore.getAccessToken();
+  });
 }
