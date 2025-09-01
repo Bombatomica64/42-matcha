@@ -1,0 +1,178 @@
+openapi: 3.1.1
+info: 
+  title: Chat schema
+  version: 1.0.0
+  description: Schema for chat-related components in the API
+
+paths:
+  userChat:
+    get:
+      summary: Get all the chats of a user
+      security:
+        - bearerAuth: []
+      operationId: getUserChats
+      responses:
+        '200':
+          description: A list of chat rooms for the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChatRoom'
+        '401':
+          description: Unauthorized
+        '404':
+          description: User not found
+  chatById:
+    get:
+      summary: Get a specific chat room by ID
+      security:
+        - bearerAuth: []
+      operationId: getChatById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the chat room
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The requested chat room
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatRoom'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Chat room not found
+    delete:
+      summary: Delete a specific chat room
+      security:
+        - bearerAuth: []
+      operationId: deleteChatById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the chat room
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Chat room deleted successfully
+        '401':
+          description: Unauthorized
+        '404':
+          description: Chat room not found
+  chatMessages:
+    get:
+      summary: Get all messages in a chat room
+      security:
+        - bearerAuth: []
+      operationId: getChatMessages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the chat room
+          schema:
+            type: string
+        - $ref: './pagination.yaml#/components/parameters/PageParam'
+        - $ref: './pagination.yaml#/components/parameters/LimitParam'
+        - $ref: './pagination.yaml#/components/parameters/SortParam'
+        - $ref: './pagination.yaml#/components/parameters/OrderParam'
+      responses:
+        '200':
+          description: A list of messages in the chat room
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessagesPaginatedResponse'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Chat room not found
+  
+
+components: 
+  schemas:
+    ChatRoom:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user1:
+          $ref: './user.yaml#/components/schemas/User'
+        user2:
+          $ref: './user.yaml#/components/schemas/User'
+        createdAt:
+          type: string
+          format: date-time
+    ChatMessage:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        chat_room_id:
+          type: string
+          format: uuid
+        sender_id:
+          type: string
+          format: uuid
+        message_type:
+          type: string
+          enum: ['text', 'image', 'video', 'audio']
+        content:
+          type: string
+          maxLength: 1000
+          description: Text content or caption for media messages
+        media_filename:
+          type: string
+          description: Original filename for media messages
+        media_file_path:
+          type: string
+          description: Storage path for media files
+        media_file_size:
+          type: integer
+          description: File size in bytes
+        media_mime_type:
+          type: string
+          description: MIME type for media files
+        media_duration:
+          type: integer
+          description: Duration in seconds for audio/video
+        thumbnail_path:
+          type: string
+          description: Thumbnail path for videos
+        read_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - chat_room_id
+        - sender_id
+        - message_type
+        - created_at
+    ChatMessagesPaginatedResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+        meta:
+          $ref: './pagination.yaml#/components/schemas/PaginationMeta'
+        links:
+          $ref: './pagination.yaml#/components/schemas/PaginationLinks'
+      required:
+        - data
+        - meta
+        - links

@@ -67,58 +67,16 @@ paths:
   /hashtags/{id}:
     $ref: './schemas/hashtags.yaml#/paths/hashtagById'
 
+  #Chat endpoints
+  /chat/user:
+    $ref: './schemas/chat.yaml#/paths/userChat'
+  /chat/{id}:
+    $ref: './schemas/chat.yaml#/paths/chatById'
+  /chat/{id}/messages:
+    $ref: './schemas/chat.yaml#/paths/chatMessages'
 
 components:
   schemas:
-    # Reference schemas from other files
-    # registerRequest:
-    #   $ref: './schemas/auth.yaml#/components/schemas/RegisterRequest'
-    # registerResponse:
-    #   $ref: './schemas/auth.yaml#/components/schemas/RegisterResponse'
-    # loginRequest:
-    #   $ref: './schemas/auth.yaml#/components/schemas/LoginRequest'
-    # loginResponse:
-    #   $ref: './schemas/auth.yaml#/components/schemas/LoginResponse'
-    # logoutResponse:
-    #   $ref: './schemas/auth.yaml#/components/schemas/LogoutResponse'
-    # User:
-    #   $ref: './schemas/user.yaml#/components/schemas/User'
-   
-    # Match:
-    #   $ref: './schemas/match.yaml#/components/schemas/Match'
-    # ErrorResponse:
-    #   type: object
-    #   properties:
-    #     error:
-    #       type: string
-    #       example: "Invalid request"
-    #     message:
-    #       type: string
-    #       example: "The provided data is invalid"
-    #     code:
-    #       type: string
-    #       example: "VALIDATION_ERROR"
-    #     details:
-    #       type: object
-    #       additionalProperties: true
-    #       example: 
-    #         field: "email"
-    #         reason: "Invalid email format"
-    #   required:
-    #     - error
-    #     - message
-    # SuccessResponse:
-    #   type: object
-    #   properties:
-    #     message:
-    #       type: string
-    #       example: "User liked successfully"
-    #     data:
-    #       type: object
-    #       additionalProperties: true
-    #       example:
-    #         userId: "123e4567-e89b-12d3-a456-426614174000"
-
     # Reference auth schemas
     registerRequest:
       $ref: './schemas/auth.yaml#/components/schemas/RegisterRequest'
@@ -155,6 +113,12 @@ components:
       $ref: './schemas/pagination.yaml#/components/schemas/PaginationLinks'
     paginatedResponse:
       $ref: './schemas/pagination.yaml#/components/schemas/PaginatedResponse'
+
+    #chat components
+    chatMessage:
+      $ref: './schemas/chat.yaml#/components/schemas/ChatMessage'
+    chatRoom:
+      $ref: './schemas/chat.yaml#/components/schemas/ChatRoom'
 
   parameters:
     # Pagination parameters

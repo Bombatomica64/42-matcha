@@ -852,6 +852,32 @@ export interface components {
             /** Format: date-time */
             createdAt?: string;
         };
+        PaginationQuery: {
+            /**
+             * @description Page number (1-based)
+             * @default 1
+             * @example 1
+             */
+            page: number;
+            /**
+             * @description Number of items per page
+             * @default 10
+             * @example 10
+             */
+            limit: number;
+            /**
+             * @description Field to sort by
+             * @example created_at
+             */
+            sort?: string;
+            /**
+             * @description Sort direction
+             * @default desc
+             * @example desc
+             * @enum {string}
+             */
+            order: "asc" | "desc";
+        };
         ChatMessage: {
             /** Format: uuid */
             id: string;
@@ -879,32 +905,6 @@ export interface components {
             read_at?: string;
             /** Format: date-time */
             created_at: string;
-        };
-        PaginationQuery: {
-            /**
-             * @description Page number (1-based)
-             * @default 1
-             * @example 1
-             */
-            page: number;
-            /**
-             * @description Number of items per page
-             * @default 10
-             * @example 10
-             */
-            limit: number;
-            /**
-             * @description Field to sort by
-             * @example created_at
-             */
-            sort?: string;
-            /**
-             * @description Sort direction
-             * @default desc
-             * @example desc
-             * @enum {string}
-             */
-            order: "asc" | "desc";
         };
     };
     responses: never;
@@ -2488,7 +2488,10 @@ export interface operations {
     };
     getChatMessages: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Pagination options */
+                pagination?: components["schemas"]["PaginationQuery"];
+            };
             header?: never;
             path: {
                 /** @description The ID of the chat room */
@@ -2504,7 +2507,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ChatMessage"][];
+                    "application/json": {
+                        data: components["schemas"]["ChatMessage"][];
+                    } & WithRequired<components["schemas"]["PaginatedResponse"], "data">;
                 };
             };
             /** @description Unauthorized */
@@ -2524,3 +2529,6 @@ export interface operations {
         };
     };
 }
+type WithRequired<T, K extends keyof T> = T & {
+    [P in K]-?: T[P];
+};
