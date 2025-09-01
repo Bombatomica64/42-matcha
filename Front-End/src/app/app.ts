@@ -9,7 +9,9 @@ import { TokenStore } from './services/token-store';
   imports: [RouterOutlet, Navbar, MainSidebar],
   template: `
     <div class="app-sidebar">
-      <app-navbar />
+      @if (!isLoggedIn()) {
+        <app-navbar />
+      }
       @if (isLoggedIn()) {
         <app-main-sidebar />
       }
