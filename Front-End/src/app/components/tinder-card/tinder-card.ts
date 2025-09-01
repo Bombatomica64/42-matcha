@@ -1,5 +1,5 @@
 import { Component, ElementRef, inject, input, ViewChild, AfterViewInit, OnDestroy  } from '@angular/core';
-import {CdkDrag, CdkDragMove} from '@angular/cdk/drag-drop';
+import {CdkDrag, CdkDragMove, CdkDragEnd} from '@angular/cdk/drag-drop';
 
 //cdkDragLockAxis="x"
 //cdkDragBoundary=":host" non funziona con :hos
@@ -8,7 +8,7 @@ import {CdkDrag, CdkDragMove} from '@angular/cdk/drag-drop';
   selector: 'app-tinder-card',
   imports: [CdkDrag],
   template: `
-    <div #box class="example-box" cdkDrag [cdkDragFreeDragPosition]="dragPosition" (cdkDragMoved)="onDragMoved($event)">
+    <div #box class="example-box" cdkDrag [cdkDragFreeDragPosition]="dragPosition" (cdkDragMoved)="onDragMoved($event)" (cdkDragEnded)="onDragEnded($event)">
       <div #content class="content">
         Drag me around
       </div>
@@ -33,9 +33,10 @@ import {CdkDrag, CdkDragMove} from '@angular/cdk/drag-drop';
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 120ms ease;
+    transition: transform 200ms ease-out, opacity 200ms ease-out;
     transform-origin: 50% 100%; /* centro X, basso Y */
-    border: solid 1px #dd0f0fff;
+    will-change: transform, opacity;
+    border: solid 1px white;
   }
   .example-box:active {
     box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
@@ -53,6 +54,7 @@ export class TinderCard {
   @ViewChild('content', { read: ElementRef }) content?: ElementRef<HTMLDivElement>;
   private cardWidth = 200;
   private cardHeight = 200;
+  private releasePosition = "center";
 
   private cachedHostWidth = 0;
   private cachedHostHeight = 0;
@@ -158,16 +160,41 @@ export class TinderCard {
 
     if (cardCenterX < firstBoundary) {
       //if (this.box) this.box.nativeElement.style.background = 'red';
-      if (this.content) this.content.nativeElement.style.transform = 'rotate(-20deg)';
+      if (this.content) {
+        this.releasePosition = "left";
+        this.content.nativeElement.style.border = '1px solid red';
+        this.content.nativeElement.style.transform = 'rotate(-20deg)';
+      }
     } else if (cardCenterX > secondBoundary) {
       //if (this.box) this.box.nativeElement.style.background = 'blue';
-      if (this.content) this.content.nativeElement.style.transform = 'rotate(20deg)';
+      if (this.content) {
+        this.releasePosition = "right";
+        this.content.nativeElement.style.border = '1px solid blue';
+        this.content.nativeElement.style.transform = 'rotate(20deg)';
+      }
     } else {
       //if (this.box) this.box.nativeElement.style.background = 'white';
-      if (this.content) this.content.nativeElement.style.transform = 'rotate(0deg)';
+      if (this.content) {
+        this.releasePosition = "center";
+        this.content.nativeElement.style.border = '1px solid white';
+        this.content.nativeElement.style.transform = 'rotate(0deg)';
+      }
     }
   }
 
-
+  onDragEnded(event: CdkDragEnd) {
+    console.log("Drag ended, releasePosition:", this.releasePosition);
+    if (this.content && this.releasePosition == "left") {
+      //animazione di caduta a sinistra
+      // this.content.nativeElement.style.transition = 'transform 0.5s ease';
+      this.content.nativeElement.style.transform = 'rotate(-50deg) translateX(-100%) ';
+      this.content.nativeElement.style.opacity = '0';
+    } else if (this.content && this.releasePosition == "right") {
+      //animazione di caduta a destra
+      // this.content.nativeElement.style.transition = 'transform 0.5s ease';
+      this.content.nativeElement.style.transform = 'rotate(50deg) translateX(100%)';
+      this.content.nativeElement.style.opacity = '0';
+    }
+  }
 
 }
