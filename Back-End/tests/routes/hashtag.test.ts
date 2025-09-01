@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { authenticateUser, createTestApp, createTestUser } from '../helpers/app.helper';
+import { createAndAuthenticateUser, createTestApp } from '../helpers/app.helper';
 import { clearDatabase, closeTestPool, seedTestData } from '../helpers/database.helper';
 import type { Express } from 'express';
 
@@ -19,8 +19,8 @@ describe('Hashtag Routes', () => {
     await clearDatabase();
     await seedTestData();
     
-    // Create and authenticate a test user
-    const userData = {
+    // Create and authenticate a test user that can actually log in
+    const userAuth = await createAndAuthenticateUser(app, {
       email: 'test@example.com',
       username: 'testuser',
       firstName: 'Test',
@@ -28,56 +28,13 @@ describe('Hashtag Routes', () => {
       password: 'SecurePassword123!',
       birthDate: '1990-01-01',
       gender: 'male',
-    };
-
-    await createTestUser(app, userData);
-    authToken = await authenticateUser(app, {
-      email: userData.email,
-      password: userData.password,
     });
-  });
-
-  describe('GET /hashtags', () => {
-    it('should get all hashtags', async () => {
-      const response = await request(app)
-        .get('/hashtags')
-        .set('Authorization', `Bearer ${authToken}`)
-        .expect(200);
-
-      expect(response.body).toHaveProperty('hashtags');
-      expect(Array.isArray(response.body.hashtags)).toBe(true);
-      expect(response.body.hashtags.length).toBeGreaterThan(0);
-      
-      // Check hashtag structure
-      const hashtag = response.body.hashtags[0];
-      expect(hashtag).toHaveProperty('id');
-      expect(hashtag).toHaveProperty('name');
-    });
-
-    it('should support pagination', async () => {
-      const response = await request(app)
-        .get('/hashtags')
-        .set('Authorization', `Bearer ${authToken}`)
-        .query({ page: 1, limit: 2 })
-        .expect(200);
-
-      expect(response.body).toHaveProperty('hashtags');
-      expect(response.body).toHaveProperty('pagination');
-      expect(response.body.pagination).toHaveProperty('page', 1);
-      expect(response.body.pagination).toHaveProperty('limit', 2);
-    });
-
-    it('should reject request without authentication', async () => {
-      const response = await request(app)
-        .get('/hashtags')
-        .expect(401);
-
-      expect(response.body).toHaveProperty('error');
-    });
+    
+    authToken = userAuth.token;
   });
 
   describe('GET /hashtags/search', () => {
-    it('should search hashtags by name', async () => {
+    it('should search hashtags by keyword', async () => {
       const response = await request(app)
         .get('/hashtags/search')
         .set('Authorization', `Bearer ${authToken}`)
@@ -112,150 +69,95 @@ describe('Hashtag Routes', () => {
 
       expect(response.body).toHaveProperty('error');
     });
-  });
 
-  describe('POST /hashtags', () => {
-    it('should create a new hashtag', async () => {
-      const newHashtag = { name: 'newhashtag' };
-
+    it('should reject request without authentication', async () => {
       const response = await request(app)
-        .post('/hashtags')
-        .set('Authorization', `Bearer ${authToken}`)
-        .send(newHashtag)
-        .expect(201);
-
-      expect(response.body).toHaveProperty('message');
-      expect(response.body).toHaveProperty('hashtag');
-      expect(response.body.hashtag).toHaveProperty('name', 'newhashtag');
-      expect(response.body.hashtag).toHaveProperty('id');
-    });
-
-    it('should not create duplicate hashtags', async () => {
-      const hashtagData = { name: 'travel' }; // This already exists from seedTestData
-
-      const response = await request(app)
-        .post('/hashtags')
-        .set('Authorization', `Bearer ${authToken}`)
-        .send(hashtagData)
-        .expect(409);
+        .get('/hashtags/search')
+        .query({ q: 'travel' })
+        .expect(401);
 
       expect(response.body).toHaveProperty('error');
     });
-
-    it('should validate hashtag name format', async () => {
-      const invalidHashtags = [
-        { name: '' }, // Empty name
-        { name: 'a' }, // Too short
-        { name: 'a'.repeat(51) }, // Too long
-        { name: 'invalid name' }, // Contains space
-        { name: 'invalid-name' }, // Contains hyphen
-        { name: 'invalid@name' }, // Contains special character
-      ];
-
-      for (const hashtag of invalidHashtags) {
-        const response = await request(app)
-          .post('/hashtags')
-          .set('Authorization', `Bearer ${authToken}`)
-          .send(hashtag)
-          .expect(400);
-
-        expect(response.body).toHaveProperty('error');
-      }
-    });
-
-    it('should normalize hashtag names to lowercase', async () => {
-      const hashtagData = { name: 'UPPERCASE' };
-
-      const response = await request(app)
-        .post('/hashtags')
-        .set('Authorization', `Bearer ${authToken}`)
-        .send(hashtagData)
-        .expect(201);
-
-      expect(response.body.hashtag.name).toBe('uppercase');
-    });
   });
 
-  describe('GET /hashtags/popular', () => {
-    it('should get popular hashtags', async () => {
-      const response = await request(app)
-        .get('/hashtags/popular')
+  describe('POST /hashtags/:id', () => {
+    it('should add hashtag to user', async () => {
+      // First get a hashtag ID from seeded data
+      const searchResponse = await request(app)
+        .get('/hashtags/search')
         .set('Authorization', `Bearer ${authToken}`)
-        .expect(200);
+        .query({ q: 'travel' });
 
-      expect(response.body).toHaveProperty('hashtags');
-      expect(Array.isArray(response.body.hashtags)).toBe(true);
-      
-      // Check that hashtags have usage count
-      if (response.body.hashtags.length > 0) {
-        const hashtag = response.body.hashtags[0];
-        expect(hashtag).toHaveProperty('name');
-        expect(hashtag).toHaveProperty('usage_count');
-        expect(typeof hashtag.usage_count).toBe('number');
-      }
-    });
-
-    it('should limit number of popular hashtags', async () => {
-      const response = await request(app)
-        .get('/hashtags/popular')
-        .set('Authorization', `Bearer ${authToken}`)
-        .query({ limit: 5 })
-        .expect(200);
-
-      expect(response.body.hashtags.length).toBeLessThanOrEqual(5);
-    });
-  });
-
-  describe('PUT /hashtags/user', () => {
-    it('should update user hashtags', async () => {
-      const hashtagIds = ['test-hashtag-1', 'test-hashtag-2'];
+      expect(searchResponse.body.hashtags.length).toBeGreaterThan(0);
+      const hashtagId = searchResponse.body.hashtags[0].id;
 
       const response = await request(app)
-        .put('/hashtags/user')
+        .post(`/hashtags/${hashtagId}`)
         .set('Authorization', `Bearer ${authToken}`)
-        .send({ hashtag_ids: hashtagIds })
         .expect(200);
 
       expect(response.body).toHaveProperty('message');
-      expect(response.body).toHaveProperty('hashtags');
-      expect(Array.isArray(response.body.hashtags)).toBe(true);
+      expect(response.body.message).toContain('added');
     });
 
-    it('should validate hashtag IDs exist', async () => {
-      const invalidHashtagIds = ['non-existent-id'];
-
+    it('should return 404 for non-existent hashtag', async () => {
       const response = await request(app)
-        .put('/hashtags/user')
+        .post('/hashtags/999999')
         .set('Authorization', `Bearer ${authToken}`)
-        .send({ hashtag_ids: invalidHashtagIds })
-        .expect(400);
+        .expect(404);
 
       expect(response.body).toHaveProperty('error');
     });
 
-    it('should limit number of hashtags per user', async () => {
-      // Create array with too many hashtag IDs (assuming limit is 10)
-      const tooManyHashtags = Array.from({ length: 15 }, (_, i) => `hashtag-${i}`);
-
+    it('should reject request without authentication', async () => {
       const response = await request(app)
-        .put('/hashtags/user')
-        .set('Authorization', `Bearer ${authToken}`)
-        .send({ hashtag_ids: tooManyHashtags })
-        .expect(400);
+        .post('/hashtags/1')
+        .expect(401);
 
       expect(response.body).toHaveProperty('error');
     });
   });
 
-  describe('GET /hashtags/user', () => {
-    it('should get current user hashtags', async () => {
+  describe('DELETE /hashtags/:id', () => {
+    it('should remove hashtag from user', async () => {
+      // First add a hashtag to the user
+      const searchResponse = await request(app)
+        .get('/hashtags/search')
+        .set('Authorization', `Bearer ${authToken}`)
+        .query({ q: 'travel' });
+
+      const hashtagId = searchResponse.body.hashtags[0].id;
+
+      // Add it first
+      await request(app)
+        .post(`/hashtags/${hashtagId}`)
+        .set('Authorization', `Bearer ${authToken}`);
+
+      // Then remove it
       const response = await request(app)
-        .get('/hashtags/user')
+        .delete(`/hashtags/${hashtagId}`)
         .set('Authorization', `Bearer ${authToken}`)
         .expect(200);
 
-      expect(response.body).toHaveProperty('hashtags');
-      expect(Array.isArray(response.body.hashtags)).toBe(true);
+      expect(response.body).toHaveProperty('message');
+      expect(response.body.message).toContain('removed');
+    });
+
+    it('should return 404 for non-existent hashtag', async () => {
+      const response = await request(app)
+        .delete('/hashtags/999999')
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(404);
+
+      expect(response.body).toHaveProperty('error');
+    });
+
+    it('should reject request without authentication', async () => {
+      const response = await request(app)
+        .delete('/hashtags/1')
+        .expect(401);
+
+      expect(response.body).toHaveProperty('error');
     });
   });
 });

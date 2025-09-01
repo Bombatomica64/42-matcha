@@ -85,12 +85,14 @@ export const seedTestData = async (): Promise<void> => {
         $1, '1992-05-15', 'female', ST_Point(2.3522, 48.8566),
         true, true, 4.0, false, CURRENT_TIMESTAMP
       )
+      ON CONFLICT (id) DO NOTHING
     `, [hashedPassword]);    // Insert test hashtags
     await client.query(`
       INSERT INTO hashtags (name) VALUES 
       ('travel'),
       ('music'),
       ('sports')
+      ON CONFLICT (name) DO NOTHING
     `);
     
     // Get the hashtag IDs for linking
@@ -103,14 +105,22 @@ export const seedTestData = async (): Promise<void> => {
       hashtagMap[row.name] = row.id;
     });
     
-    // Link users to hashtags
-    await client.query(`
-      INSERT INTO user_hashtags (user_id, hashtag_id) VALUES 
-      ('550e8400-e29b-41d4-a716-446655440000', $1),
-      ('550e8400-e29b-41d4-a716-446655440000', $2),
-      ('550e8400-e29b-41d4-a716-446655440001', $3),
-      ('550e8400-e29b-41d4-a716-446655440001', $4)
-    `, [hashtagMap['travel'], hashtagMap['music'], hashtagMap['music'], hashtagMap['sports']]);
+    // Only link hashtags if users exist
+    const userCheck = await client.query(`
+      SELECT id FROM users WHERE id IN ('550e8400-e29b-41d4-a716-446655440000', '550e8400-e29b-41d4-a716-446655440001')
+    `);
+    
+    if (userCheck.rows.length > 0) {
+      // Link users to hashtags only if the users exist
+      await client.query(`
+        INSERT INTO user_hashtags (user_id, hashtag_id) VALUES 
+        ('550e8400-e29b-41d4-a716-446655440000', $1),
+        ('550e8400-e29b-41d4-a716-446655440000', $2),
+        ('550e8400-e29b-41d4-a716-446655440001', $3),
+        ('550e8400-e29b-41d4-a716-446655440001', $4)
+        ON CONFLICT (user_id, hashtag_id) DO NOTHING
+      `, [hashtagMap['travel'], hashtagMap['music'], hashtagMap['music'], hashtagMap['sports']]);
+    }
     
   } finally {
     client.release();

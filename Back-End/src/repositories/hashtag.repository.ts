@@ -40,7 +40,17 @@ export class HashtagRepository extends BaseRepository<Hashtag> {
 	 * Add a hashtag to a user's profile.
 	 */
 	async hashtagAddToUser(userId: string, hashtagId: number): Promise<Hashtag> {
-		return this.addUserRelationship(userId, hashtagId, "user_hashtags", "hashtag_id");
+		// First, check if the hashtag exists
+		const hashtag = await this.findById(hashtagId.toString());
+		if (!hashtag) {
+			throw new Error('Hashtag not found');
+		}
+
+		// Create the relationship
+		await this.addUserRelationship(userId, hashtagId, "user_hashtags", "hashtag_id");
+		
+		// Return the hashtag data
+		return hashtag;
 	}
 
 	/**

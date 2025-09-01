@@ -33,7 +33,7 @@ export class UserRepository extends BaseRepository<User> {
 					JSON_AGG(
 						DISTINCT jsonb_build_object(
 							'id', p.id,
-							'user_uuid', p.user_uuid,
+							'user_id', p.user_id,
 							'filename', p.filename,
 							'original_filename', p.original_filename,
 							'file_path', p.file_path,
@@ -49,7 +49,7 @@ export class UserRepository extends BaseRepository<User> {
 			FROM users u
 			LEFT JOIN user_hashtags uh ON u.id = uh.user_id
 			LEFT JOIN hashtags h ON uh.hashtag_id = h.id
-			LEFT JOIN user_photos p ON u.id = p.user_uuid
+			LEFT JOIN user_photos p ON u.id = p.user_id
 			WHERE u.id = $1
 			GROUP BY u.id
 		`;
@@ -82,7 +82,7 @@ export class UserRepository extends BaseRepository<User> {
 					JSON_AGG(
 						DISTINCT jsonb_build_object(
 							'id', p.id,
-							'user_uuid', p.user_uuid,
+							'user_id', p.user_id,
 							'filename', p.filename,
 							'original_filename', p.original_filename,
 							'file_path', p.file_path,
@@ -98,7 +98,7 @@ export class UserRepository extends BaseRepository<User> {
 			FROM users u
 			LEFT JOIN user_hashtags uh ON u.id = uh.user_id
 			LEFT JOIN hashtags h ON uh.hashtag_id = h.id
-			LEFT JOIN user_photos p ON u.id = p.user_uuid
+			LEFT JOIN user_photos p ON u.id = p.user_id
 			WHERE u.email = $1
 			GROUP BY u.id
 		`;
@@ -124,7 +124,7 @@ export class UserRepository extends BaseRepository<User> {
 					JSON_AGG(
 						DISTINCT jsonb_build_object(
 							'id', p.id,
-							'user_uuid', p.user_uuid,
+							'user_id', p.user_id,
 							'filename', p.filename,
 							'original_filename', p.original_filename,
 							'file_path', p.file_path,
@@ -140,7 +140,7 @@ export class UserRepository extends BaseRepository<User> {
 			FROM users u
 			LEFT JOIN user_hashtags uh ON u.id = uh.user_id
 			LEFT JOIN hashtags h ON uh.hashtag_id = h.id
-			LEFT JOIN user_photos p ON u.id = p.user_uuid
+			LEFT JOIN user_photos p ON u.id = p.user_id
 			WHERE u.username = $1
 			GROUP BY u.id
 		`;
@@ -296,7 +296,7 @@ export class UserRepository extends BaseRepository<User> {
 					JSON_AGG(
 						DISTINCT jsonb_build_object(
 							'id', p.id,
-							'user_uuid', p.user_uuid,
+							'user_id', p.user_id,
 							'filename', p.filename,
 							'original_filename', p.original_filename,
 							'file_path', p.file_path,
@@ -312,7 +312,7 @@ export class UserRepository extends BaseRepository<User> {
 			FROM users u
 			LEFT JOIN user_hashtags uh ON u.id = uh.user_id
 			LEFT JOIN hashtags h ON uh.hashtag_id = h.id
-			LEFT JOIN user_photos p ON u.id = p.user_uuid
+			LEFT JOIN user_photos p ON u.id = p.user_id
 			WHERE u.activated = true
 			AND u.id != $1
 			AND NOT EXISTS (

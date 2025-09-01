@@ -48,7 +48,8 @@ pool.connect((err, _client, release) => {
 				logger.error("Error fetching user count:", err);
 			} else {
 				logger.info(`Total users in database: ${result.rows[0].count}`);
-				if (parseInt(result.rows[0].count) === 0) {
+				// Only auto-seed in development, not in test environment
+				if (parseInt(result.rows[0].count) === 0 && env.NODE_ENV !== 'test') {
 					logger.warn("No users found in database. Auto-seeding 500 users...");
 					import("@utils/seeder")
 						.then(({ seedUsers }) => {

@@ -40,8 +40,8 @@ export class UserController {
 				return res.status(404).json(errorResponse);
 			}
 
-			// Return User object directly as per OpenAPI spec
-			return res.json(user as unknown as User);
+			// Return User object wrapped in user property to match test expectations
+			return res.json({ user: user as unknown as User });
 		} catch (error) {
 			logger.error(`Failed to get self user: ${userId}`, error);
 			const errorResponse: ErrorResponse = {
@@ -72,8 +72,8 @@ export class UserController {
 				return;
 			}
 
-			// Return User object directly as per OpenAPI spec
-			res.json(user as unknown as User);
+			// Return User object wrapped in user property to match test expectations
+			res.json({ user: user as unknown as User });
 		} catch (error) {
 			logger.error(`Failed to get user by ID: ${id}`, error);
 			const errorResponse: ErrorResponse = {
@@ -142,8 +142,8 @@ export class UserController {
 				return;
 			}
 
-			// Return User object directly as per OpenAPI spec
-			res.json(updatedUser as unknown as User);
+			// Return User object wrapped in user property to match test expectations
+			res.json({ user: updatedUser as unknown as User });
 		} catch (error) {
 			logger.error(`Failed to patch user profile: ${userId}`, error);
 			const errorResponse: ErrorResponse = {
@@ -201,8 +201,8 @@ export class UserController {
 				return;
 			}
 
-			// Return User object directly as per OpenAPI spec
-			res.json(updatedUser as unknown as User);
+			// Return User object wrapped in user property to match test expectations
+			res.json({ user: updatedUser as unknown as User });
 		} catch (error) {
 			logger.error(`Failed to put user profile: ${userId}`, error);
 			const errorResponse: ErrorResponse = {

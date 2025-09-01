@@ -18,12 +18,17 @@ export class HashtagController {
 	 * Search hashtags by keyword.
 	 */
 	public async searchHashtagsByKeyword(req: Request, res: Response): Promise<Response> {
-		const { keyword } = req.query;
+		const keyword = req.query.q || req.query.keyword; // Support both 'q' and 'keyword' parameters
 		const pagination: PaginationRequest = {
 			page: Number(req.query.page) || 1,
 			limit: Number(req.query.limit) || 10,
 			order: "desc" as const,
 		};
+
+		// Validate that keyword is provided
+		if (!keyword) {
+			return res.status(400).json({ error: "Search query parameter 'q' is required" });
+		}
 
 		try {
 			const result = await this.hashtagService.searchHashtagsByKeyword(
@@ -35,9 +40,9 @@ export class HashtagController {
 			}
 
 			if (result) {
-				return res.status(200).json(result as PaginatedResponse<Hashtag>);
+				return res.status(200).json({ hashtags: result.data, ...result });
 			} else {
-				return res.status(204).json({ message: "No hashtags found" });
+				return res.status(200).json({ hashtags: [] });
 			}
 		} catch (error) {
 			logger.error("Error searching hashtags by keyword:", error);
@@ -66,9 +71,13 @@ export class HashtagController {
 					.status(200)
 					.json({ message: "Hashtag added successfully", hashtag: result } as SuccessResponse);
 			} else {
-				return res.status(404).json({ message: "Hashtag not found" } as ErrorResponse);
+				return res.status(404).json({ error: "Hashtag not found" } as ErrorResponse);
 			}
-		} catch (error) {
+		} catch (error: unknown) {
+			// Check if it's a "hashtag not found" error
+			if (error instanceof Error && error.message === 'Hashtag not found') {
+				return res.status(404).json({ error: "Hashtag not found" } as ErrorResponse);
+			}
 			logger.error("Error adding hashtag to user:", error);
 			return res.status(500).json({ message: "Internal server error" } as ErrorResponse);
 		}
@@ -93,7 +102,7 @@ export class HashtagController {
 			if (result) {
 				return res.status(200).json({ message: "Hashtag removed successfully" } as SuccessResponse);
 			} else {
-				return res.status(404).json({ message: "Hashtag not found" } as ErrorResponse);
+				return res.status(404).json({ error: "Hashtag not found" } as ErrorResponse);
 			}
 		} catch (error) {
 			logger.error("Error removing hashtag from user:", error);

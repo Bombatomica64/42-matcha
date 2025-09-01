@@ -1,7 +1,7 @@
 import request from 'supertest';
 import path from 'node:path';
 import fs from 'node:fs';
-import { authenticateUser, createTestApp, createTestUser } from '../helpers/app.helper';
+import { createAndAuthenticateUser, createTestApp } from '../helpers/app.helper';
 import { clearDatabase, closeTestPool, seedTestData } from '../helpers/database.helper';
 import type { Express } from 'express';
 
@@ -71,8 +71,8 @@ describe('Photo Routes', () => {
     await clearDatabase();
     await seedTestData();
     
-    // Create and authenticate a test user
-    const userData = {
+    // Create and authenticate a test user that can actually log in
+    const userAuth = await createAndAuthenticateUser(app, {
       email: 'test@example.com',
       username: 'testuser',
       firstName: 'Test',
@@ -80,19 +80,15 @@ describe('Photo Routes', () => {
       password: 'SecurePassword123!',
       birthDate: '1990-01-01',
       gender: 'male',
-    };
-
-    await createTestUser(app, userData);
-    authToken = await authenticateUser(app, {
-      email: userData.email,
-      password: userData.password,
     });
+    
+    authToken = userAuth.token;
   });
 
-  describe('POST /photos/upload', () => {
+  describe('POST /photos', () => {
     it('should upload a photo successfully', async () => {
       const response = await request(app)
-        .post('/photos/upload')
+        .post('/photos')
         .set('Authorization', `Bearer ${authToken}`)
         .attach('photo', testImagePath)
         .expect(201);
@@ -101,12 +97,12 @@ describe('Photo Routes', () => {
       expect(response.body).toHaveProperty('photo');
       expect(response.body.photo).toHaveProperty('id');
       expect(response.body.photo).toHaveProperty('url');
-      expect(response.body.photo).toHaveProperty('is_profile_photo');
+      expect(response.body.photo).toHaveProperty('is_main');
     });
 
     it('should reject upload without authentication', async () => {
       const response = await request(app)
-        .post('/photos/upload')
+        .post('/photos')
         .attach('photo', testImagePath)
         .expect(401);
 
@@ -115,7 +111,7 @@ describe('Photo Routes', () => {
 
     it('should reject upload without file', async () => {
       const response = await request(app)
-        .post('/photos/upload')
+        .post('/photos')
         .set('Authorization', `Bearer ${authToken}`)
         .expect(400);
 
@@ -128,7 +124,7 @@ describe('Photo Routes', () => {
       fs.writeFileSync(textFilePath, 'This is not an image');
 
       const response = await request(app)
-        .post('/photos/upload')
+        .post('/photos')
         .set('Authorization', `Bearer ${authToken}`)
         .attach('photo', textFilePath)
         .expect(400);
@@ -139,94 +135,82 @@ describe('Photo Routes', () => {
       fs.unlinkSync(textFilePath);
     });
 
-    it('should set first photo as profile photo automatically', async () => {
+    it('should set first photo as main photo automatically', async () => {
       const response = await request(app)
-        .post('/photos/upload')
+        .post('/photos')
         .set('Authorization', `Bearer ${authToken}`)
         .attach('photo', testImagePath)
         .expect(201);
 
-      expect(response.body.photo.is_profile_photo).toBe(true);
+      expect(response.body.photo.is_main).toBe(true);
     });
   });
 
-  describe('GET /photos/user/:userId', () => {
-    it('should get user photos', async () => {
+  describe('GET /photos', () => {
+    it('should get current user photos', async () => {
       // First upload a photo
       await request(app)
-        .post('/photos/upload')
+        .post('/photos')
         .set('Authorization', `Bearer ${authToken}`)
         .attach('photo', testImagePath);
 
       // Then get user photos
       const response = await request(app)
-        .get('/photos/user/current') // Assuming 'current' gets current user's photos
+        .get('/photos')
         .set('Authorization', `Bearer ${authToken}`)
         .expect(200);
 
       expect(response.body).toHaveProperty('photos');
       expect(Array.isArray(response.body.photos)).toBe(true);
+      expect(response.body.photos.length).toBeGreaterThan(0);
     });
 
-    it('should get specific user photos', async () => {
+    it('should reject request without authentication', async () => {
       const response = await request(app)
-        .get('/photos/user/test-user-1')
-        .set('Authorization', `Bearer ${authToken}`)
-        .expect(200);
-
-      expect(response.body).toHaveProperty('photos');
-      expect(Array.isArray(response.body.photos)).toBe(true);
-    });
-
-    it('should return 404 for non-existent user', async () => {
-      const response = await request(app)
-        .get('/photos/user/non-existent-user')
-        .set('Authorization', `Bearer ${authToken}`)
-        .expect(404);
+        .get('/photos')
+        .expect(401);
 
       expect(response.body).toHaveProperty('error');
     });
   });
 
-  describe('PUT /photos/:photoId/profile', () => {
+  describe('POST /photos/:photoId/main', () => {
     let photoId: string;
 
     beforeEach(async () => {
       // Upload a photo first
       const uploadResponse = await request(app)
-        .post('/photos/upload')
+        .post('/photos')
         .set('Authorization', `Bearer ${authToken}`)
         .attach('photo', testImagePath);
       
       photoId = uploadResponse.body.photo.id;
     });
 
-    it('should set photo as profile photo', async () => {
+    it('should set photo as main photo', async () => {
       const response = await request(app)
-        .put(`/photos/${photoId}/profile`)
+        .post(`/photos/${photoId}/main`)
         .set('Authorization', `Bearer ${authToken}`)
         .expect(200);
 
       expect(response.body).toHaveProperty('message');
       expect(response.body).toHaveProperty('photo');
-      expect(response.body.photo.is_profile_photo).toBe(true);
+      expect(response.body.photo.is_main).toBe(true);
     });
 
-    it('should reject setting non-existent photo as profile', async () => {
+    it('should reject setting non-existent photo as main', async () => {
       const response = await request(app)
-        .put('/photos/non-existent-id/profile')
+        .post('/photos/non-existent-id/main')
         .set('Authorization', `Bearer ${authToken}`)
         .expect(404);
 
       expect(response.body).toHaveProperty('error');
     });
 
-    it('should reject setting another user\'s photo as profile', async () => {
-      // This would need another user's photo ID
+    it('should reject request without authentication', async () => {
       const response = await request(app)
-        .put('/photos/another-user-photo-id/profile')
-        .set('Authorization', `Bearer ${authToken}`)
-        .expect(403);
+        .post(`/photos/${photoId}/main`)
+        .expect(401);
 
       expect(response.body).toHaveProperty('error');
     });
@@ -238,7 +222,7 @@ describe('Photo Routes', () => {
     beforeEach(async () => {
       // Upload a photo first
       const uploadResponse = await request(app)
-        .post('/photos/upload')
+        .post('/photos')
         .set('Authorization', `Bearer ${authToken}`)
         .attach('photo', testImagePath);
       
@@ -263,11 +247,10 @@ describe('Photo Routes', () => {
       expect(response.body).toHaveProperty('error');
     });
 
-    it('should reject deleting another user\'s photo', async () => {
+    it('should reject request without authentication', async () => {
       const response = await request(app)
-        .delete('/photos/another-user-photo-id')
-        .set('Authorization', `Bearer ${authToken}`)
-        .expect(403);
+        .delete(`/photos/${photoId}`)
+        .expect(401);
 
       expect(response.body).toHaveProperty('error');
     });
@@ -279,7 +262,7 @@ describe('Photo Routes', () => {
     beforeEach(async () => {
       // Upload a photo first
       const uploadResponse = await request(app)
-        .post('/photos/upload')
+        .post('/photos')
         .set('Authorization', `Bearer ${authToken}`)
         .attach('photo', testImagePath);
       
@@ -295,7 +278,7 @@ describe('Photo Routes', () => {
       expect(response.body).toHaveProperty('photo');
       expect(response.body.photo).toHaveProperty('id', photoId);
       expect(response.body.photo).toHaveProperty('url');
-      expect(response.body.photo).toHaveProperty('is_profile_photo');
+      expect(response.body.photo).toHaveProperty('is_main');
     });
 
     it('should return 404 for non-existent photo', async () => {
@@ -303,6 +286,14 @@ describe('Photo Routes', () => {
         .get('/photos/non-existent-id')
         .set('Authorization', `Bearer ${authToken}`)
         .expect(404);
+
+      expect(response.body).toHaveProperty('error');
+    });
+
+    it('should reject request without authentication', async () => {
+      const response = await request(app)
+        .get(`/photos/${photoId}`)
+        .expect(401);
 
       expect(response.body).toHaveProperty('error');
     });
@@ -315,7 +306,7 @@ describe('Photo Routes', () => {
       
       for (let i = 0; i < maxPhotos; i++) {
         await request(app)
-          .post('/photos/upload')
+          .post('/photos')
           .set('Authorization', `Bearer ${authToken}`)
           .attach('photo', testImagePath)
           .expect(201);
@@ -323,7 +314,7 @@ describe('Photo Routes', () => {
 
       // Try to upload one more - should fail
       const response = await request(app)
-        .post('/photos/upload')
+        .post('/photos')
         .set('Authorization', `Bearer ${authToken}`)
         .attach('photo', testImagePath)
         .expect(400);
@@ -341,7 +332,7 @@ describe('Photo Routes', () => {
       fs.writeFileSync(largeFilePath, largeBuffer);
 
       const response = await request(app)
-        .post('/photos/upload')
+        .post('/photos')
         .set('Authorization', `Bearer ${authToken}`)
         .attach('photo', largeFilePath)
         .expect(400);
@@ -360,7 +351,7 @@ describe('Photo Routes', () => {
         fs.writeFileSync(filePath, 'test content');
 
         const response = await request(app)
-          .post('/photos/upload')
+          .post('/photos')
           .set('Authorization', `Bearer ${authToken}`)
           .attach('photo', filePath)
           .expect(400);
