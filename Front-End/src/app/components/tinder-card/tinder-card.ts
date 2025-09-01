@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, input, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, input, ViewChild, AfterViewInit, OnDestroy  } from '@angular/core';
 import {CdkDrag, CdkDragMove} from '@angular/cdk/drag-drop';
 
 //cdkDragLockAxis="x"
@@ -17,6 +17,7 @@ import {CdkDrag, CdkDragMove} from '@angular/cdk/drag-drop';
     display: block;
     width: 100%;
     height: 100%;
+    position: relative;
   }
   .example-box {
     width: 200px;
@@ -53,22 +54,53 @@ export class TinderCard {
   private cardWidth = 200;
   private cardHeight = 200;
 
+  private cachedHostWidth = 0;
+  private cachedHostHeight = 0;
+  private cachedHostLeft = 0;
+  private cachedHostTop = 0;
+  private ro?: ResizeObserver;
+
   dragPosition = {x: 10, y: 10};
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     const el = this.box?.nativeElement;
     if (!el) return;
 
+    // leggi dimensione card una volta
     const rect = el.getBoundingClientRect();
     this.cardWidth = Math.round(rect.width);
     this.cardHeight = Math.round(rect.height);
 
-    console.log(this.cardWidth, this.cardHeight);
-    console.log(this.hostWidth(), this.hostHeight());
-    const xInitial = (this.hostWidth() / 2) - (this.cardWidth / 2);
-    const yInitial = (this.hostHeight() / 2) - (this.cardHeight / 2);
-    this.dragPosition = {x: xInitial, y: yInitial};
+    // misura sincrona iniziale (per non avere 0/0)
+    this.updateHostSize();
 
+    // assicurati della misura dopo il frame e poi installa l'observer
+    requestAnimationFrame(() => {
+      this.updateHostSize();
+      this.ro = new ResizeObserver(() => this.updateHostSize());
+      this.ro.observe(this.hostRef.nativeElement);
+    });
+  }
+
+  ngOnDestroy() {
+    this.ro?.disconnect();
+  }
+
+  private updateHostSize(): void {
+    const r = this.hostRef.nativeElement.getBoundingClientRect();
+    this.cachedHostWidth = Math.round(r.width);
+    this.cachedHostHeight = Math.round(r.height);
+    this.cachedHostLeft = Math.round(r.left);
+    this.cachedHostTop = Math.round(r.top);
+
+    // calcola qui la posizione iniziale della card ogni volta che cambia la host size
+    const xInitial = (this.cachedHostWidth / 2) - (this.cardWidth / 2);
+    const yInitial = (this.cachedHostHeight / 2) - (this.cardHeight / 2);
+    this.dragPosition = { x: Math.round(xInitial), y: Math.round(yInitial) };
+
+    // log per debug
+    console.log('updateHostSize fired, host size:', this.cachedHostWidth, this.cachedHostHeight);
+    console.log('card', this.cardWidth, this.cardHeight, 'dragPosition', this.dragPosition);
   }
 
   onDragMoved(event: CdkDragMove) {
@@ -86,12 +118,35 @@ export class TinderCard {
       ? event.source.getFreeDragPosition()
       : this.dragPosition;
 
-    const cardCenterX = freePos.x + (this.cardWidth / 2);
+    const cardRect = this.box?.nativeElement.getBoundingClientRect();
+    const cardCenterX = cardRect
+      ? (Math.round(cardRect.left) - this.cachedHostLeft) + (cardRect.width / 2)
+      : (freePos.x + (this.cardWidth / 2));
 
     console.log('viewport:', viewportX, viewportY, 'local:', localX, localY, 'cardCenterX:', cardCenterX);
 
-    const firstBoundary = Math.round(hostRect.width / 3);
-    const secondBoundary = Math.round((hostRect.width / 3) * 2);
+    console.log('full-width:', this.cachedHostWidth);
+    const firstBoundary = Math.round(this.cachedHostWidth / 3);
+    const secondBoundary = Math.round((this.cachedHostWidth / 3) * 2);
+    console.log('boundaries:', firstBoundary, secondBoundary);
+    //draw 2 red line intangibili
+    const line1 = document.createElement('div');
+    line1.style.position = 'absolute';
+    line1.style.left = `${firstBoundary}px`;
+    line1.style.top = '0';
+    line1.style.bottom = '0';
+    line1.style.width = '2px';
+    line1.style.background = 'red';
+    this.hostRef.nativeElement.appendChild(line1);
+
+    const line2 = document.createElement('div');
+    line2.style.position = 'absolute';
+    line2.style.left = `${secondBoundary}px`;
+    line2.style.top = '0';
+    line2.style.bottom = '0';
+    line2.style.width = '2px';
+    line2.style.background = 'red';
+    this.hostRef.nativeElement.appendChild(line2);
 
     if (cardCenterX < firstBoundary) {
       if (this.box) this.box.nativeElement.style.background = 'red';
