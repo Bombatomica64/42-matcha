@@ -9,7 +9,9 @@ import {CdkDrag, CdkDragMove} from '@angular/cdk/drag-drop';
   imports: [CdkDrag],
   template: `
     <div #box class="example-box" cdkDrag [cdkDragFreeDragPosition]="dragPosition" (cdkDragMoved)="onDragMoved($event)">
-      Drag me around
+      <div #content class="content">
+        Drag me around
+      </div>
     </div>
   `,
   styles: `
@@ -23,20 +25,17 @@ import {CdkDrag, CdkDragMove} from '@angular/cdk/drag-drop';
     width: 200px;
     height: 200px;
     border: solid 1px #ccc;
-    color: rgba(0, 0, 0, 0.87);
-    cursor: move;
+    padding: 16px;
+  }
+  .content {
+    width: 100%;
+    height: 100%;
     display: flex;
-    justify-content: center;
     align-items: center;
-    text-align: center;
-    background: #fff;
-    border-radius: 4px;
-    position: relative;
-    z-index: 1;
-    transition: box-shadow 200ms cubic-bezier(0, 0, 0.2, 1);
-    box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2),
-                0 2px 2px 0 rgba(0, 0, 0, 0.14),
-                0 1px 5px 0 rgba(0, 0, 0, 0.12);
+    justify-content: center;
+    transition: transform 120ms ease;
+    transform-origin: 50% 100%; /* centro X, basso Y */
+    border: solid 1px #dd0f0fff;
   }
   .example-box:active {
     box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
@@ -51,6 +50,7 @@ export class TinderCard {
   hostHeight = input.required<number>();
 
   @ViewChild('box', { read: ElementRef }) box?: ElementRef<HTMLDivElement>;
+  @ViewChild('content', { read: ElementRef }) content?: ElementRef<HTMLDivElement>;
   private cardWidth = 200;
   private cardHeight = 200;
 
@@ -59,6 +59,9 @@ export class TinderCard {
   private cachedHostLeft = 0;
   private cachedHostTop = 0;
   private ro?: ResizeObserver;
+
+  private line1?: HTMLDivElement;
+  private line2?: HTMLDivElement;
 
   dragPosition = {x: 10, y: 10};
 
@@ -80,6 +83,10 @@ export class TinderCard {
       this.ro = new ResizeObserver(() => this.updateHostSize());
       this.ro.observe(this.hostRef.nativeElement);
     });
+
+    if (this.content) {
+      this.content.nativeElement.style.transformOrigin = '50% 100%';
+    }
   }
 
   ngOnDestroy() {
@@ -97,10 +104,6 @@ export class TinderCard {
     const xInitial = (this.cachedHostWidth / 2) - (this.cardWidth / 2);
     const yInitial = (this.cachedHostHeight / 2) - (this.cardHeight / 2);
     this.dragPosition = { x: Math.round(xInitial), y: Math.round(yInitial) };
-
-    // log per debug
-    console.log('updateHostSize fired, host size:', this.cachedHostWidth, this.cachedHostHeight);
-    console.log('card', this.cardWidth, this.cardHeight, 'dragPosition', this.dragPosition);
   }
 
   onDragMoved(event: CdkDragMove) {
@@ -109,9 +112,8 @@ export class TinderCard {
     const viewportY = event.pointerPosition.y;
 
     // bounding rect dell'host per convertire a coordinate locali
-    const hostRect = this.hostRef.nativeElement.getBoundingClientRect();
-    const localX = Math.round(viewportX - hostRect.left);
-    const localY = Math.round(viewportY - hostRect.top);
+    const localX = Math.round(viewportX - this.cachedHostLeft);
+    const localY = Math.round(viewportY - this.cachedHostTop);
 
     // posizione "libera" della card (x,y) rispetto al suo container
     const freePos = typeof event.source.getFreeDragPosition === 'function'
@@ -123,38 +125,49 @@ export class TinderCard {
       ? (Math.round(cardRect.left) - this.cachedHostLeft) + (cardRect.width / 2)
       : (freePos.x + (this.cardWidth / 2));
 
-    console.log('viewport:', viewportX, viewportY, 'local:', localX, localY, 'cardCenterX:', cardCenterX);
-
-    console.log('full-width:', this.cachedHostWidth);
     const firstBoundary = Math.round(this.cachedHostWidth / 3);
     const secondBoundary = Math.round((this.cachedHostWidth / 3) * 2);
-    console.log('boundaries:', firstBoundary, secondBoundary);
+    const centerBoundary = Math.round(this.cachedHostWidth / 2);
     //draw 2 red line intangibili
-    const line1 = document.createElement('div');
-    line1.style.position = 'absolute';
-    line1.style.left = `${firstBoundary}px`;
-    line1.style.top = '0';
-    line1.style.bottom = '0';
-    line1.style.width = '2px';
-    line1.style.background = 'red';
-    this.hostRef.nativeElement.appendChild(line1);
-
-    const line2 = document.createElement('div');
-    line2.style.position = 'absolute';
-    line2.style.left = `${secondBoundary}px`;
-    line2.style.top = '0';
-    line2.style.bottom = '0';
-    line2.style.width = '2px';
-    line2.style.background = 'red';
-    this.hostRef.nativeElement.appendChild(line2);
+    if (!this.line1) {
+      this.line1 = document.createElement('div');
+      Object.assign(this.line1.style, {
+        position: 'absolute',
+        top: '0',
+        bottom: '0',
+        width: '2px',
+        background: 'red',
+        pointerEvents: 'none'
+      });
+      this.hostRef.nativeElement.appendChild(this.line1);
+    }
+    if (!this.line2) {
+      this.line2 = document.createElement('div');
+      Object.assign(this.line2.style, {
+        position: 'absolute',
+        top: '0',
+        bottom: '0',
+        width: '2px',
+        background: 'red',
+        pointerEvents: 'none'
+      });
+      this.hostRef.nativeElement.appendChild(this.line2);
+    }
+    this.line1.style.left = `${firstBoundary}px`;
+    this.line2.style.left = `${secondBoundary}px`;
 
     if (cardCenterX < firstBoundary) {
-      if (this.box) this.box.nativeElement.style.background = 'red';
+      //if (this.box) this.box.nativeElement.style.background = 'red';
+      if (this.content) this.content.nativeElement.style.transform = 'rotate(-20deg)';
     } else if (cardCenterX > secondBoundary) {
-      if (this.box) this.box.nativeElement.style.background = 'blue';
+      //if (this.box) this.box.nativeElement.style.background = 'blue';
+      if (this.content) this.content.nativeElement.style.transform = 'rotate(20deg)';
     } else {
-      if (this.box) this.box.nativeElement.style.background = 'white';
+      //if (this.box) this.box.nativeElement.style.background = 'white';
+      if (this.content) this.content.nativeElement.style.transform = 'rotate(0deg)';
     }
   }
+
+
 
 }
