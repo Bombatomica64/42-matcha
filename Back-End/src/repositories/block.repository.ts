@@ -32,7 +32,14 @@ export interface BlockedUserWithDetails {
 
 export class BlockRepository extends BaseRepository<UserBlock> {
 	constructor(pool: Pool) {
-		super(pool, "user_blocks");
+		super(pool, {
+			tableName: "user_blocks",
+			primaryKey: "id",
+			autoManagedColumns: ["id", "created_at"],
+			defaultTextFields: [],
+			defaultOrderBy: "created_at",
+			defaultOrderDirection: "DESC",
+		});
 	}
 
 	/**

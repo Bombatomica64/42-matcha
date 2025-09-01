@@ -5,11 +5,23 @@ import type { components } from "@generated/typescript/api";
 import type { UpdatePhotoData } from "@models/photo.entity";
 import { BaseRepository } from "@orm/base-repository";
 import type { Express } from "express";
+import type { Pool } from "pg";
 import { pool } from "../database";
 
 type Photo = components["schemas"]["Photo"];
 
 export class PhotoRepository extends BaseRepository<Photo> {
+	constructor(pool: Pool) {
+		super(pool, {
+			tableName: "user_photos",
+			primaryKey: "id",
+			autoManagedColumns: ["id", "created_at", "updated_at"],
+			defaultTextFields: ["filename", "original_filename"],
+			defaultOrderBy: "display_order",
+			defaultOrderDirection: "ASC",
+		});
+	}
+
 	async findByUserId(userId: string): Promise<Photo[]> {
 		const query = `
 			SELECT 

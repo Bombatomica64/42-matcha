@@ -23,7 +23,14 @@ export interface LikeStats {
 
 export class LikeRepository extends BaseRepository<UserLike> {
 	constructor(pool: Pool) {
-		super(pool, "user_likes");
+		super(pool, {
+			tableName: "user_likes",
+			primaryKey: "id",
+			autoManagedColumns: ["id", "created_at"],
+			defaultTextFields: [],
+			defaultOrderBy: "created_at",
+			defaultOrderDirection: "DESC",
+		});
 	}
 
 	/**

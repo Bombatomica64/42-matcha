@@ -1,20 +1,52 @@
 import type { PaginatedResponse, PaginationRequest } from "@generated/typescript/api";
 import { calculatePagination, createPaginatedResponse } from "@utils/pagination";
 import type { Pool, QueryResult } from "pg";
+
+interface BaseRepositoryConfig {
+	/** Primary table name for this repository */
+	tableName: string;
+	/** Primary key column name (default: 'id') */
+	primaryKey?: string;
+	/** Columns that are automatically managed (excluded from create/update) */
+	autoManagedColumns?: string[];
+	/** Default text fields for search operations */
+	defaultTextFields?: string[];
+	/** Default ordering field */
+	defaultOrderBy?: string;
+	/** Default ordering direction */
+	defaultOrderDirection?: "ASC" | "DESC";
+}
+
 export abstract class BaseRepository<T> {
 	protected pool: Pool;
 	protected tableName: string;
+	protected primaryKey: string;
+	protected autoManagedColumns: string[];
+	protected defaultTextFields: string[];
+	protected defaultOrderBy?: string;
+	protected defaultOrderDirection: "ASC" | "DESC";
 
-	constructor(pool: Pool, tableName: string) {
+	constructor(pool: Pool, config: BaseRepositoryConfig) {
 		this.pool = pool;
-		this.tableName = tableName;
+		this.tableName = config.tableName;
+		this.primaryKey = config.primaryKey || "id";
+		this.autoManagedColumns = config.autoManagedColumns || [
+			"id",
+			"created_at",
+			"updated_at",
+			"photos",
+			"hashtags",
+		];
+		this.defaultTextFields = config.defaultTextFields || [];
+		this.defaultOrderBy = config.defaultOrderBy;
+		this.defaultOrderDirection = config.defaultOrderDirection || "DESC";
 	}
 
 	/**
 	 * Find entity by ID
 	 */
 	async findById(id: string): Promise<T | null> {
-		const query = `SELECT * FROM ${this.tableName} WHERE id = $1`;
+		const query = `SELECT * FROM ${this.tableName} WHERE ${this.primaryKey} = $1`;
 		const result = await this.pool.query(query, [id]);
 		return result.rows[0] || null;
 	}
@@ -77,11 +109,17 @@ export abstract class BaseRepository<T> {
 	/**
 	 * Create new entity
 	 */
-	async create(
-		entity: Omit<T, "id" | "created_at" | "updated_at" | "photos" | "hashtags">,
-	): Promise<T> {
-		const keys = Object.keys(entity);
-		const values = Object.values(entity);
+	async create(entity: Partial<T>): Promise<T> {
+		// Filter out auto-managed columns
+		const filteredEntity: Record<string, unknown> = {};
+		Object.keys(entity as Record<string, unknown>).forEach((key) => {
+			if (!this.autoManagedColumns.includes(key)) {
+				filteredEntity[key] = (entity as Record<string, unknown>)[key];
+			}
+		});
+
+		const keys = Object.keys(filteredEntity);
+		const values = Object.values(filteredEntity);
 		const placeholders = keys.map((_, index) => `$${index + 1}`).join(", ");
 		const columns = keys.join(", ");
 
@@ -99,16 +137,24 @@ export abstract class BaseRepository<T> {
 	 * Update entity by ID
 	 */
 	async update(id: string, updates: Partial<T>): Promise<T | null> {
-		const keys = Object.keys(updates);
+		// Filter out auto-managed columns from updates
+		const filteredUpdates: Record<string, unknown> = {};
+		Object.keys(updates as Record<string, unknown>).forEach((key) => {
+			if (!this.autoManagedColumns.includes(key)) {
+				filteredUpdates[key] = (updates as Record<string, unknown>)[key];
+			}
+		});
+
+		const keys = Object.keys(filteredUpdates);
 		if (keys.length === 0) return this.findById(id);
 
 		const setClause = keys.map((key, index) => `${key} = $${index + 2}`).join(", ");
-		const values = [id, ...Object.values(updates)];
+		const values = [id, ...Object.values(filteredUpdates)];
 
 		const query = `
       UPDATE ${this.tableName} 
       SET ${setClause}, updated_at = NOW() 
-      WHERE id = $1 
+      WHERE ${this.primaryKey} = $1 
       RETURNING *
     `;
 
@@ -120,7 +166,7 @@ export abstract class BaseRepository<T> {
 	 * Delete entity by ID
 	 */
 	async delete(id: string): Promise<boolean> {
-		const query = `DELETE FROM ${this.tableName} WHERE id = $1`;
+		const query = `DELETE FROM ${this.tableName} WHERE ${this.primaryKey} = $1`;
 		const result = await this.pool.query(query, [id]);
 		return result.rowCount !== null && result.rowCount > 0;
 	}
@@ -194,7 +240,11 @@ export abstract class BaseRepository<T> {
 		const keys = Object.keys(searchCriteria);
 		if (keys.length === 0) return this.findAll(options.limit, options.offset);
 
-		const { textFields = [], orderBy, orderDirection = "ASC" } = options;
+		const {
+			textFields = this.defaultTextFields,
+			orderBy = this.defaultOrderBy,
+			orderDirection = this.defaultOrderDirection,
+		} = options;
 		const values = Object.values(searchCriteria);
 		const params: unknown[] = [];
 
@@ -262,7 +312,11 @@ export abstract class BaseRepository<T> {
 		const keys = Object.keys(searchCriteria);
 		if (keys.length === 0) return this.findAll(options.limit, options.offset);
 
-		const { orderBy, orderDirection = "ASC", logicalOperator = "AND" } = options;
+		const {
+			orderBy = this.defaultOrderBy,
+			orderDirection = this.defaultOrderDirection,
+			logicalOperator = "AND",
+		} = options;
 		const params: unknown[] = [];
 
 		// Build WHERE conditions with operators
@@ -338,9 +392,10 @@ export abstract class BaseRepository<T> {
 		const params: unknown[] = [];
 
 		// Add sorting
-		if (pagination.sort) {
-			const direction = pagination.order || "desc";
-			query += ` ORDER BY ${pagination.sort} ${direction.toUpperCase()}`;
+		if (pagination.sort || this.defaultOrderBy) {
+			const sortField = pagination.sort || this.defaultOrderBy;
+			const direction = pagination.order || this.defaultOrderDirection.toLowerCase();
+			query += ` ORDER BY ${sortField} ${direction.toUpperCase()}`;
 		}
 
 		// Add pagination
@@ -370,7 +425,7 @@ export abstract class BaseRepository<T> {
 		} = {},
 	): Promise<PaginatedResponse<T>> {
 		const { offset, limit, page } = calculatePagination(pagination);
-		const { textFields = [] } = options;
+		const { textFields = this.defaultTextFields } = options;
 
 		const keys = Object.keys(searchCriteria);
 		if (keys.length === 0) {
@@ -412,9 +467,10 @@ export abstract class BaseRepository<T> {
 		let query = `SELECT * FROM ${this.tableName} WHERE ${whereClause}`;
 
 		// Add sorting
-		if (pagination.sort) {
-			const direction = pagination.order || "desc";
-			query += ` ORDER BY ${pagination.sort} ${direction.toUpperCase()}`;
+		if (pagination.sort || this.defaultOrderBy) {
+			const sortField = pagination.sort || this.defaultOrderBy;
+			const direction = pagination.order || this.defaultOrderDirection.toLowerCase();
+			query += ` ORDER BY ${sortField} ${direction.toUpperCase()}`;
 		}
 
 		// Add pagination
@@ -435,5 +491,66 @@ export abstract class BaseRepository<T> {
 		});
 
 		return createPaginatedResponse(result.rows, totalItems, page, limit, baseUrl, queryParams);
+	}
+
+	/**
+	 * Adds an item to a user by creating a relationship record in the specified user table.
+	 *
+	 * @param userId - The unique identifier of the user
+	 * @param itemId - The unique identifier of the item to associate with the user
+	 * @param userTable - The name of the table that stores user-item relationships
+	 * @param itemColumn - The name of the column that stores the item identifier
+	 * @returns A promise that resolves to the created relationship record
+	 * @throws Will throw an error if the database operation fails
+	 */
+	async addUserRelationship(
+		userId: string,
+		itemId: number,
+		userTable: string,
+		itemColumn: string,
+	): Promise<T> {
+		// Define allowed tables and columns
+		const allowedTables = ["user_hashtags", "user_photos", "user_items"];
+		const allowedColumns = ["hashtag_id", "photo_id", "item_id"];
+
+		if (!allowedTables.includes(userTable)) {
+			throw new Error("Invalid userTable name");
+		}
+		if (!allowedColumns.includes(itemColumn)) {
+			throw new Error("Invalid itemColumn name");
+		}
+
+		const query = `
+			INSERT INTO ${userTable} (user_id, ${itemColumn})
+			VALUES ($1, $2)
+			RETURNING *
+		`;
+		const result = await this.pool.query(query, [userId, itemId]);
+		return result.rows[0];
+	}
+
+	async removeUserRelationship(
+		userId: string,
+		itemId: number,
+		userTable: string,
+		itemColumn: string,
+	): Promise<boolean> {
+		// Define allowed tables and columns
+		const allowedTables = ["user_hashtags", "user_photos", "user_items"];
+		const allowedColumns = ["hashtag_id", "photo_id", "item_id"];
+
+		if (!allowedTables.includes(userTable)) {
+			throw new Error("Invalid userTable name");
+		}
+		if (!allowedColumns.includes(itemColumn)) {
+			throw new Error("Invalid itemColumn name");
+		}
+
+		const query = `
+			DELETE FROM ${userTable}
+			WHERE user_id = $1 AND ${itemColumn} = $2
+		`;
+		const result = await this.pool.query(query, [userId, itemId]);
+		return result.rowCount !== null && result.rowCount > 0;
 	}
 }

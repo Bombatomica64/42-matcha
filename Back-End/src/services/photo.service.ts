@@ -9,7 +9,7 @@ export class PhotoService {
 	private photoRepository: PhotoRepository;
 
 	constructor() {
-		this.photoRepository = new PhotoRepository(pool, "photos");
+		this.photoRepository = new PhotoRepository(pool);
 	}
 
 	async getUserPhotos(userId: string): Promise<Photo[]> {

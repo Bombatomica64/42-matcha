@@ -6,7 +6,14 @@ import type { Pool } from "pg";
 
 export class UserRepository extends BaseRepository<User> {
 	constructor(pool: Pool) {
-		super(pool, "users");
+		super(pool, {
+			tableName: "users",
+			primaryKey: "id",
+			autoManagedColumns: ["id", "created_at", "updated_at", "photos", "hashtags"],
+			defaultTextFields: ["first_name", "last_name", "username", "bio"],
+			defaultOrderBy: "created_at",
+			defaultOrderDirection: "DESC",
+		});
 	}
 
 	/**

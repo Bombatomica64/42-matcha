@@ -47,6 +47,87 @@ paths:
                   message:
                     type: string
                     example: "Unauthorized access"
+  hashtagById:
+    post:
+      summary: Adds an hashtag to the user's hashtags
+      operationId: addHashtagToUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the hashtag to add
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Hashtag added successfully
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/SuccessResponse'
+        '404':
+          description: Hashtag not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Hashtag not found"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized access"
+    delete:
+      summary: removes
+      operationId: removeHashtagFromUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the hashtag to remove
+          schema:
+            type: number
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Hashtag removed successfully
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/SuccessResponse'
+              example:
+                message: "Hashtag removed successfully"
+        '404':
+          description: Hashtag not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Hashtag not found"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized access"
 
 components: 
   schemas:

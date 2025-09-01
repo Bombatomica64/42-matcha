@@ -404,6 +404,24 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	"/hashtags/{id}": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		/** Adds an hashtag to the user's hashtags */
+		post: operations["addHashtagToUser"];
+		/** removes */
+		delete: operations["removeHashtagFromUser"];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2169,6 +2187,103 @@ export interface operations {
 				content: {
 					"application/json": {
 						/** @example Unauthorized access */
+						message?: string;
+					};
+				};
+			};
+		};
+	};
+	addHashtagToUser: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				/** @description The ID of the hashtag to add */
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description Hashtag added successfully */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["SuccessResponse"];
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": {
+						/** @example Unauthorized access */
+						message?: string;
+					};
+				};
+			};
+			/** @description Hashtag not found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": {
+						/** @example Hashtag not found */
+						message?: string;
+					};
+				};
+			};
+		};
+	};
+	removeHashtagFromUser: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				/** @description The ID of the hashtag to remove */
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description Hashtag removed successfully */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "message": "Hashtag removed successfully"
+					 *     } */
+					"application/json": components["schemas"]["SuccessResponse"];
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": {
+						/** @example Unauthorized access */
+						message?: string;
+					};
+				};
+			};
+			/** @description Hashtag not found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": {
+						/** @example Hashtag not found */
 						message?: string;
 					};
 				};

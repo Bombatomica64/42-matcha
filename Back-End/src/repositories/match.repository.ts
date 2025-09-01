@@ -32,7 +32,14 @@ export interface MatchWithUser {
 
 export class MatchRepository extends BaseRepository<Match> {
 	constructor(pool: Pool) {
-		super(pool, "matches");
+		super(pool, {
+			tableName: "matches",
+			primaryKey: "id",
+			autoManagedColumns: ["id", "created_at"],
+			defaultTextFields: [],
+			defaultOrderBy: "created_at",
+			defaultOrderDirection: "DESC",
+		});
 	}
 
 	/**

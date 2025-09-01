@@ -64,6 +64,9 @@ paths:
   # Hashtags endpoints
   /hashtags:
     $ref: './schemas/hashtags.yaml#/paths/hashtags'
+  /hashtags/{id}:
+    $ref: './schemas/hashtags.yaml#/paths/hashtagById'
+
 
 components:
   schemas:
