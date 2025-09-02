@@ -120,6 +120,15 @@ components:
     chatRoom:
       $ref: './schemas/chat.yaml#/components/schemas/ChatRoom'
 
+    # example of a paginated response for chat messages
+    chatMessagesPaginatedResponse:
+      $ref: './schemas/chat.yaml#/components/schemas/ChatMessagesPaginatedResponse'
+
+    #hashtag components
+    hashtag:
+      $ref: './schemas/hashtags.yaml#/components/schemas/Hashtag'
+
+
   parameters:
     # Pagination parameters
     pageParam:

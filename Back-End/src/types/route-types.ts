@@ -24,10 +24,17 @@ export type GetUserByIdRequest = TypedRequest<"/users/{id}">;
 export type LikeUserRequest = TypedRequest<"/users/{id}/like">;
 export type SearchUsersRequest = TypedRequest<"/users/search">;
 
+// Chat route types
+export type GetUserChatsRequest = TypedRequest<"/chat/user">;
+export type GetChatByIdRequest = TypedRequest<"/chat/{id}">;
+export type GetChatMessagesRequest = TypedRequest<"/chat/{id}/messages">;
+export type DeleteChatByIdRequest = TypedRequest<"/chat/{id}">;
+
 // Example controller method with type safety:
 /*
 export async function getUserById(req: GetUserByIdRequest, res: Response) {
   const { id } = req.params; // TypeScript knows this has an 'id' property
+  const userId = req.user?.id; // TypeScript knows about user from JWT
   // ... controller logic
 }
 

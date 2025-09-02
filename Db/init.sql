@@ -259,7 +259,7 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     media_mime_type VARCHAR(100), -- MIME type for media files
     media_duration INTEGER, -- Duration in seconds for audio/video
     thumbnail_path VARCHAR(500), -- Thumbnail path for videos
-    read_at TIMESTAMP,
+    read_at TIMESTAMP DEFAULT NULL, -- When the message was read
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
     -- Ensure text messages have content, media messages can optionally have captions

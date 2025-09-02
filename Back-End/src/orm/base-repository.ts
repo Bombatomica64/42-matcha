@@ -1,6 +1,8 @@
-import type { PaginatedResponse, PaginationRequest } from "@generated/typescript/api";
+import type { components, PaginatedResponse } from "@generated/typescript/api";
 import { calculatePagination, createPaginatedResponse } from "@utils/pagination";
 import type { Pool, QueryResult } from "pg";
+
+type PaginationRequest = components["schemas"]["PaginationQuery"];
 
 interface BaseRepositoryConfig {
 	/** Primary table name for this repository */

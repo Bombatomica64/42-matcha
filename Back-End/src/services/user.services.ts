@@ -23,7 +23,9 @@ export class UserService {
 	/**
 	 * Filter sensitive fields from user data
 	 */
-	private filterSensitiveFields(user: User): Omit<User, 'password' | 'email_verification_token' | 'password_reset_token'> {
+	private filterSensitiveFields(
+		user: User,
+	): Omit<User, "password" | "email_verification_token" | "password_reset_token"> {
 		return {
 			id: user.id,
 			username: user.username,
@@ -56,7 +58,9 @@ export class UserService {
 	/**
 	 * Get selected user by ID (with sensitive fields filtered)
 	 */
-	public async getUserById(id: string): Promise<Omit<User, 'password' | 'email_verification_token' | 'password_reset_token'> | null> {
+	public async getUserById(
+		id: string,
+	): Promise<Omit<User, "password" | "email_verification_token" | "password_reset_token"> | null> {
 		const user = await this.userRepository.findById(id);
 		return user ? this.filterSensitiveFields(user) : null;
 	}
@@ -64,7 +68,10 @@ export class UserService {
 	/**
 	 * Update user by ID (with sensitive fields filtered)
 	 */
-	public async updateUser(id: string, data: Partial<User>): Promise<Omit<User, 'password' | 'email_verification_token' | 'password_reset_token'> | null> {
+	public async updateUser(
+		id: string,
+		data: Partial<User>,
+	): Promise<Omit<User, "password" | "email_verification_token" | "password_reset_token"> | null> {
 		const updatedUser = await this.userRepository.update(id, data);
 		return updatedUser ? this.filterSensitiveFields(updatedUser) : null;
 	}

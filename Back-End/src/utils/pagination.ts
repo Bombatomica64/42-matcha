@@ -4,6 +4,28 @@
  */
 
 import type { components, PaginatedResponse } from "@generated/typescript/api";
+import type { Request } from "express";
+
+type PaginationQuery = components["schemas"]["PaginationQuery"];
+
+/**
+ * Extract pagination parameters from Express request query
+ */
+export function extractPaginationQuery(req: Request): PaginationQuery {
+	return {
+		page: req.query.page ? parseInt(req.query.page as string, 10) : 1,
+		limit: req.query.limit ? parseInt(req.query.limit as string, 10) : 10,
+		sort: req.query.sort as string,
+		order: (req.query.order as "asc" | "desc") || "desc",
+	};
+}
+
+/**
+ * Build base URL for pagination links
+ */
+export function buildBaseUrl(req: Request): string {
+	return `${req.protocol}://${req.get("host")}${req.baseUrl}`;
+}
 
 /**
  * Create a complete paginated response using generated types

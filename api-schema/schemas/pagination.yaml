@@ -1,3 +1,9 @@
+openapi: 3.1.1
+info: 
+  title: Pagination schema
+  version: 1.0.0
+  description: Schema for pagination-related components in the API
+
 components:
   schemas:
     # Pagination request parameters

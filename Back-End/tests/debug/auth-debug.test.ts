@@ -1,66 +1,70 @@
-import request from 'supertest';
-import { createAndAuthenticateUser, createTestApp } from '../helpers/app.helper';
-import { clearDatabase, closeTestPool, seedTestData } from '../helpers/database.helper';
-import type { Express } from 'express';
+import type { Express } from "express";
+import request from "supertest";
+import { createAndAuthenticateUser, createTestApp } from "../helpers/app.helper";
+import { clearDatabase, closeTestPool, seedTestData } from "../helpers/database.helper";
 
-describe('Auth Debug', () => {
-  let app: Express;
+describe("Auth Debug", () => {
+	let app: Express;
 
-  beforeAll(async () => {
-    app = await createTestApp();
-  });
+	beforeAll(async () => {
+		app = await createTestApp();
+	});
 
-  afterAll(async () => {
-    await closeTestPool();
-  });
+	afterAll(async () => {
+		await closeTestPool();
+	});
 
-  beforeEach(async () => {
-    await clearDatabase();
-    await seedTestData();
-  });
+	beforeEach(async () => {
+		await clearDatabase();
+		await seedTestData();
+	});
 
-  it('should debug JWT token', async () => {
-    // Import JWT utilities
-    const { generateAuthToken, decodeJwt } = await import('../../src/utils/jwt');
-    
-    // Create a mock user
-    const mockUser = {
-      id: '550e8400-e29b-41d4-a716-446655440000',
-      username: 'testuser',
-      location: undefined
-    };
+	it("should debug JWT token", async () => {
+		// Import JWT utilities
+		const { generateAuthToken, decodeJwt } = await import("../../src/utils/jwt");
 
-    // Generate token manually
-    const manualToken = generateAuthToken(mockUser);
-    process.stderr.write(`Generated token manually: ${manualToken.substring(0, 50)}...\n`);
+		// Create a mock user
+		const mockUser = {
+			id: "550e8400-e29b-41d4-a716-446655440000",
+			username: "testuser",
+			location: undefined,
+		};
 
-    // Decode it to check
-    const decoded = decodeJwt(manualToken);
-    process.stderr.write(`Decoded token: ${JSON.stringify(decoded)}\n`);
+		// Generate token manually
+		const manualToken = generateAuthToken(mockUser);
+		process.stderr.write(`Generated token manually: ${manualToken.substring(0, 50)}...\n`);
 
-    // Try using this token directly
-    const response = await request(app)
-      .get('/users/profile')
-      .set('Authorization', `Bearer ${manualToken}`);
+		// Decode it to check
+		const decoded = decodeJwt(manualToken);
+		process.stderr.write(`Decoded token: ${JSON.stringify(decoded)}\n`);
 
-    process.stderr.write(`Manual token test - Status: ${response.status}, Body: ${JSON.stringify(response.body)}\n`);
+		// Try using this token directly
+		const response = await request(app)
+			.get("/users/profile")
+			.set("Authorization", `Bearer ${manualToken}`);
 
-    // Now test our helper
-    const userAuth = await createAndAuthenticateUser(app, {
-      email: 'debug@test.com',
-      username: 'debuguser',
-    });
+		process.stderr.write(
+			`Manual token test - Status: ${response.status}, Body: ${JSON.stringify(response.body)}\n`,
+		);
 
-    process.stderr.write(`Helper token: ${userAuth.token.substring(0, 50)}...\n`);
-    const helperDecoded = decodeJwt(userAuth.token);
-    process.stderr.write(`Helper decoded: ${JSON.stringify(helperDecoded)}\n`);
+		// Now test our helper
+		const userAuth = await createAndAuthenticateUser(app, {
+			email: "debug@test.com",
+			username: "debuguser",
+		});
 
-    const helperResponse = await request(app)
-      .get('/users/profile')
-      .set('Authorization', `Bearer ${userAuth.token}`);
+		process.stderr.write(`Helper token: ${userAuth.token.substring(0, 50)}...\n`);
+		const helperDecoded = decodeJwt(userAuth.token);
+		process.stderr.write(`Helper decoded: ${JSON.stringify(helperDecoded)}\n`);
 
-    process.stderr.write(`Helper token test - Status: ${helperResponse.status}, Body: ${JSON.stringify(helperResponse.body)}\n`);
+		const helperResponse = await request(app)
+			.get("/users/profile")
+			.set("Authorization", `Bearer ${userAuth.token}`);
 
-    expect(true).toBe(true); // Just to pass the test
-  });
+		process.stderr.write(
+			`Helper token test - Status: ${helperResponse.status}, Body: ${JSON.stringify(helperResponse.body)}\n`,
+		);
+
+		expect(true).toBe(true); // Just to pass the test
+	});
 });

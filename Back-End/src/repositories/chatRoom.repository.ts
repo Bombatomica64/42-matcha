@@ -49,4 +49,13 @@ export class ChatRoomRepository extends BaseRepository<ChatRoom> {
 		const result = await this.pool.query(query, [firstUserId, secondUserId]);
 		return result.rows[0];
 	}
+
+	async deleteChatRoom(chatRoomId: string): Promise<boolean> {
+		const query = `
+			DELETE FROM chat_rooms
+			WHERE id = $1
+		`;
+		const result = await this.pool.query(query, [chatRoomId]);
+		return (result.rowCount ?? 0) > 0;
+	}
 }

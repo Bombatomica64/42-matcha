@@ -12,6 +12,10 @@ paths:
       security:
         - bearerAuth: []
       parameters: 
+        - $ref: './pagination.yaml#/components/parameters/PageParam'
+        - $ref: './pagination.yaml#/components/parameters/LimitParam'
+        - $ref: './pagination.yaml#/components/parameters/SortParam'
+        - $ref: './pagination.yaml#/components/parameters/OrderParam'
         - name: query
           in: query
           required: false
@@ -26,7 +30,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Hashtag'
+                  $ref: './pagination.yaml#/components/schemas/PaginatedResponse'
         '204':
           description: No hashtags found
           content:
