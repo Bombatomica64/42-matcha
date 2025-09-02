@@ -238,3 +238,59 @@ CREATE TRIGGER view_counter_trigger
 CREATE TRIGGER match_counter_trigger
     AFTER INSERT OR DELETE ON matches
     FOR EACH ROW EXECUTE FUNCTION update_match_counters();
+
+CREATE TABLE IF NOT EXISTS chat_rooms (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user1_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    user2_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE IF NOT EXISTS chat_messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    chat_room_id UUID REFERENCES chat_rooms(id) ON DELETE CASCADE,
+    sender_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    message_type VARCHAR(20) NOT NULL DEFAULT 'text' CHECK (message_type IN ('text', 'image', 'video', 'audio')),
+    content TEXT, -- Text content (captions for media messages)
+    media_filename VARCHAR(255), -- Original filename for media
+    media_file_path VARCHAR(500), -- Storage path for media files
+    media_file_size INTEGER, -- File size in bytes
+    media_mime_type VARCHAR(100), -- MIME type for media files
+    media_duration INTEGER, -- Duration in seconds for audio/video
+    thumbnail_path VARCHAR(500), -- Thumbnail path for videos
+    read_at TIMESTAMP DEFAULT NULL, -- When the message was read
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Ensure text messages have content, media messages can optionally have captions
+    CONSTRAINT check_message_content CHECK (
+        message_type != 'text' OR (message_type = 'text' AND content IS NOT NULL)
+    )
+);
+
+-- Create indexes for chat messages
+CREATE INDEX idx_chat_messages_room ON chat_messages(chat_room_id);
+CREATE INDEX idx_chat_messages_sender ON chat_messages(sender_id);
+CREATE INDEX idx_chat_messages_type ON chat_messages(message_type);
+CREATE INDEX idx_chat_messages_created ON chat_messages(created_at);
+
+-- Function to validate media file types
+CREATE OR REPLACE FUNCTION validate_media_mime_type()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.message_type = 'image' AND NEW.media_mime_type NOT LIKE 'image/%' THEN
+        RAISE EXCEPTION 'Invalid MIME type for image message';
+    ELSIF NEW.message_type = 'video' AND NEW.media_mime_type NOT LIKE 'video/%' THEN
+        RAISE EXCEPTION 'Invalid MIME type for video message';
+    ELSIF NEW.message_type = 'audio' AND NEW.media_mime_type NOT LIKE 'audio/%' THEN
+        RAISE EXCEPTION 'Invalid MIME type for audio message';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create trigger to validate media types
+CREATE TRIGGER validate_media_trigger
+    BEFORE INSERT OR UPDATE ON chat_messages
+    FOR EACH ROW
+    EXECUTE FUNCTION validate_media_mime_type();

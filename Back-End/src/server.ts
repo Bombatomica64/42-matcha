@@ -3,6 +3,7 @@ import { env } from "@config/env";
 import type { components } from "@generated/typescript/api-nonextended";
 import { jwtMiddleware } from "@middleware/jwt.middleware";
 import authRoutes from "@routes/auth.routes";
+import chatRoutes from "@routes/chat.routes";
 import hashtagRoutes from "@routes/hashtag.routes";
 import photoRoutes from "@routes/photo.routes";
 import userRoutes from "@routes/user.routes";
@@ -48,7 +49,8 @@ pool.connect((err, _client, release) => {
 				logger.error("Error fetching user count:", err);
 			} else {
 				logger.info(`Total users in database: ${result.rows[0].count}`);
-				if (parseInt(result.rows[0].count) === 0) {
+				// Only auto-seed in development, not in test environment
+				if (parseInt(result.rows[0].count) === 0 && env.NODE_ENV !== "test") {
 					logger.warn("No users found in database. Auto-seeding 500 users...");
 					import("@utils/seeder")
 						.then(({ seedUsers }) => {
@@ -125,5 +127,6 @@ app.use("/auth", authRoutes());
 app.use("/users", userRoutes());
 app.use("/photos", photoRoutes());
 app.use("/hashtags", hashtagRoutes());
+app.use("/chat", chatRoutes());
 
 export { app, logger };

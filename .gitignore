@@ -17,6 +17,7 @@
 .env
 Back-End/.env
 Back-End/.env.test
+Back-End/uploads/*
 # Angular CLI and build artefacts
 /.angular-cli.json
 /.ng/

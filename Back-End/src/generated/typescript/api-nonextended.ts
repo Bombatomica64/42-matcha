@@ -422,6 +422,58 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	"/chat/user": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/** Get all the chats of a user */
+		get: operations["getUserChats"];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	"/chat/{id}": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/** Get a specific chat room by ID */
+		get: operations["getChatById"];
+		put?: never;
+		post?: never;
+		/** Delete a specific chat room */
+		delete: operations["deleteChatById"];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	"/chat/{id}/messages": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/** Get all messages in a chat room */
+		get: operations["getChatMessages"];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -441,6 +493,10 @@ export interface components {
 		paginationMeta: components["schemas"]["PaginationMeta"];
 		paginationLinks: components["schemas"]["PaginationLinks"];
 		paginatedResponse: components["schemas"]["PaginatedResponse"];
+		chatMessage: components["schemas"]["ChatMessage"];
+		chatRoom: components["schemas"]["ChatRoom"];
+		chatMessagesPaginatedResponse: components["schemas"]["ChatMessagesPaginatedResponse"];
+		hashtag: components["schemas"]["Hashtag"];
 		RegisterRequest: {
 			/** @example lollo */
 			username: string;
@@ -780,15 +836,21 @@ export interface components {
 				[key: string]: unknown;
 			};
 		};
-		Hashtag: {
-			id: number;
+		ChatRoom: {
+			/** Format: uuid */
+			id: string;
 			/**
-			 * @description The name of the hashtag
-			 * @example #example
+			 * Format: uuid
+			 * @description ID of the first user in the chat
 			 */
-			name: string;
+			user1_id: string;
+			/**
+			 * Format: uuid
+			 * @description ID of the second user in the chat
+			 */
+			user2_id: string;
 			/** Format: date-time */
-			created_at?: string;
+			created_at: string;
 		};
 		PaginationQuery: {
 			/**
@@ -815,6 +877,49 @@ export interface components {
 			 * @enum {string}
 			 */
 			order: "asc" | "desc";
+		};
+		ChatMessage: {
+			/** Format: uuid */
+			id: string;
+			/** Format: uuid */
+			chat_room_id: string;
+			/** Format: uuid */
+			sender_id: string;
+			/** @enum {string} */
+			message_type: "text" | "image" | "video" | "audio";
+			/** @description Text content or caption for media messages */
+			content?: string;
+			/** @description Original filename for media messages */
+			media_filename?: string;
+			/** @description Storage path for media files */
+			media_file_path?: string;
+			/** @description File size in bytes */
+			media_file_size?: number;
+			/** @description MIME type for media files */
+			media_mime_type?: string;
+			/** @description Duration in seconds for audio/video */
+			media_duration?: number;
+			/** @description Thumbnail path for videos */
+			thumbnail_path?: string;
+			/** Format: date-time */
+			read_at?: string;
+			/** Format: date-time */
+			created_at: string;
+		};
+		ChatMessagesPaginatedResponse: {
+			data: components["schemas"]["ChatMessage"][];
+			meta: components["schemas"]["PaginationMeta"];
+			links: components["schemas"]["PaginationLinks"];
+		};
+		Hashtag: {
+			id: number;
+			/**
+			 * @description The name of the hashtag
+			 * @example #example
+			 */
+			name: string;
+			/** Format: date-time */
+			created_at?: string;
 		};
 	};
 	responses: never;
@@ -2149,6 +2254,26 @@ export interface operations {
 	getAllHashtags: {
 		parameters: {
 			query?: {
+				/**
+				 * @description Page number (1-based)
+				 * @example 1
+				 */
+				page?: components["parameters"]["PageParam"];
+				/**
+				 * @description Number of items per page
+				 * @example 10
+				 */
+				limit?: components["parameters"]["LimitParam"];
+				/**
+				 * @description Field to sort by
+				 * @example created_at
+				 */
+				sort?: components["parameters"]["SortParam"];
+				/**
+				 * @description Sort direction
+				 * @example desc
+				 */
+				order?: components["parameters"]["OrderParam"];
 				/** @description Search query for filtering hashtags */
 				query?: string;
 			};
@@ -2164,7 +2289,7 @@ export interface operations {
 					[name: string]: unknown;
 				};
 				content: {
-					"application/json": components["schemas"]["Hashtag"][];
+					"application/json": components["schemas"]["PaginatedResponse"][];
 				};
 			};
 			/** @description No hashtags found */
@@ -2286,6 +2411,214 @@ export interface operations {
 						/** @example Hashtag not found */
 						message?: string;
 					};
+				};
+			};
+		};
+	};
+	getUserChats: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description A list of chat rooms for the user */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["ChatRoom"][];
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Unauthorized access",
+					 *       "message": "You must be logged in to access this resource"
+					 *     } */
+					"application/json": components["schemas"]["ErrorResponse"];
+				};
+			};
+			/** @description User not found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "User not found",
+					 *       "message": "The specified user does not exist"
+					 *     } */
+					"application/json": components["schemas"]["ErrorResponse"];
+				};
+			};
+		};
+	};
+	getChatById: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				/** @description The ID of the chat room */
+				id: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description The requested chat room */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["ChatRoom"];
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Unauthorized access",
+					 *       "message": "You must be logged in to access this resource"
+					 *     } */
+					"application/json": components["schemas"]["ErrorResponse"];
+				};
+			};
+			/** @description Chat room not found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Chat room not found",
+					 *       "message": "The specified chat room does not exist",
+					 *       "code": "NOT_FOUND"
+					 *     } */
+					"application/json": components["schemas"]["ErrorResponse"];
+				};
+			};
+		};
+	};
+	deleteChatById: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				/** @description The ID of the chat room */
+				id: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description Chat room deleted successfully */
+			204: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "message": "Chat room deleted successfully"
+					 *     } */
+					"application/json": components["schemas"]["SuccessResponse"];
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+			/** @description Chat room not found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	getChatMessages: {
+		parameters: {
+			query?: {
+				/**
+				 * @description Page number (1-based)
+				 * @example 1
+				 */
+				page?: components["parameters"]["PageParam"];
+				/**
+				 * @description Number of items per page
+				 * @example 10
+				 */
+				limit?: components["parameters"]["LimitParam"];
+				/**
+				 * @description Field to sort by
+				 * @example created_at
+				 */
+				sort?: components["parameters"]["SortParam"];
+				/**
+				 * @description Sort direction
+				 * @example desc
+				 */
+				order?: components["parameters"]["OrderParam"];
+			};
+			header?: never;
+			path: {
+				/** @description The ID of the chat room */
+				id: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description A list of messages in the chat room */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["PaginatedResponse"];
+				};
+			};
+			/** @description Unauthorized */
+			401: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Unauthorized access",
+					 *       "message": "You must be logged in to access this resource",
+					 *       "code": "UNAUTHORIZED"
+					 *     } */
+					"application/json": components["schemas"]["ErrorResponse"];
+				};
+			};
+			/** @description Chat room not found */
+			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					/** @example {
+					 *       "error": "Chat room not found",
+					 *       "message": "The specified chat room does not exist",
+					 *       "code": "NOT_FOUND"
+					 *     } */
+					"application/json": components["schemas"]["ErrorResponse"];
 				};
 			};
 		};

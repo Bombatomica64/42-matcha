@@ -21,17 +21,59 @@ export class UserService {
 	}
 
 	/**
-	 * Get selected user by ID
+	 * Filter sensitive fields from user data
 	 */
-	public async getUserById(id: string): Promise<User | null> {
-		return this.userRepository.findById(id);
+	private filterSensitiveFields(
+		user: User,
+	): Omit<User, "password" | "email_verification_token" | "password_reset_token"> {
+		return {
+			id: user.id,
+			username: user.username,
+			email: user.email,
+			birth_date: user.birth_date,
+			bio: user.bio,
+			first_name: user.first_name,
+			last_name: user.last_name,
+			activated: user.activated,
+			profile_complete: user.profile_complete,
+			gender: user.gender,
+			sexual_orientation: user.sexual_orientation,
+			location: user.location,
+			location_manual: user.location_manual,
+			fame_rating: user.fame_rating,
+			last_seen: user.last_seen,
+			online_status: user.online_status,
+			email_verified_at: user.email_verified_at,
+			password_reset_expires_at: user.password_reset_expires_at,
+			likes_received_count: user.likes_received_count,
+			views_count: user.views_count,
+			matches_count: user.matches_count,
+			created_at: user.created_at,
+			updated_at: user.updated_at,
+			hashtags: user.hashtags,
+			photos: user.photos,
+		};
 	}
 
 	/**
-	 * Update user by ID
+	 * Get selected user by ID (with sensitive fields filtered)
 	 */
-	public async updateUser(id: string, data: Partial<User>): Promise<User | null> {
-		return this.userRepository.update(id, data);
+	public async getUserById(
+		id: string,
+	): Promise<Omit<User, "password" | "email_verification_token" | "password_reset_token"> | null> {
+		const user = await this.userRepository.findById(id);
+		return user ? this.filterSensitiveFields(user) : null;
+	}
+
+	/**
+	 * Update user by ID (with sensitive fields filtered)
+	 */
+	public async updateUser(
+		id: string,
+		data: Partial<User>,
+	): Promise<Omit<User, "password" | "email_verification_token" | "password_reset_token"> | null> {
+		const updatedUser = await this.userRepository.update(id, data);
+		return updatedUser ? this.filterSensitiveFields(updatedUser) : null;
 	}
 
 	/**

@@ -5,13 +5,14 @@ export const ValidationSchemas = {
 	validateEmail: (email: string): boolean => {
 		// Email validation that prevents consecutive dots but allows other valid characters
 		// Checks for: no consecutive dots (..), no leading/trailing dots in local part
-		const emailRegex = /^[a-zA-Z0-9]([a-zA-Z0-9._%+-]*[a-zA-Z0-9]|[a-zA-Z0-9])?@[a-zA-Z0-9]([a-zA-Z0-9.-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,}$/;
-		
+		const emailRegex =
+			/^[a-zA-Z0-9]([a-zA-Z0-9._%+-]*[a-zA-Z0-9]|[a-zA-Z0-9])?@[a-zA-Z0-9]([a-zA-Z0-9.-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,}$/;
+
 		// Additional check to prevent consecutive dots
-		if (email.includes('..')) {
+		if (email.includes("..")) {
 			return false;
 		}
-		
+
 		return emailRegex.test(email);
 	},
 

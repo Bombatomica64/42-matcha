@@ -2,9 +2,9 @@ import type { components, PaginatedResponse } from "@generated/typescript/api";
 import type { HashtagService } from "@services/hashtag.service";
 import type { Request, Response } from "express";
 import { logger } from "../server";
+import { buildBaseUrl, extractPaginationQuery } from "../utils/pagination";
 
 type Hashtag = components["schemas"]["Hashtag"];
-type PaginationRequest = components["schemas"]["PaginationQuery"];
 type SuccessResponse = components["schemas"]["SuccessResponse"];
 type ErrorResponse = components["schemas"]["ErrorResponse"];
 export class HashtagController {
@@ -18,24 +18,29 @@ export class HashtagController {
 	 * Search hashtags by keyword.
 	 */
 	public async searchHashtagsByKeyword(req: Request, res: Response): Promise<Response> {
-		const { keyword } = req.query;
-		const pagination: PaginationRequest = {
-			page: Number(req.query.page) || 1,
-			limit: Number(req.query.limit) || 10,
-			order: "desc" as const,
-		};
+		const keyword = req.query.q || req.query.keyword || req.query.query; // Support multiple parameter names
+
+		// Use pagination utility to extract pagination parameters
+		const pagination = extractPaginationQuery(req);
+		const baseUrl = buildBaseUrl(req);
 
 		try {
-			const result = await this.hashtagService.searchHashtagsByKeyword(
-				keyword as string,
-				pagination,
-			);
-			if (typeof result !== "object") {
-				return res.status(500).json({ message: "Internal server error" });
+			let result: PaginatedResponse<Hashtag>;
+
+			if (keyword) {
+				// Search by keyword if provided
+				result = await this.hashtagService.searchHashtagsByKeyword(
+					keyword as string,
+					pagination,
+					baseUrl,
+				);
+			} else {
+				// Get all hashtags if no keyword provided
+				result = await this.hashtagService.getAllHashtags(pagination, baseUrl);
 			}
 
 			if (result) {
-				return res.status(200).json(result as PaginatedResponse<Hashtag>);
+				return res.status(200).json(result);
 			} else {
 				return res.status(204).json({ message: "No hashtags found" });
 			}
@@ -66,9 +71,13 @@ export class HashtagController {
 					.status(200)
 					.json({ message: "Hashtag added successfully", hashtag: result } as SuccessResponse);
 			} else {
-				return res.status(404).json({ message: "Hashtag not found" } as ErrorResponse);
+				return res.status(404).json({ error: "Hashtag not found" } as ErrorResponse);
 			}
-		} catch (error) {
+		} catch (error: unknown) {
+			// Check if it's a "hashtag not found" error
+			if (error instanceof Error && error.message === "Hashtag not found") {
+				return res.status(404).json({ error: "Hashtag not found" } as ErrorResponse);
+			}
 			logger.error("Error adding hashtag to user:", error);
 			return res.status(500).json({ message: "Internal server error" } as ErrorResponse);
 		}
@@ -93,7 +102,7 @@ export class HashtagController {
 			if (result) {
 				return res.status(200).json({ message: "Hashtag removed successfully" } as SuccessResponse);
 			} else {
-				return res.status(404).json({ message: "Hashtag not found" } as ErrorResponse);
+				return res.status(404).json({ error: "Hashtag not found" } as ErrorResponse);
 			}
 		} catch (error) {
 			logger.error("Error removing hashtag from user:", error);

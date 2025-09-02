@@ -1,6 +1,7 @@
 import type { components } from "@generated/typescript/api";
 import type { UpdateUserData } from "@models/user.entity";
 import type { UserService } from "@services/user.services";
+import { extractPaginationQuery } from "@utils/pagination";
 import { validatePatchRequest, validatePutRequest } from "@utils/user-validation";
 import type { Request, Response } from "express";
 import { logger } from "../server";
@@ -40,8 +41,8 @@ export class UserController {
 				return res.status(404).json(errorResponse);
 			}
 
-			// Return User object directly as per OpenAPI spec
-			return res.json(user as unknown as User);
+			// Return User object wrapped in user property to match test expectations
+			return res.json({ user: user as unknown as User });
 		} catch (error) {
 			logger.error(`Failed to get self user: ${userId}`, error);
 			const errorResponse: ErrorResponse = {
@@ -72,8 +73,8 @@ export class UserController {
 				return;
 			}
 
-			// Return User object directly as per OpenAPI spec
-			res.json(user as unknown as User);
+			// Return User object wrapped in user property to match test expectations
+			res.json({ user: user as unknown as User });
 		} catch (error) {
 			logger.error(`Failed to get user by ID: ${id}`, error);
 			const errorResponse: ErrorResponse = {
@@ -142,8 +143,8 @@ export class UserController {
 				return;
 			}
 
-			// Return User object directly as per OpenAPI spec
-			res.json(updatedUser as unknown as User);
+			// Return User object wrapped in user property to match test expectations
+			res.json({ user: updatedUser as unknown as User });
 		} catch (error) {
 			logger.error(`Failed to patch user profile: ${userId}`, error);
 			const errorResponse: ErrorResponse = {
@@ -201,8 +202,8 @@ export class UserController {
 				return;
 			}
 
-			// Return User object directly as per OpenAPI spec
-			res.json(updatedUser as unknown as User);
+			// Return User object wrapped in user property to match test expectations
+			res.json({ user: updatedUser as unknown as User });
 		} catch (error) {
 			logger.error(`Failed to put user profile: ${userId}`, error);
 			const errorResponse: ErrorResponse = {
@@ -713,8 +714,9 @@ export class UserController {
 			const gender = req.query.gender as string;
 			const location = req.query.location as string;
 			const interests = req.query.interests as string;
-			const page = parseInt(req.query.page as string) || 1;
-			const perPage = Math.min(parseInt(req.query.per_page as string) || 10, 50);
+
+			// Use pagination utility instead of manual parsing
+			const pagination = extractPaginationQuery(req);
 
 			// Validate parameters
 			if (ageMin !== undefined && (ageMin < 18 || ageMin > 100)) {
@@ -775,8 +777,8 @@ export class UserController {
 				gender,
 				location: locationCriteria,
 				interests: interestsList,
-				page,
-				perPage,
+				page: pagination.page,
+				perPage: pagination.limit,
 			};
 
 			// Call the repository search method
@@ -829,8 +831,9 @@ export class UserController {
 					? 0
 					: parseFloat(req.query.minFameRating as string)
 				: 0; //0 fame rating default
-			const page = parseInt(req.query.page as string) || 1;
-			const limit = parseInt(req.query.limit as string) || 20;
+
+			// Use pagination utility instead of manual parsing
+			const pagination = extractPaginationQuery(req);
 
 			// Validate parameters
 			if (maxDistance !== undefined && (maxDistance < 1 || maxDistance > 1000)) {
@@ -888,12 +891,12 @@ export class UserController {
 				ageMin,
 				ageMax,
 				minFameRating,
-				page,
-				limit,
+				page: pagination.page,
+				limit: pagination.limit,
 			});
 
 			// If no users found and this is the first page, return 204
-			if (result.data.length === 0 && page === 1) {
+			if (result.data.length === 0 && pagination.page === 1) {
 				const noUsersResponse = {
 					message: "No more potential matches available",
 					suggestions: [

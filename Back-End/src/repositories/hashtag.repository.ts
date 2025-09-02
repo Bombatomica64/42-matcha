@@ -29,9 +29,10 @@ export class HashtagRepository extends BaseRepository<Hashtag> {
 	 */
 	async hashtagSearchByKeyword(
 		keyword: string,
-		pagination = { page: 1, limit: 10, sort: "name", order: "asc" } as PaginationRequest,
+		pagination: PaginationRequest,
+		baseUrl: string,
 	): Promise<PaginatedResponse<Hashtag>> {
-		return this.searchPaginated({ name: keyword }, pagination, "/api/hashtags", {
+		return this.searchPaginated({ name: keyword }, pagination, baseUrl, {
 			textFields: ["name"],
 		});
 	}
@@ -40,7 +41,17 @@ export class HashtagRepository extends BaseRepository<Hashtag> {
 	 * Add a hashtag to a user's profile.
 	 */
 	async hashtagAddToUser(userId: string, hashtagId: number): Promise<Hashtag> {
-		return this.addUserRelationship(userId, hashtagId, "user_hashtags", "hashtag_id");
+		// First, check if the hashtag exists
+		const hashtag = await this.findById(hashtagId.toString());
+		if (!hashtag) {
+			throw new Error("Hashtag not found");
+		}
+
+		// Create the relationship
+		await this.addUserRelationship(userId, hashtagId, "user_hashtags", "hashtag_id");
+
+		// Return the hashtag data
+		return hashtag;
 	}
 
 	/**

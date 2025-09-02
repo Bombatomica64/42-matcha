@@ -20,13 +20,24 @@ export class HashtagService {
 	}
 
 	/**
+	 * Get all hashtags with pagination.
+	 */
+	async getAllHashtags(
+		pagination: PaginationRequest,
+		baseUrl: string,
+	): Promise<PaginatedResponse<Hashtag>> {
+		return this.hashtagRepository.findAllPaginated(pagination, baseUrl);
+	}
+
+	/**
 	 * Search hashtags by keyword.
 	 */
 	async searchHashtagsByKeyword(
 		keyword: string,
-		pagination = { page: 1, limit: 10, order: "desc" as const } as PaginationRequest,
+		pagination: PaginationRequest,
+		baseUrl: string,
 	): Promise<PaginatedResponse<Hashtag>> {
-		return this.hashtagRepository.hashtagSearchByKeyword(keyword, pagination);
+		return this.hashtagRepository.hashtagSearchByKeyword(keyword, pagination, baseUrl);
 	}
 
 	/**
