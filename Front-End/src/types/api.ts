@@ -117,7 +117,7 @@ export interface paths {
         };
         /**
          * Search for users
-         * @description Search for users based on various criteria.
+         * @description Search for users based on various criteria with standardized pagination.
          */
         get: operations["searchUsers"];
         put?: never;
@@ -137,19 +137,20 @@ export interface paths {
         };
         /**
          * Discover potential matches
-         * @description Get potential matches using the matching algorithm.
+         * @description Get potential matches using the matching algorithm with standardized pagination.
          *
          *     **Algorithm Features:**
          *     - Filters out already seen/liked/passed users
          *     - Considers user preferences (age, location, orientation)
          *     - Excludes blocked users and users who blocked you
          *     - Uses fame rating and compatibility scoring
-         *     - Never shows the same user twice in a session
+         *     - Geographic distance-based scoring with PostGIS
+         *     - Common hashtag/interest matching
          *
          *     **Pagination Strategy:**
-         *     - Small batches (10-20 users) for better user experience
-         *     - Algorithm runs on each request with exclusion filters
-         *     - Client should request new batch when running low
+         *     - Uses standardized page/limit pagination for consistent results
+         *     - Algorithm applies scoring and filtering on each request
+         *     - Provides full pagination metadata and navigation links
          *
          */
         get: operations["discoverUsers"];
@@ -248,8 +249,14 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get user likes
-         * @description Retrieve a list of users that liked the specified user.
+         * Get likes for a specific user
+         * @description Retrieve likes for a specific user profile.
+         *
+         *     **Privacy Rules:**
+         *     - Only returns likes if the requested user ID matches the authenticated user
+         *     - Cannot view other users' likes for privacy reasons
+         *     - Use `/users/likes` endpoint instead for current user's likes
+         *
          */
         get: operations["getUserLikes"];
         put?: never;
@@ -259,7 +266,11 @@ export interface paths {
          *
          */
         post: operations["likeUser"];
-        delete?: never;
+        /**
+         * Remove like/Dislike
+         * @description Remove a like/dislike from a user profile.
+         */
+        delete: operations["removeUserLike"];
         options?: never;
         head?: never;
         patch?: never;
@@ -273,8 +284,14 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get blocked users
-         * @description Retrieve a list of users that the selected user has blocked.
+         * Get blocked users for a specific user
+         * @description Retrieve blocked users for a specific user profile.
+         *
+         *     **Privacy Rules:**
+         *     - Only returns blocks if the requested user ID matches the authenticated user
+         *     - Cannot view other users' block lists for privacy and safety reasons
+         *     - Use `/users/blocks` endpoint instead for current user's blocks
+         *
          */
         get: operations["getBlockedUsers"];
         put?: never;
@@ -293,7 +310,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users/{id}/matches": {
+    "/users/matches": {
         parameters: {
             query?: never;
             header?: never;
@@ -301,13 +318,105 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get user matches
-         * @description Retrieve a list of matches for the selected user.
+         * Get current user's matches
+         * @description Retrieve a list of matches for the current authenticated user.
+         *
+         *     **Privacy Rules:**
+         *     - Only returns matches for the authenticated user
+         *     - Cannot view other users' matches for privacy reasons
+         *
          */
-        get: operations["userMatches"];
+        get: operations["getCurrentUserMatches"];
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/likes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get current user's likes
+         * @description Retrieve lists of users that the current user has liked and users who have liked the current user.
+         *
+         *     **Privacy Rules:**
+         *     - Users can only see their own likes (given and received)
+         *     - Returns separate lists for likes given and likes received
+         *     - Includes like timestamps and status
+         *
+         */
+        get: operations["getCurrentUserLikes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/blocks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get current user's blocked users
+         * @description Retrieve the list of users that the current user has blocked.
+         *
+         *     **Privacy Rules:**
+         *     - Users can only see their own block list
+         *     - Does not reveal who has blocked the current user (for safety)
+         *     - Includes block timestamps
+         *
+         */
+        get: operations["getCurrentUserBlocks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/hashtags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all hashtags */
+        get: operations["getAllHashtags"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/hashtags/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Adds an hashtag to the user's hashtags */
+        post: operations["addHashtagToUser"];
+        /** removes */
+        delete: operations["removeHashtagFromUser"];
         options?: never;
         head?: never;
         patch?: never;
@@ -317,31 +426,6 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        ErrorResponse: {
-            /** @example Invalid request */
-            error: string;
-            /** @example The provided data is invalid */
-            message: string;
-            /** @example VALIDATION_ERROR */
-            code?: string;
-            /** @example {
-             *       "field": "email",
-             *       "reason": "Invalid email format"
-             *     } */
-            details?: {
-                [key: string]: unknown;
-            };
-        };
-        SuccessResponse: {
-            /** @example User liked successfully */
-            message?: string;
-            /** @example {
-             *       "userId": "123e4567-e89b-12d3-a456-426614174000"
-             *     } */
-            data?: {
-                [key: string]: unknown;
-            };
-        };
         registerRequest: components["schemas"]["RegisterRequest"];
         registerResponse: components["schemas"]["RegisterResponse"];
         loginRequest: components["schemas"]["LoginRequest"];
@@ -353,6 +437,10 @@ export interface components {
         photoUploadRequest: components["schemas"]["PhotoUploadRequest"];
         photoResponse: components["schemas"]["PhotoResponse"];
         photoListResponse: components["schemas"]["PhotoListResponse"];
+        paginationQuery: components["schemas"]["PaginationQuery"];
+        paginationMeta: components["schemas"]["PaginationMeta"];
+        paginationLinks: components["schemas"]["PaginationLinks"];
+        paginatedResponse: components["schemas"]["PaginatedResponse"];
         RegisterRequest: {
             /** @example lollo */
             username: string;
@@ -386,12 +474,12 @@ export interface components {
                  * Format: float
                  * @example 40.7128
                  */
-                lat: number;
+                lat?: number;
                 /**
                  * Format: float
                  * @example -74.006
                  */
-                lng: number;
+                lng?: number;
             };
             /** @example false */
             location_manual?: boolean;
@@ -406,7 +494,7 @@ export interface components {
             /** @example 1234567890abcdef */
             user_id?: string;
         };
-        "schemas-ErrorResponse": {
+        ErrorResponse: {
             /**
              * @description Error type
              * @example Bad Request
@@ -484,14 +572,44 @@ export interface components {
              */
             user_id: string;
             /**
+             * @description Generated filename for storage
+             * @example photo_1.jpg
+             */
+            filename: string;
+            /**
+             * @description Original filename uploaded by user
+             * @example my_selfie.jpg
+             */
+            original_filename?: string;
+            /**
              * Format: uri
+             * @description Public URL to access the image
              * @example /uploads/photos/550e8400-e29b-41d4-a716-446655440000.jpg
              */
             image_url: string;
-            /** @example false */
+            /**
+             * @description File size in bytes
+             * @example 2048576
+             */
+            file_size?: number;
+            /**
+             * @example image/jpeg
+             * @enum {string}
+             */
+            mime_type: "image/jpeg" | "image/png" | "image/gif" | "image/webp";
+            /**
+             * @description Whether this is the user's main profile photo
+             * @example false
+             */
             is_main: boolean;
             /**
+             * @description Order in which photos should be displayed
+             * @example 1
+             */
+            display_order: number;
+            /**
              * Format: date-time
+             * @description When the photo was uploaded
              * @example 2024-01-15T10:30:00Z
              */
             uploaded_at: string;
@@ -551,15 +669,89 @@ export interface components {
                 longitude?: number;
             };
         };
+        PaginationMeta: {
+            /**
+             * @description Total number of items
+             * @example 150
+             */
+            total_items: number;
+            /**
+             * @description Total number of pages
+             * @example 15
+             */
+            total_pages: number;
+            /**
+             * @description Current page number
+             * @example 3
+             */
+            current_page: number;
+            /**
+             * @description Items per page
+             * @example 10
+             */
+            per_page: number;
+            /**
+             * @description Whether there's a previous page
+             * @example true
+             */
+            has_previous: boolean;
+            /**
+             * @description Whether there's a next page
+             * @example true
+             */
+            has_next: boolean;
+        };
+        PaginationLinks: {
+            /**
+             * Format: uri
+             * @description URL to first page
+             * @example /api/users?page=1&limit=10
+             */
+            first: string;
+            /**
+             * Format: uri
+             * @description URL to last page
+             * @example /api/users?page=15&limit=10
+             */
+            last: string;
+            /**
+             * Format: uri
+             * @description URL to previous page (null if first page)
+             * @example /api/users?page=2&limit=10
+             */
+            previous?: string;
+            /**
+             * Format: uri
+             * @description URL to next page (null if last page)
+             * @example /api/users?page=4&limit=10
+             */
+            next?: string;
+            /**
+             * Format: uri
+             * @description URL to current page
+             * @example /api/users?page=3&limit=10
+             */
+            self: string;
+        };
+        PaginatedResponse: {
+            /** @description Array of items for current page */
+            data: Record<string, never>[];
+            meta: components["schemas"]["PaginationMeta"];
+            links: components["schemas"]["PaginationLinks"];
+        };
         PhotoListResponse: {
-            photos?: components["schemas"]["Photo"][];
-            /** @example 3 */
-            total?: number;
+            /** @description User's photos ordered by display_order */
+            photos: components["schemas"]["Photo"][];
+            /**
+             * @description Total number of photos for this user
+             * @example 3
+             */
+            total: number;
         };
         PhotoUploadRequest: {
             /**
              * Format: binary
-             * @description Photo file (JPEG, PNG, WebP)
+             * @description Photo file (JPEG, PNG, WebP, GIF max 5MB)
              */
             photo: string;
             /**
@@ -567,12 +759,18 @@ export interface components {
              * @default false
              */
             is_main: boolean;
+            /**
+             * @description Display order (0 = first)
+             * @default 0
+             */
+            display_order: number;
         };
-        PhotoResponse: components["schemas"]["Photo"] & {
+        PhotoResponse: {
             /** @example Photo uploaded successfully */
-            message?: string;
+            message: string;
+            photo: components["schemas"]["Photo"];
         };
-        "schemas-SuccessResponse": {
+        SuccessResponse: {
             /** @example Operation completed successfully */
             message?: string;
             /** @example {
@@ -582,9 +780,70 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        Hashtag: {
+            id: number;
+            /**
+             * @description The name of the hashtag
+             * @example #example
+             */
+            name: string;
+            /** Format: date-time */
+            created_at?: string;
+        };
+        PaginationQuery: {
+            /**
+             * @description Page number (1-based)
+             * @default 1
+             * @example 1
+             */
+            page: number;
+            /**
+             * @description Number of items per page
+             * @default 10
+             * @example 10
+             */
+            limit: number;
+            /**
+             * @description Field to sort by
+             * @example created_at
+             */
+            sort?: string;
+            /**
+             * @description Sort direction
+             * @default desc
+             * @example desc
+             * @enum {string}
+             */
+            order: "asc" | "desc";
+        };
     };
     responses: never;
-    parameters: never;
+    parameters: {
+        pageParam: string;
+        limitParam: string;
+        sortParam: string;
+        orderParam: string;
+        /**
+         * @description Page number (1-based)
+         * @example 1
+         */
+        PageParam: number;
+        /**
+         * @description Number of items per page
+         * @example 10
+         */
+        LimitParam: number;
+        /**
+         * @description Field to sort by
+         * @example created_at
+         */
+        SortParam: string;
+        /**
+         * @description Sort direction
+         * @example desc
+         */
+        OrderParam: "asc" | "desc";
+    };
     requestBodies: never;
     headers: never;
     pathItems: never;
@@ -619,7 +878,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -652,7 +911,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -681,7 +940,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -712,7 +971,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -745,7 +1004,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -774,7 +1033,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description User not found */
@@ -783,7 +1042,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -816,7 +1075,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description User not found */
@@ -825,7 +1084,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -858,7 +1117,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description User not found */
@@ -867,7 +1126,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -875,20 +1134,40 @@ export interface operations {
     searchUsers: {
         parameters: {
             query?: {
+                /**
+                 * @description Page number (1-based)
+                 * @example 1
+                 */
+                page?: components["parameters"]["PageParam"];
+                /**
+                 * @description Number of items per page
+                 * @example 10
+                 */
+                limit?: components["parameters"]["LimitParam"];
+                /**
+                 * @description Field to sort by
+                 * @example created_at
+                 */
+                sort?: components["parameters"]["SortParam"];
+                /**
+                 * @description Sort direction
+                 * @example desc
+                 */
+                order?: components["parameters"]["OrderParam"];
                 /** @description Search query string (e.g., name, interests) */
                 query?: string;
                 /** @description Minimum age filter */
                 age_min?: number;
                 /** @description Maximum age filter */
                 age_max?: number;
-                /** @description Location filter (e.g., city or coordinates) */
+                /** @description Filter by gender */
+                gender?: "male" | "female" | "other";
+                /** @description Location filter (lat,lng format) */
                 location?: string;
-                /** @description Comma-separated list of interests to filter by */
+                /** @description Maximum distance from location in kilometers */
+                max_distance?: number;
+                /** @description Comma-separated list of hashtags/interests to filter by */
                 interests?: string;
-                /** @description Page number for pagination (default is 1) */
-                page?: number;
-                /** @description Number of results per page (default is 10, max is 50) */
-                per_page?: number;
             };
             header?: never;
             path?: never;
@@ -902,14 +1181,36 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        /** @example 42 */
-                        total_results?: number;
-                        /** @example 5 */
-                        total_pages?: number;
-                        /** @example 1 */
-                        current_page?: number;
-                        users?: components["schemas"]["User"][];
+                    /** @example {
+                     *       "data": [
+                     *         {
+                     *           "id": "550e8400-e29b-41d4-a716-446655440000",
+                     *           "first_name": "John",
+                     *           "last_name": "Doe",
+                     *           "birth_date": "1995-05-15",
+                     *           "gender": "male",
+                     *           "fame_rating": 4,
+                     *           "online_status": true
+                     *         }
+                     *       ],
+                     *       "meta": {
+                     *         "total_items": 42,
+                     *         "total_pages": 5,
+                     *         "current_page": 1,
+                     *         "per_page": 10,
+                     *         "has_previous": false,
+                     *         "has_next": true
+                     *       },
+                     *       "links": {
+                     *         "first": "https://127.0.0.1/api/users/search?page=1&limit=10",
+                     *         "last": "https://127.0.0.1/api/users/search?page=5&limit=10",
+                     *         "next": "https://127.0.0.1/api/users/search?page=2&limit=10",
+                     *         "self": "https://127.0.0.1/api/users/search?page=1&limit=10"
+                     *       }
+                     *     } */
+                    "application/json": components["schemas"]["PaginatedResponse"] & {
+                        /** @description Array of users matching search criteria */
+                        data?: components["schemas"]["User"][];
                     };
                 };
             };
@@ -924,7 +1225,7 @@ export interface operations {
                      *       "message": "Invalid query parameters",
                      *       "code": "BAD_REQUEST"
                      *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -932,14 +1233,24 @@ export interface operations {
     discoverUsers: {
         parameters: {
             query?: {
-                /** @description Number of users to return (recommended 10-20) */
-                limit?: number;
-                /** @description Force refresh algorithm (ignore recent cache) */
-                refresh?: boolean;
-                /** @description Override max distance preference (km) */
+                /**
+                 * @description Page number (1-based)
+                 * @example 1
+                 */
+                page?: components["parameters"]["PageParam"];
+                /**
+                 * @description Number of items per page
+                 * @example 10
+                 */
+                limit?: components["parameters"]["LimitParam"];
+                /** @description Maximum distance in kilometers */
                 maxDistance?: number;
-                /** @description Algorithm seed for consistent ordering in session */
-                seed?: string;
+                /** @description Minimum age filter */
+                ageMin?: number;
+                /** @description Maximum age filter */
+                ageMax?: number;
+                /** @description Minimum fame rating filter */
+                minFameRating?: number;
             };
             header?: never;
             path?: never;
@@ -953,7 +1264,61 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["User"][];
+                    /** @example {
+                     *       "data": [
+                     *         {
+                     *           "id": "550e8400-e29b-41d4-a716-446655440000",
+                     *           "first_name": "Alice",
+                     *           "last_name": "Johnson",
+                     *           "birth_date": "1995-03-15",
+                     *           "gender": "female",
+                     *           "fame_rating": 4,
+                     *           "online_status": true
+                     *         }
+                     *       ],
+                     *       "meta": {
+                     *         "total_items": 142,
+                     *         "total_pages": 8,
+                     *         "current_page": 1,
+                     *         "per_page": 20,
+                     *         "has_previous": false,
+                     *         "has_next": true
+                     *       },
+                     *       "links": {
+                     *         "first": "https://127.0.0.1/api/users/discover?page=1&limit=20",
+                     *         "last": "https://127.0.0.1/api/users/discover?page=8&limit=20",
+                     *         "next": "https://127.0.0.1/api/users/discover?page=2&limit=20",
+                     *         "self": "https://127.0.0.1/api/users/discover?page=1&limit=20"
+                     *       },
+                     *       "filters": {
+                     *         "maxDistance": 50,
+                     *         "ageRange": {
+                     *           "min": 18,
+                     *           "max": 100
+                     *         },
+                     *         "minFameRating": 0
+                     *       }
+                     *     } */
+                    "application/json": components["schemas"]["PaginatedResponse"] & {
+                        /** @description Array of discoverable users */
+                        data?: components["schemas"]["User"][];
+                        /** @description Applied filters for the request */
+                        filters?: {
+                            /** @example 50 */
+                            maxDistance?: number;
+                            ageRange?: {
+                                /** @example 18 */
+                                min?: number;
+                                /** @example 100 */
+                                max?: number;
+                            };
+                            /**
+                             * Format: float
+                             * @example 0
+                             */
+                            minFameRating?: number;
+                        };
+                    };
                 };
             };
             /** @description No more users to discover */
@@ -974,13 +1339,22 @@ export interface operations {
                     };
                 };
             };
+            /** @description Bad request - invalid parameters */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Unauthorized */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -1009,7 +1383,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -1042,7 +1416,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Unauthorized */
@@ -1051,7 +1425,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -1083,7 +1457,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Photo not found */
@@ -1092,7 +1466,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -1122,7 +1496,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Forbidden - insufficient permissions */
@@ -1136,7 +1510,7 @@ export interface operations {
                      *       "message": "You can only delete your own photos",
                      *       "code": "INSUFFICIENT_PERMISSIONS"
                      *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Photo not found */
@@ -1145,7 +1519,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -1175,7 +1549,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Forbidden - insufficient permissions */
@@ -1189,7 +1563,7 @@ export interface operations {
                      *       "message": "You can only set your own photos as main",
                      *       "code": "INSUFFICIENT_PERMISSIONS"
                      *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Photo not found */
@@ -1198,7 +1572,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -1230,7 +1604,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description User not found */
@@ -1239,7 +1613,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -1249,7 +1623,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description The ID of the user to retrieve likes for */
+                /** @description The ID of the user to retrieve likes for (must be current user) */
                 id: string;
             };
             cookie?: never;
@@ -1276,7 +1650,21 @@ export interface operations {
                      *       "message": "You must be logged in to like a user",
                      *       "code": "UNAUTHORIZED"
                      *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden - can only view your own likes */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /** @example {
+                     *       "error": "Forbidden",
+                     *       "message": "You can only view your own likes. Use /users/likes instead.",
+                     *       "code": "PRIVACY_VIOLATION"
+                     *     } */
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description User not found */
@@ -1290,7 +1678,7 @@ export interface operations {
                      *       "message": "User not found",
                      *       "code": "USER_NOT_FOUND"
                      *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -1305,7 +1693,14 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description Whether to like or dislike the user */
+                    like: boolean;
+                };
+            };
+        };
         responses: {
             /** @description User liked successfully */
             201: {
@@ -1316,7 +1711,7 @@ export interface operations {
                     /** @example {
                      *       "message": "User liked successfully"
                      *     } */
-                    "application/json": components["schemas"]["schemas-SuccessResponse"];
+                    "application/json": components["schemas"]["SuccessResponse"];
                 };
             };
             /** @description Unauthorized */
@@ -1330,7 +1725,7 @@ export interface operations {
                      *       "message": "You must be logged in to like a user",
                      *       "code": "UNAUTHORIZED"
                      *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description User not found */
@@ -1339,7 +1734,63 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    removeUserLike: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The ID of the user to remove like/dislike for */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description Whether to like or dislike the user */
+                    like: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description Like/Dislike removed successfully */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /** @example {
+                     *       "error": "Unauthorized",
+                     *       "message": "You must be logged in to remove a like/dislike",
+                     *       "code": "UNAUTHORIZED"
+                     *     } */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description User not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /** @example {
+                     *       "error": "Not Found",
+                     *       "message": "User not found",
+                     *       "code": "USER_NOT_FOUND"
+                     *     } */
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -1354,7 +1805,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                /** @description The ID of the user to retrieve blocked users for */
+                /** @description The ID of the user to retrieve blocked users for (must be current user) */
                 id: string;
             };
             cookie?: never;
@@ -1381,7 +1832,21 @@ export interface operations {
                      *       "message": "You must be logged in to block a user",
                      *       "code": "UNAUTHORIZED"
                      *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden - can only view your own block list */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /** @example {
+                     *       "error": "Forbidden",
+                     *       "message": "You can only view your own block list. Use /users/blocks instead.",
+                     *       "code": "PRIVACY_VIOLATION"
+                     *     } */
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description User not found */
@@ -1395,7 +1860,7 @@ export interface operations {
                      *       "message": "User not found",
                      *       "code": "USER_NOT_FOUND"
                      *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -1430,7 +1895,7 @@ export interface operations {
                      *       "message": "You must be logged in to block a user",
                      *       "code": "UNAUTHORIZED"
                      *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description User not found */
@@ -1444,7 +1909,7 @@ export interface operations {
                      *       "message": "User not found",
                      *       "code": "USER_NOT_FOUND"
                      *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -1479,7 +1944,7 @@ export interface operations {
                      *       "message": "You must be logged in to unblock a user",
                      *       "code": "UNAUTHORIZED"
                      *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description User not found */
@@ -1493,19 +1958,21 @@ export interface operations {
                      *       "message": "User not found",
                      *       "code": "USER_NOT_FOUND"
                      *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
     };
-    userMatches: {
+    getCurrentUserMatches: {
         parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The ID of the user to retrieve matches for */
-                id: string;
+            query?: {
+                /** @description Page number for pagination */
+                page?: number;
+                /** @description Number of results per page */
+                limit?: number;
             };
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -1516,7 +1983,29 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["User"][];
+                    "application/json": {
+                        /** @description Total number of matches */
+                        total?: number;
+                        /** @description Current page number */
+                        page?: number;
+                        /** @description Total number of pages */
+                        totalPages?: number;
+                        matches?: {
+                            user: components["schemas"]["User"];
+                            /**
+                             * Format: date-time
+                             * @description When the match was created
+                             */
+                            matchedAt: string;
+                            /**
+                             * Format: date-time
+                             * @description When the last message was sent (if any)
+                             */
+                            lastMessageAt?: string;
+                            /** @description Number of unread messages from this match */
+                            unreadMessages: number;
+                        }[];
+                    };
                 };
             };
             /** @description Unauthorized */
@@ -1530,21 +2019,273 @@ export interface operations {
                      *       "message": "You must be logged in to view matches",
                      *       "code": "UNAUTHORIZED"
                      *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            /** @description User not found */
-            404: {
+        };
+    };
+    getCurrentUserLikes: {
+        parameters: {
+            query?: {
+                /** @description Filter by like type */
+                type?: "given" | "received" | "mutual";
+                /** @description Page number for pagination */
+                page?: number;
+                /** @description Number of results per page */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description User likes retrieved successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Type of likes returned
+                         * @enum {string}
+                         */
+                        type?: "given" | "received" | "mutual";
+                        /** @description Total number of likes of this type */
+                        total?: number;
+                        /** @description Current page number */
+                        page?: number;
+                        /** @description Total number of pages */
+                        totalPages?: number;
+                        likes?: {
+                            user: components["schemas"]["User"];
+                            /**
+                             * Format: date-time
+                             * @description When the like was created
+                             */
+                            likedAt: string;
+                            /** @description Whether this like resulted in a mutual match */
+                            isMatch: boolean;
+                        }[];
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     /** @example {
-                     *       "error": "Not Found",
-                     *       "message": "User not found",
-                     *       "code": "USER_NOT_FOUND"
+                     *       "error": "Unauthorized",
+                     *       "message": "You must be logged in to view likes",
+                     *       "code": "UNAUTHORIZED"
                      *     } */
-                    "application/json": components["schemas"]["schemas-ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getCurrentUserBlocks: {
+        parameters: {
+            query?: {
+                /** @description Page number for pagination */
+                page?: number;
+                /** @description Number of results per page */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Blocked users retrieved successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Total number of blocked users */
+                        total?: number;
+                        /** @description Current page number */
+                        page?: number;
+                        /** @description Total number of pages */
+                        totalPages?: number;
+                        blockedUsers?: {
+                            user: components["schemas"]["User"];
+                            /**
+                             * Format: date-time
+                             * @description When the user was blocked
+                             */
+                            blockedAt: string;
+                            /**
+                             * @description Optional reason for blocking (if provided)
+                             * @example Inappropriate behavior
+                             */
+                            reason?: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /** @example {
+                     *       "error": "Unauthorized",
+                     *       "message": "You must be logged in to view blocked users",
+                     *       "code": "UNAUTHORIZED"
+                     *     } */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getAllHashtags: {
+        parameters: {
+            query?: {
+                /** @description Search query for filtering hashtags */
+                query?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A list of hashtags */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Hashtag"][];
+                };
+            };
+            /** @description No hashtags found */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example No hashtags found */
+                        message?: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example Unauthorized access */
+                        message?: string;
+                    };
+                };
+            };
+        };
+    };
+    addHashtagToUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The ID of the hashtag to add */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Hashtag added successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SuccessResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example Unauthorized access */
+                        message?: string;
+                    };
+                };
+            };
+            /** @description Hashtag not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example Hashtag not found */
+                        message?: string;
+                    };
+                };
+            };
+        };
+    };
+    removeHashtagFromUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The ID of the hashtag to remove */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Hashtag removed successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /** @example {
+                     *       "message": "Hashtag removed successfully"
+                     *     } */
+                    "application/json": components["schemas"]["SuccessResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example Unauthorized access */
+                        message?: string;
+                    };
+                };
+            };
+            /** @description Hashtag not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example Hashtag not found */
+                        message?: string;
+                    };
                 };
             };
         };

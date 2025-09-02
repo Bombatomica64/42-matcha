@@ -1,10 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { paths } from '../../types/api';
+import { paths, components } from '../../types/api';
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS';
 export type HttpEndpoint = keyof paths;
+export type PaginationQuery = components['schemas']['PaginationQuery'];
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +19,11 @@ export class HttpRequestService {
   }
 
   //no body
-  requestParams(queryParams: any, httpEndpoint: HttpEndpoint, httpMethod: HttpMethod): Observable<any> {
+  requestParams(
+    queryParams: any,
+    httpEndpoint: HttpEndpoint,
+    httpMethod: HttpMethod,
+  ): Observable<any> {
     return this.http.request(httpMethod, `${this.baseUrl}${httpEndpoint}`, { params: queryParams });
   }
 }

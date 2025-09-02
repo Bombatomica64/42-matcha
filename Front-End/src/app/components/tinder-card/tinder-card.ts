@@ -1,5 +1,6 @@
 import { Component, ElementRef, inject, input, ViewChild, AfterViewInit, OnDestroy  } from '@angular/core';
 import {CdkDrag, CdkDragMove, CdkDragEnd} from '@angular/cdk/drag-drop';
+import { HttpEndpoint, HttpMethod, HttpRequestService, PaginationQuery } from '../../services/http-request';
 
 //cdkDragLockAxis="x"
 //cdkDragBoundary=":host" non funziona con :hos
@@ -54,7 +55,7 @@ export class TinderCard {
   @ViewChild('content', { read: ElementRef }) content?: ElementRef<HTMLDivElement>;
   private cardWidth = 200;
   private cardHeight = 200;
-  private releasePosition = "center";
+  private releasePosition: "left" | "center" | "right" = "center";
 
   private cachedHostWidth = 0;
   private cachedHostHeight = 0;
@@ -66,6 +67,27 @@ export class TinderCard {
   private line2?: HTMLDivElement;
 
   dragPosition = {x: 10, y: 10};
+
+  auth = inject(HttpRequestService);
+  httpEndpoint: HttpEndpoint = "/users/discover"
+  httpMethod: HttpMethod = "GET"
+  queryParams: PaginationQuery = { page: 1, limit: 10, order: "asc" };
+
+  ngOnInit(): void {
+    // Inizializza la posizione di trascinamento qui se necessario
+    this.auth.requestParams(
+      this.queryParams,
+      this.httpEndpoint,
+      this.httpMethod
+    ).subscribe({
+      next: (response) => {
+        console.log(response);
+      },
+      error: (error) => {
+        console.error(error);
+      }
+    });
+  }
 
   ngAfterViewInit(): void {
     const el = this.box?.nativeElement;
