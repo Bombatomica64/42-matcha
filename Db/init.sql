@@ -204,7 +204,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION update_view_counter()
 RETURNS TRIGGER AS $$
 BEGIN
-    UPDATE users SET profile_views_count = profile_views_count + 1 WHERE id = NEW.viewed_id;
+    UPDATE users SET views_count = views_count + 1 WHERE id = NEW.viewed_id;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

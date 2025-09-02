@@ -21,7 +21,9 @@ const userRoutes = (): Router => {
 		userController.patchProfile.bind(userController),
 	);
 	router.put("/profile", validateUserPutRequest, userController.putProfile.bind(userController));
-
+	// Search and discovery endpoints
+	router.get("/search", userController.searchUsers.bind(userController));
+	router.get("/discover", userController.getDiscoverableUsers.bind(userController));
 	// User by ID
 	router.get("/:id", userController.getUserById.bind(userController));
 
@@ -43,9 +45,6 @@ const userRoutes = (): Router => {
 	// Legacy matches endpoint (privacy protected)
 	router.get("/:id/matches", userController.getUserMatches.bind(userController));
 
-	// Search and discovery endpoints
-	router.get("/search", userController.searchUsers.bind(userController));
-	router.get("/discover", userController.getDiscoverableUsers.bind(userController));
 	return router;
 };
 

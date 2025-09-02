@@ -1,7 +1,9 @@
 import { Component, ElementRef, inject, input, ViewChild, AfterViewInit, OnDestroy  } from '@angular/core';
 import {CdkDrag, CdkDragMove, CdkDragEnd} from '@angular/cdk/drag-drop';
 import { HttpEndpoint, HttpMethod, HttpRequestService, PaginationQuery } from '../../services/http-request';
+import { operations } from '../../../types/api'
 
+export type DiscoverUsersQuery = operations['discoverUsers']['parameters']['query'];
 //cdkDragLockAxis="x"
 //cdkDragBoundary=":host" non funziona con :hos
 
@@ -71,12 +73,15 @@ export class TinderCard {
   auth = inject(HttpRequestService);
   httpEndpoint: HttpEndpoint = "/users/discover"
   httpMethod: HttpMethod = "GET"
-  queryParams: PaginationQuery = { page: 1, limit: 10, order: "asc" };
+  queryParams: DiscoverUsersQuery = { maxDistance: 100000 };
+  paginationParams: PaginationQuery = { page: 1, limit: 10, order: "asc" };
+  params = { ...this.queryParams, ...this.paginationParams };
+
 
   ngOnInit(): void {
     // Inizializza la posizione di trascinamento qui se necessario
     this.auth.requestParams(
-      this.queryParams,
+      this.params,
       this.httpEndpoint,
       this.httpMethod
     ).subscribe({
