@@ -3,10 +3,11 @@ import { Router, RouterOutlet } from '@angular/router';
 import { Navbar } from './components/navbar/navbar';
 import { MainSidebar } from "./components/sidebars/mainsidebar/main-sidebar";
 import { TokenStore } from './services/token-store';
+import { SimpleChatTest } from './components/simple-chat-test/simple-chat-test';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Navbar, MainSidebar],
+  imports: [RouterOutlet, Navbar, MainSidebar, SimpleChatTest],
   template: `
     <div class="app-sidebar">
       @if (!isLoggedIn()) {
@@ -20,7 +21,7 @@ import { TokenStore } from './services/token-store';
       <router-outlet ></router-outlet>
     </div>
     @if (isLoggedIn()) {
-      <app-main-sidebar />
+      <app-simple-chat-test />
     } @else {
       <div style="width: 300px">
       </div>

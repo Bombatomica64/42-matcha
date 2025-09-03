@@ -1,38 +1,53 @@
 http:
-  # Services
-  services:
-    backend:
-      loadBalancer:
-        servers:
-          - url: "http://backend:3000"
-    
-    # frontend:
-    #   loadBalancer:
-    #     servers:
-    #       - url: "http://frontend:80"
-
-  # Routers
   routers:
-    backend:
-      rule: "PathPrefix(`/api`)"
+    # Frontend - highest priority for root path
+    frontend:
+      rule: "Host(`matcha.bombatomica64.dev`) && PathPrefix(`/`)"
+      service: frontend-service
       entryPoints:
         - web
-      service: backend
+      middlewares:
+        - default-headers
+      priority: 1  # Lowest priority for catch-all
+
+    # Backend API routes
+    backend-api:
+      rule: "Host(`matcha.bombatomica64.dev`) && PathPrefix(`/api`)"
+      service: backend-service
+      entryPoints:
+        - web
       middlewares:
         - api-stripprefix
         - default-headers
         - cors-headers
-      priority: 2
+      priority: 3  # Higher priority for API
     
-    # frontend:
-    #   rule: "PathPrefix(`/`)"
-    #   entryPoints:
-    #     - websecure
-    #   service: frontend
-    #   middlewares:
-    #     - default-headers
-    #   tls: {}
-    #   priority: 1
+    # Socket.IO routes - with HTTP/3 support for WebTransport
+    backend-socketio:
+      rule: "Host(`matcha.bombatomica64.dev`) && PathPrefix(`/socket.io`)"
+      service: backend-service
+      entryPoints:
+        - web
+        - websecure
+      middlewares:
+        - default-headers
+        - cors-headers
+        - http3-headers
+      priority: 2  # High priority for Socket.IO
+
+  services:
+    backend-service:
+      loadBalancer:
+        servers:
+          - url: "http://backend:3000"
+        sticky:
+          cookie:
+            name: "backend"
+    
+    frontend-service:
+      loadBalancer:
+        servers:
+          - url: "http://frontend:4200"
 
   # Middlewares
   middlewares:
@@ -66,6 +81,11 @@ http:
         customResponseHeaders:
           Access-Control-Allow-Origin: "*"
           Access-Control-Allow-Credentials: "true"
+    
+    http3-headers:
+      headers:
+        customResponseHeaders:
+          Alt-Svc: 'h3=":443"; ma=86400'
 
 tls:
   options:

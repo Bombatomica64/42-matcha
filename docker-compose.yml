@@ -15,18 +15,18 @@ services:
     expose:
       - "3000"
 
-  # frontend:
-  #   build:
-  #     context: ./Front-End
-  #     dockerfile: Dockerfile
-  #   networks:
-  #     - traefik
-  #   expose:
-  #     - "80"
+  frontend:
+    build:
+      context: ./Front-End
+      dockerfile: Dockerfile
+    networks:
+      - traefik
+    expose:
+      - "80"
 
   cloudflared:
     image: cloudflare/cloudflared:latest
-    command: tunnel --no-autoupdate run --token "${CLOUDFLARE_TOKEN}"
+    command: tunnel --no-autoupdate run --token "${CLOUDFLARE_TOKEN}" --protocol auto
     env_file:
       - .env
     depends_on:

@@ -70,13 +70,166 @@ io.on("connection", (socket: Socket) => {
 	// Join user to their personal room for private messages
 	socket.join(`user_${socket.userId}`);
 
-	socket.on("disconnect", (reason) => {
-		logger.info(`User ${socket.userId} disconnected: ${reason} (${socket.id})`);
+	// Send welcome message
+	socket.emit("message", {
+		event: "system",
+		message: `Welcome ${socket.user.first_name}! You are connected.`,
+		timestamp: new Date().toISOString(),
+		userId: "system"
 	});
 
-	// Add your other socket event handlers here
+	// Ping/Pong handler
+	socket.on("ping", (data) => {
+		logger.info(`Ping received from user ${socket.userId}:`, data);
+		socket.emit("pong", {
+			event: "pong",
+			message: "Pong! Server is alive",
+			timestamp: new Date().toISOString(),
+			originalData: data,
+			userId: socket.userId
+		});
+	});
+
+	// Message handler - echo back and broadcast to others
+	socket.on("message", (data) => {
+		logger.info(`Message from user ${socket.userId}:`, data);
+
+		const messageData = {
+			event: "message",
+			message: typeof data === "string" ? data : data.message || JSON.stringify(data),
+			timestamp: new Date().toISOString(),
+			userId: socket.userId,
+			userName: socket.user.first_name
+		};
+
+		// Echo back to sender with confirmation
+		socket.emit("message", {
+			...messageData,
+			event: "messageConfirm",
+			message: `Message sent: ${messageData.message}`
+		});
+
+		// Broadcast to all other users (optional - uncomment if you want broadcasting)
+		// socket.broadcast.emit("message", messageData);
+	});
+
+	// Room management
 	socket.on("joinRoom", (roomId) => {
 		socket.join(roomId);
 		logger.info(`User ${socket.userId} joined room: ${roomId}`);
+
+		socket.emit("message", {
+			event: "system",
+			message: `You joined room: ${roomId}`,
+			timestamp: new Date().toISOString(),
+			userId: "system"
+		});
+
+		// Notify others in the room
+		socket.to(roomId).emit("message", {
+			event: "system",
+			message: `${socket.user.first_name} joined the room`,
+			timestamp: new Date().toISOString(),
+			userId: "system"
+		});
+	});
+
+	socket.on("leaveRoom", (roomId) => {
+		socket.leave(roomId);
+		logger.info(`User ${socket.userId} left room: ${roomId}`);
+
+		socket.emit("message", {
+			event: "system",
+			message: `You left room: ${roomId}`,
+			timestamp: new Date().toISOString(),
+			userId: "system"
+		});
+
+		// Notify others in the room
+		socket.to(roomId).emit("message", {
+			event: "system",
+			message: `${socket.user.first_name} left the room`,
+			timestamp: new Date().toISOString(),
+			userId: "system"
+		});
+	});
+
+	// Typing indicator
+	socket.on("typing", (data) => {
+		logger.info(`User ${socket.userId} is typing:`, data);
+
+		// Broadcast typing indicator to room or all users
+		const roomId = data.roomId;
+		if (roomId) {
+			socket.to(roomId).emit("userTyping", {
+				userId: socket.userId,
+				userName: socket.user.first_name,
+				isTyping: data.isTyping || true
+			});
+		} else {
+			socket.broadcast.emit("userTyping", {
+				userId: socket.userId,
+				userName: socket.user.first_name,
+				isTyping: data.isTyping || true
+			});
+		}
+	});
+
+	// User status updates
+	socket.on("userStatus", (status) => {
+		logger.info(`User ${socket.userId} status update:`, status);
+
+		socket.broadcast.emit("userStatusUpdate", {
+			userId: socket.userId,
+			userName: socket.user.first_name,
+			status: status,
+			timestamp: new Date().toISOString()
+		});
+
+		socket.emit("message", {
+			event: "system",
+			message: `Your status updated to: ${status}`,
+			timestamp: new Date().toISOString(),
+			userId: "system"
+		});
+	});
+
+	// Custom event handler
+	socket.on("customEvent", (data) => {
+		logger.info(`Custom event from user ${socket.userId}:`, data);
+
+		socket.emit("customEventResponse", {
+			event: "customEventResponse",
+			message: `Custom event received: ${JSON.stringify(data)}`,
+			timestamp: new Date().toISOString(),
+			originalData: data,
+			userId: socket.userId
+		});
+	});
+
+	// Error test handler
+	socket.on("errorTest", (data) => {
+		logger.info(`Error test from user ${socket.userId}:`, data);
+
+		socket.emit("error", {
+			event: "error",
+			message: "This is a test error response",
+			timestamp: new Date().toISOString(),
+			errorCode: "TEST_ERROR",
+			originalData: data
+		});
+	});
+
+	// Disconnect handler
+	socket.on("disconnect", (reason) => {
+		logger.info(`User ${socket.userId} disconnected: ${reason} (${socket.id})`);
+
+		// Broadcast user disconnection
+		socket.broadcast.emit("userStatusUpdate", {
+			userId: socket.userId,
+			userName: socket.user.first_name,
+			status: "offline",
+			timestamp: new Date().toISOString()
+		});
 	});
 });
