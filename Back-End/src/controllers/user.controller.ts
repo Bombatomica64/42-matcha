@@ -836,10 +836,10 @@ export class UserController {
 			const pagination = extractPaginationQuery(req);
 
 			// Validate parameters
-			if (maxDistance !== undefined && (maxDistance < 1 || maxDistance > 1000)) {
+			if (maxDistance !== undefined && (maxDistance < 1 || maxDistance > 1000000)) {
 				const errorResponse: ErrorResponse = {
 					error: "Bad Request",
-					message: "Max distance must be between 1 and 1000 kilometers",
+					message: "Max distance must be between 1 and 1000000 kilometers",
 					code: "VALIDATION_ERROR",
 				};
 				res.status(400).json(errorResponse);
@@ -912,7 +912,7 @@ export class UserController {
 			// Return the standardized paginated response
 			res.status(200).json(result);
 		} catch (error) {
-			logger.error(`Failed to get discoverable users for: ${currentUserId}`, error);
+			logger.error(`Failed to get discoverable users for: ${currentUserId}, error: ${error}`);
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to fetch discoverable users",

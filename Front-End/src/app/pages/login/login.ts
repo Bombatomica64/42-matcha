@@ -38,11 +38,11 @@ import { TokenStore } from '../../services/token-store';
 })
 export class Login {
   private router = inject(Router);
-  private tokenStore = inject(TokenStore);
+  private tkn = inject(TokenStore);
 
   onLoginSuccess(response: any) {
     console.log('Login successful:', response);
-    this.tokenStore.setTokens(response.token, "");
+    this.tkn.setTokens(response.token);
     this.router.navigate(['/home']);
   }
   onLoginError(error: any) {

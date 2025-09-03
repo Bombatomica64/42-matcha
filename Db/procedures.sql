@@ -1,4 +1,33 @@
-CREATE OR REPLACE FUNCTION get_discoverable_users(p_user_id UUID, p_max_distance INTEGER DEFAULT 50, p_age_min INTEGER DEFAULT 18, p_age_max INTEGER DEFAULT 100, p_min_fame_rating DECIMAL DEFAULT 0, p_limit INTEGER DEFAULT 20, p_offset INTEGER DEFAULT 0) RETURNS TABLE(id UUID, username VARCHAR, first_name VARCHAR, last_name VARCHAR, gender VARCHAR, sexual_orientation VARCHAR, birth_date DATE, bio TEXT, fame_rating DECIMAL, online_status BOOLEAN, last_seen TIMESTAMP, location GEOMETRY(POINT, 4326), distance_km DECIMAL, compatibility_score DECIMAL, age INTEGER, common_hashtags INTEGER, photo_count INTEGER) LANGUAGE plpgsql AS $$
+-- Ensure old version (wrong return type) is removed so we can change column type
+DROP FUNCTION IF EXISTS get_discoverable_users(UUID, INTEGER, INTEGER, INTEGER, DECIMAL, INTEGER, INTEGER);
+
+CREATE OR REPLACE FUNCTION get_discoverable_users(
+    p_user_id UUID,
+    p_max_distance INTEGER DEFAULT 50,
+    p_age_min INTEGER DEFAULT 18,
+    p_age_max INTEGER DEFAULT 100,
+    p_min_fame_rating DECIMAL DEFAULT 0,
+    p_limit INTEGER DEFAULT 20,
+    p_offset INTEGER DEFAULT 0
+) RETURNS TABLE(
+    id UUID,
+    username VARCHAR,
+    first_name VARCHAR,
+    last_name VARCHAR,
+    gender VARCHAR,
+    sexual_orientation VARCHAR,
+    birth_date DATE,
+    bio TEXT,
+    fame_rating DECIMAL,
+    online_status BOOLEAN,
+    last_seen TIMESTAMP,
+    location geography(Point,4326), -- align with table users.location type
+    distance_km DECIMAL,
+    compatibility_score DECIMAL,
+    age INTEGER,
+    common_hashtags INTEGER,
+    photo_count INTEGER
+) LANGUAGE plpgsql AS $$
 BEGIN
     RETURN QUERY
     WITH user_location AS (
@@ -93,7 +122,7 @@ BEGIN
         pm.fame_rating,
         pm.online_status,
         pm.last_seen,
-        pm.location,
+    pm.location::geography(Point,4326),
         pm.distance_km,
         (
             (pm.fame_rating / 5.0) * 20 +

@@ -79,7 +79,7 @@ export class TokenStore {
 	 * @param accessToken - The JWT access token
 	 * @param refreshToken - The refresh token for obtaining new access tokens
 	 */
-	setTokens(accessToken: string, refreshToken: string): void {
+	setTokens(accessToken: string): void { //,refreshToken: string
 		this.accessTokenSignal.set(accessToken);
 		// this.refreshTokenSignal.set(refreshToken);
 
