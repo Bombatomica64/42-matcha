@@ -5,6 +5,7 @@
 
 import type { components } from "@generated/typescript/api";
 import type { User as DbUser } from "@models/user.entity";
+import { logger } from "../server";
 
 // API types for convenience
 type ApiUser = components["schemas"]["User"];
@@ -15,13 +16,21 @@ type ApiPhoto = components["schemas"]["Photo"];
  * This handles the complex database relations and flattens them for API consumption
  */
 export function dbUserToApiUser(dbUser: DbUser): ApiUser {
-	const location =
-		dbUser.location && typeof dbUser.location === "object" && "coordinates" in dbUser.location
-			? {
-					latitude: dbUser.location.coordinates[0],
-					longitude: dbUser.location.coordinates[1],
-				}
-			: undefined;
+	let location: { latitude: number; longitude: number } | undefined;
+
+	if (
+		dbUser.location &&
+		typeof dbUser.location === "object" &&
+		"coordinates" in dbUser.location &&
+		Array.isArray((dbUser.location as any).coordinates) &&
+		(dbUser.location as any).coordinates.length === 2
+	) {
+		// GeoJSON Point coordinates are [longitude, latitude]
+		const [lon, lat] = (dbUser.location as any).coordinates as [number, number];
+		location = { latitude: lat, longitude: lon };
+	}
+
+	logger.info(`User Location resolved -> ${location ? `${location.latitude},${location.longitude}` : "undefined"}`);
 
 	return {
 		id: dbUser.id,

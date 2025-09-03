@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, input, ViewChild, AfterViewInit, OnDestroy, signal } from '@angular/core';
+import { Component, ElementRef, inject, input, ViewChild, effect, signal } from '@angular/core';
 import {CdkDrag, CdkDragMove, CdkDragEnd} from '@angular/cdk/drag-drop';
 import { HttpEndpoint, HttpMethod, HttpRequestService, PaginationQuery } from '../../services/http-request';
 import { operations, components } from '../../../types/api'
@@ -6,7 +6,6 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 
 export type DiscoverUsersQuery = operations['discoverUsers']['parameters']['query'];
-
 type DiscoverUsersResponse = operations['discoverUsers']['responses']['200']['content']['application/json'];
 type DiscoverUsersData = DiscoverUsersResponse['data'];
 //cdkDragLockAxis="x"
@@ -72,7 +71,7 @@ type DiscoverUsersData = DiscoverUsersResponse['data'];
     overflow: auto;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 4;
+    -webkit-line-clamp: 2;
   }
   `
 })
@@ -100,6 +99,14 @@ export class TinderCard {
   private line2?: HTMLDivElement;
 
   dragPosition = signal<{x: number, y: number}>({x: 10, y: 10});
+  // constructor(){
+  //   effect(() => {
+  //     if (this.dragPosition().x > this.cachedHostWidth / 2 + 100 || this.dragPosition().y > this.cachedHostHeight / 2 -100){
+  //       this.content!.nativeElement.style.transform = `rotate(15deg)`
+  //       console.log('Rotating card');
+  //     }
+  //   });
+  // }
 
   auth = inject(HttpRequestService);
   httpEndpoint: HttpEndpoint = "/users/discover";
@@ -285,7 +292,7 @@ export class TinderCard {
   getMainPhotoUrl(): string {
     const user = this.users()[this.currentUserIndex()];
     const mainPhoto = user.photos?.find(photo => photo.is_main);
-    return mainPhoto?.image_url || 'https://primefaces.org/cdn/primeng/images/card-ng.jpg';  // Placeholder se non c'è foto
+    return mainPhoto?.image_url || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNlHxpViduYZdKNiOmJRnkvFnKf88RcG-Edg&s';  // Placeholder se non c'è foto
   }
 
   // Metodo per calcolare l'età (opzionale, basato su birth_date)

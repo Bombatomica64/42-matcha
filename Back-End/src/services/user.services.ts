@@ -60,9 +60,9 @@ export class UserService {
 	 */
 	public async getUserById(
 		id: string,
-	): Promise<Omit<User, "password" | "email_verification_token" | "password_reset_token"> | null> {
+	): Promise<User | null> {
 		const user = await this.userRepository.findById(id);
-		return user ? this.filterSensitiveFields(user) : null;
+		return user;
 	}
 
 	/**
