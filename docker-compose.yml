@@ -7,35 +7,34 @@ services:
       - ./Back-End/.env
     volumes:
       - uploads:/app/uploads
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.backend.rule=Host(`localhost`) && PathPrefix(`/api`)
-      - traefik.http.routers.backend.entrypoints=websecure
-      - traefik.http.routers.backend.tls=true
-      - traefik.http.routers.backend.middlewares=api-stripprefix
-      - traefik.http.services.backend.loadbalancer.server.port=3000
-      - traefik.http.routers.backend.priority=2
-      - traefik.http.middlewares.api-stripprefix.stripprefix.prefixes=/api
     depends_on:
       db:
         condition: service_healthy
     networks:
       - traefik
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
 
   # frontend:
   #   build:
   #     context: ./Front-End
   #     dockerfile: Dockerfile
-  #   labels:
-  #     - traefik.enable=true
-  #     - traefik.http.routers.frontend.rule=Host(`localhost`) && PathPrefix(`/`)
-  #     - traefik.http.routers.frontend.entrypoints=web
-  #     - traefik.http.routers.frontend.priority=1
-  #     - traefik.http.services.frontend.loadbalancer.server.port=80
   #   networks:
   #     - traefik
+  #   expose:
+  #     - "80"
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run --token "${CLOUDFLARE_TOKEN}"
+    env_file:
+      - .env
+    depends_on:
+      - traefik
+    networks:
+      - traefik
+    restart: unless-stopped
+
 
   traefik:
     build:
@@ -43,10 +42,11 @@ services:
       dockerfile: Dockerfile
     ports:
       - "80:80"
+      - "443:443"
       - "8080:8080"  # Traefik dashboard
-      - "8443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./Traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
     networks:
       - traefik
 

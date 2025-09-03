@@ -1,4 +1,40 @@
 http:
+  # Services
+  services:
+    backend:
+      loadBalancer:
+        servers:
+          - url: "http://backend:3000"
+    
+    # frontend:
+    #   loadBalancer:
+    #     servers:
+    #       - url: "http://frontend:80"
+
+  # Routers
+  routers:
+    backend:
+      rule: "PathPrefix(`/api`)"
+      entryPoints:
+        - web
+      service: backend
+      middlewares:
+        - api-stripprefix
+        - default-headers
+        - cors-headers
+      priority: 2
+    
+    # frontend:
+    #   rule: "PathPrefix(`/`)"
+    #   entryPoints:
+    #     - websecure
+    #   service: frontend
+    #   middlewares:
+    #     - default-headers
+    #   tls: {}
+    #   priority: 1
+
+  # Middlewares
   middlewares:
     default-headers:
       headers:
@@ -7,11 +43,29 @@ http:
         contentTypeNosniff: true
         customRequestHeaders:
           X-Forwarded-Proto: "https"
+        accessControlAllowOriginList:
+          - "*"
     
     api-stripprefix:
       stripPrefix:
         prefixes:
           - "/api"
+    
+    cors-headers:
+      headers:
+        accessControlAllowMethods:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+          - OPTIONS
+        accessControlAllowHeaders:
+          - "*"
+        accessControlAllowCredentials: true
+        customResponseHeaders:
+          Access-Control-Allow-Origin: "*"
+          Access-Control-Allow-Credentials: "true"
 
 tls:
   options:
