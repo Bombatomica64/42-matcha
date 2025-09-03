@@ -2,6 +2,8 @@ import { Component, ElementRef, inject, input, ViewChild, AfterViewInit, OnDestr
 import {CdkDrag, CdkDragMove, CdkDragEnd} from '@angular/cdk/drag-drop';
 import { HttpEndpoint, HttpMethod, HttpRequestService, PaginationQuery } from '../../services/http-request';
 import { operations, components } from '../../../types/api'
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
 
 export type DiscoverUsersQuery = operations['discoverUsers']['parameters']['query'];
 
@@ -12,15 +14,27 @@ type DiscoverUsersData = DiscoverUsersResponse['data'];
 
 @Component({
   selector: 'app-tinder-card',
-  imports: [CdkDrag],
+  imports: [CdkDrag, CardModule, ButtonModule],
   template: `
       <div #box class="example-box" cdkDrag [cdkDragFreeDragPosition]="dragPosition()" (cdkDragMoved)="onDragMoved($event)" (cdkDragEnded)="onDragEnded($event)">
         <div #content class="content">
           @if (users().length > 0 && currentUserIndex() < users().length) {
-            <img [src]="getMainPhotoUrl()" alt="Foto profilo" class="user-photo" />
-            <h3>{{ users()[currentUserIndex()].first_name }} {{ users()[currentUserIndex()].last_name }}</h3>
-            <p>{{ users()[currentUserIndex()].bio || 'Nessuna bio disponibile' }}</p>
-            <p>Età: {{ calculateAge(users()[currentUserIndex()].birth_date) }}</p>
+            <p-card [style]="{ width: '25rem', overflow: 'hidden', height: '100%' }">
+              <ng-template #header>
+                  <img alt="Foto profilo" class="w-full" [src]="getMainPhotoUrl()" />
+              </ng-template>
+              <ng-template #title>{{ users()[currentUserIndex()].first_name }} {{ users()[currentUserIndex()].last_name }}</ng-template>
+              <ng-template #subtitle>Età: {{ calculateAge(users()[currentUserIndex()].birth_date) }}</ng-template>
+              <p class="bio">
+                {{ users()[currentUserIndex()].bio || 'Nessuna bio disponibile' }}
+              </p>
+              <ng-template #footer>
+                  <div class="flex gap-4 mt-1">
+                      <p-button label="Cancel" severity="secondary" class="w-full" [outlined]="true" styleClass="w-full" />
+                      <p-button label="Save" class="w-full" styleClass="w-full" />
+                  </div>
+              </ng-template>
+            </p-card>
           }
         </div>
       </div>
@@ -33,8 +47,8 @@ type DiscoverUsersData = DiscoverUsersResponse['data'];
     position: relative;
   }
   .example-box {
-    width: 200px;
-    height: 200px;
+    width: 300px;
+    height: 450px;
     border: solid 1px #ccc;
     padding: 16px;
   }
@@ -54,6 +68,12 @@ type DiscoverUsersData = DiscoverUsersResponse['data'];
                 0 8px 10px 1px rgba(0, 0, 0, 0.14),
                 0 3px 14px 2px rgba(0, 0, 0, 0.12);
   }
+  .bio {
+    overflow: auto;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+  }
   `
 })
 export class TinderCard {
@@ -63,8 +83,8 @@ export class TinderCard {
 
   @ViewChild('box', { read: ElementRef }) box?: ElementRef<HTMLDivElement>;
   @ViewChild('content', { read: ElementRef }) content?: ElementRef<HTMLDivElement>;
-  private cardWidth = 200;
-  private cardHeight = 200;
+  private cardWidth = 300;
+  private cardHeight = 450;
   releasePosition = signal<"left" | "center" | "right">("center");
 
   users = signal<DiscoverUsersData>([]);
@@ -265,7 +285,7 @@ export class TinderCard {
   getMainPhotoUrl(): string {
     const user = this.users()[this.currentUserIndex()];
     const mainPhoto = user.photos?.find(photo => photo.is_main);
-    return mainPhoto?.image_url || 'https://via.placeholder.com/80';  // Placeholder se non c'è foto
+    return mainPhoto?.image_url || 'https://primefaces.org/cdn/primeng/images/card-ng.jpg';  // Placeholder se non c'è foto
   }
 
   // Metodo per calcolare l'età (opzionale, basato su birth_date)
