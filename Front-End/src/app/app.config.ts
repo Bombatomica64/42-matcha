@@ -9,13 +9,14 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { tokenInterceptor } from './interceptors/token-interceptor';
+import { getTokenInterceptor } from './interceptors/get-token-interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes), provideClientHydration(withEventReplay()),
-	  provideHttpClient(withFetch(), withInterceptors([tokenInterceptor])),
+	  provideHttpClient(withFetch(), withInterceptors([tokenInterceptor, getTokenInterceptor])),
     provideAnimationsAsync(),
     providePrimeNG({
 		theme: {

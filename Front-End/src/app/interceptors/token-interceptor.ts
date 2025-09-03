@@ -13,6 +13,7 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
   if (!accessToken) {
     return next(req);
   }
+  console.log('Attaching token to request:', accessToken);
   const reqWithToken = req.clone({
     headers: req.headers.set('Authorization', `Bearer ${accessToken}`),
     withCredentials: true

@@ -11,6 +11,11 @@ const nonProtectedEndpoints: Array<string> = [
 	"/auth/verifyEmail",
 	"/auth/resetPassword",
 	"/auth/refresh",
+	"/auth/login",
+	"/auth/register",
+	"/auth/verifyEmail",
+	"/auth/resetPassword",
+	"/auth/refresh",
 ];
 
 const userRepository = new UserRepository(pool);
@@ -88,7 +93,7 @@ export const jwtMiddleware = async (req: Request, res: Response, next: NextFunct
 		res.locals.user = dbUserToApiUser(user);
 		next();
 	} catch (error) {
-		logger.error("JWT middleware error:", error);
+		logger.error(`JWT middleware error: ${error}`);
 		return res.status(401).json({ message: "Invalid token" });
 	}
 };
