@@ -1,9 +1,12 @@
-import { Component, ElementRef, inject, input, ViewChild, AfterViewInit, OnDestroy  } from '@angular/core';
+import { Component, ElementRef, inject, input, ViewChild, AfterViewInit, OnDestroy, signal } from '@angular/core';
 import {CdkDrag, CdkDragMove, CdkDragEnd} from '@angular/cdk/drag-drop';
 import { HttpEndpoint, HttpMethod, HttpRequestService, PaginationQuery } from '../../services/http-request';
-import { operations } from '../../../types/api'
+import { operations, components } from '../../../types/api'
 
 export type DiscoverUsersQuery = operations['discoverUsers']['parameters']['query'];
+
+type DiscoverUsersResponse = operations['discoverUsers']['responses']['200']['content']['application/json'];
+type DiscoverUsersData = DiscoverUsersResponse['data'];
 //cdkDragLockAxis="x"
 //cdkDragBoundary=":host" non funziona con :hos
 
@@ -11,11 +14,16 @@ export type DiscoverUsersQuery = operations['discoverUsers']['parameters']['quer
   selector: 'app-tinder-card',
   imports: [CdkDrag],
   template: `
-    <div #box class="example-box" cdkDrag [cdkDragFreeDragPosition]="dragPosition" (cdkDragMoved)="onDragMoved($event)" (cdkDragEnded)="onDragEnded($event)">
-      <div #content class="content">
-        Drag me around
+      <div #box class="example-box" cdkDrag [cdkDragFreeDragPosition]="dragPosition()" (cdkDragMoved)="onDragMoved($event)" (cdkDragEnded)="onDragEnded($event)">
+        <div #content class="content">
+          @if (users().length > 0 && currentUserIndex() < users().length) {
+            <img [src]="getMainPhotoUrl()" alt="Foto profilo" class="user-photo" />
+            <h3>{{ users()[currentUserIndex()].first_name }} {{ users()[currentUserIndex()].last_name }}</h3>
+            <p>{{ users()[currentUserIndex()].bio || 'Nessuna bio disponibile' }}</p>
+            <p>Età: {{ calculateAge(users()[currentUserIndex()].birth_date) }}</p>
+          }
+        </div>
       </div>
-    </div>
   `,
   styles: `
   :host {
@@ -57,7 +65,10 @@ export class TinderCard {
   @ViewChild('content', { read: ElementRef }) content?: ElementRef<HTMLDivElement>;
   private cardWidth = 200;
   private cardHeight = 200;
-  private releasePosition: "left" | "center" | "right" = "center";
+  releasePosition = signal<"left" | "center" | "right">("center");
+
+  users = signal<DiscoverUsersData>([]);
+  currentUserIndex = signal(0);
 
   private cachedHostWidth = 0;
   private cachedHostHeight = 0;
@@ -68,11 +79,11 @@ export class TinderCard {
   private line1?: HTMLDivElement;
   private line2?: HTMLDivElement;
 
-  dragPosition = {x: 10, y: 10};
+  dragPosition = signal<{x: number, y: number}>({x: 10, y: 10});
 
   auth = inject(HttpRequestService);
-  httpEndpoint: HttpEndpoint = "/users/discover"
-  httpMethod: HttpMethod = "GET"
+  httpEndpoint: HttpEndpoint = "/users/discover";
+  httpMethod: HttpMethod = "GET";
   queryParams: DiscoverUsersQuery = { maxDistance: 100000 };
   paginationParams: PaginationQuery = { page: 1, limit: 10, order: "asc" };
   params = { ...this.queryParams, ...this.paginationParams };
@@ -85,8 +96,10 @@ export class TinderCard {
       this.httpEndpoint,
       this.httpMethod
     ).subscribe({
-      next: (response) => {
+      next: (response: DiscoverUsersResponse) => {
         console.log(response);
+        console.log(response.data);
+        this.users.set(response.data || []);
       },
       error: (error) => {
         console.error(error);
@@ -132,22 +145,14 @@ export class TinderCard {
     // calcola qui la posizione iniziale della card ogni volta che cambia la host size
     const xInitial = (this.cachedHostWidth / 2) - (this.cardWidth / 2);
     const yInitial = (this.cachedHostHeight / 2) - (this.cardHeight / 2);
-    this.dragPosition = { x: Math.round(xInitial), y: Math.round(yInitial) };
+    this.dragPosition.set({ x: Math.round(xInitial), y: Math.round(yInitial) });
   }
 
   onDragMoved(event: CdkDragMove) {
-    // pointerPosition è in coordinate viewport
-    const viewportX = event.pointerPosition.x;
-    const viewportY = event.pointerPosition.y;
-
-    // bounding rect dell'host per convertire a coordinate locali
-    const localX = Math.round(viewportX - this.cachedHostLeft);
-    const localY = Math.round(viewportY - this.cachedHostTop);
-
     // posizione "libera" della card (x,y) rispetto al suo container
     const freePos = typeof event.source.getFreeDragPosition === 'function'
       ? event.source.getFreeDragPosition()
-      : this.dragPosition;
+      : this.dragPosition();
 
     const cardRect = this.box?.nativeElement.getBoundingClientRect();
     const cardCenterX = cardRect
@@ -157,6 +162,7 @@ export class TinderCard {
     const firstBoundary = Math.round(this.cachedHostWidth / 3);
     const secondBoundary = Math.round((this.cachedHostWidth / 3) * 2);
     const centerBoundary = Math.round(this.cachedHostWidth / 2);
+
     //draw 2 red line intangibili
     if (!this.line1) {
       this.line1 = document.createElement('div');
@@ -188,21 +194,21 @@ export class TinderCard {
     if (cardCenterX < firstBoundary) {
       //if (this.box) this.box.nativeElement.style.background = 'red';
       if (this.content) {
-        this.releasePosition = "left";
+        this.releasePosition.set("left");
         this.content.nativeElement.style.border = '1px solid red';
         this.content.nativeElement.style.transform = 'rotate(-20deg)';
       }
     } else if (cardCenterX > secondBoundary) {
       //if (this.box) this.box.nativeElement.style.background = 'blue';
       if (this.content) {
-        this.releasePosition = "right";
+        this.releasePosition.set("right");
         this.content.nativeElement.style.border = '1px solid blue';
         this.content.nativeElement.style.transform = 'rotate(20deg)';
       }
     } else {
       //if (this.box) this.box.nativeElement.style.background = 'white';
       if (this.content) {
-        this.releasePosition = "center";
+        this.releasePosition.set("center");
         this.content.nativeElement.style.border = '1px solid white';
         this.content.nativeElement.style.transform = 'rotate(0deg)';
       }
@@ -211,17 +217,68 @@ export class TinderCard {
 
   onDragEnded(event: CdkDragEnd) {
     console.log("Drag ended, releasePosition:", this.releasePosition);
-    if (this.content && this.releasePosition == "left") {
+    if (this.content && this.releasePosition() == "left") {
       //animazione di caduta a sinistra
       // this.content.nativeElement.style.transition = 'transform 0.5s ease';
       this.content.nativeElement.style.transform = 'rotate(-50deg) translateX(-100%) ';
       this.content.nativeElement.style.opacity = '0';
-    } else if (this.content && this.releasePosition == "right") {
+      this.content.nativeElement.addEventListener('transitionend', () => {
+        this.nextUser();
+        this.resetCard();
+      }, { once: true });
+    } else if (this.content && this.releasePosition() == "right") {
       //animazione di caduta a destra
       // this.content.nativeElement.style.transition = 'transform 0.5s ease';
       this.content.nativeElement.style.transform = 'rotate(50deg) translateX(100%)';
       this.content.nativeElement.style.opacity = '0';
+      this.content.nativeElement.addEventListener('transitionend', () => {
+        this.nextUser();
+        this.resetCard();
+      }, { once: true });
+    } else if (this.content) {
+      this.resetCard();
     }
+  }
+
+  private nextUser(): void {
+    if (this.currentUserIndex() < this.users().length - 1) {
+      this.currentUserIndex.update(n => n + 1);
+    } else {
+      // Fine della lista: torna al primo (o gestisci diversamente, ad esempio ricarica)
+      this.currentUserIndex.set(0);
+      console.log("Fine utenti, ricomincio dal primo.");
+    }
+  }
+
+  // Metodo per resettare la card alla posizione iniziale
+  private resetCard(): void {
+    if (this.content) {
+      this.content.nativeElement.style.transform = 'rotate(0deg) translateX(0%)';
+      this.content.nativeElement.style.opacity = '1';
+      this.content.nativeElement.style.border = '1px solid white';
+    }
+    // Ricalcola la posizione centrale (chiama updateHostSize per aggiornare dragPosition)
+    this.updateHostSize();
+  }
+
+  // Metodo per ottenere l'URL della foto principale
+  getMainPhotoUrl(): string {
+    const user = this.users()[this.currentUserIndex()];
+    const mainPhoto = user.photos?.find(photo => photo.is_main);
+    return mainPhoto?.image_url || 'https://via.placeholder.com/80';  // Placeholder se non c'è foto
+  }
+
+  // Metodo per calcolare l'età (opzionale, basato su birth_date)
+  calculateAge(birthDate?: string): number | string {
+    if (!birthDate) return 'N/A';
+    const birth = new Date(birthDate);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
   }
 
 }
