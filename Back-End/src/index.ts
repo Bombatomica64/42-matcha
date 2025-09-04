@@ -3,11 +3,13 @@ import { setTimeout } from "node:timers";
 import { env } from "@config/env";
 import { logger } from "./server";
 import { server } from "./sockets/init.socket";
+import "./sockets/connection.socket";
 
 server.listen(env.PORT, () => {
 	const { NODE_ENV, HOST, PORT } = env;
 	logger.info(`Matcha Server (${NODE_ENV}) running on http://${HOST}:${PORT}`);
 	logger.info(`API Documentation available at http://${HOST}:${PORT}/api-docs`);
+	logger.info("Socket io started", server);
 });
 
 const onCloseSignal = () => {
