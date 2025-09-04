@@ -23,6 +23,7 @@ export class UserRepository extends BaseRepository<User> {
 		const query = `
 			SELECT 
 				u.*,
+				ST_AsGeoJSON(u.location)::json as location,
 				COALESCE(
 					JSON_AGG(
 						DISTINCT h.name
@@ -72,6 +73,7 @@ export class UserRepository extends BaseRepository<User> {
 		const query = `
 			SELECT 
 				u.*,
+				ST_AsGeoJSON(u.location)::json as location,
 				COALESCE(
 					JSON_AGG(
 						DISTINCT h.name
@@ -114,6 +116,7 @@ export class UserRepository extends BaseRepository<User> {
 		const query = `
 			SELECT 
 				u.*,
+				ST_AsGeoJSON(u.location)::json as location,
 				COALESCE(
 					JSON_AGG(
 						DISTINCT h.name
@@ -286,6 +289,7 @@ export class UserRepository extends BaseRepository<User> {
 		let dataQuery = `
 			SELECT 
 				u.*,
+				ST_AsGeoJSON(u.location)::json as location,
 				COALESCE(
 					JSON_AGG(
 						DISTINCT h.name

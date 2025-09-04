@@ -9,6 +9,17 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
 		return next(req);
 	}
 
+//   const accessToken = inject(TokenStore).getAccessToken();
+//   console.log(req.url);
+//   if (!accessToken) {
+//     return next(req);
+//   }
+//   console.log('Attaching token to request:', accessToken);
+//   const reqWithToken = req.clone({
+//     headers: req.headers.set('Authorization', `Bearer ${accessToken}`),
+//     withCredentials: true
+//   });
+//   return next(reqWithToken);
 	const platformId = inject(PLATFORM_ID);
 	const tokenStore = inject(TokenStore);
 

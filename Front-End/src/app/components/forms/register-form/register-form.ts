@@ -27,7 +27,7 @@ type RegisterResponse = components['schemas']['RegisterResponse'];
 type SexualOrientation = RegisterRequest['sexual_orientation'];
 type Gender = RegisterRequest['gender'];
 
-function adultValidator(minAge: number): ValidatorFn {
+export function adultValidator(minAge: number): ValidatorFn {
   return (control: AbstractControl | null) => {
     const v = control?.value;
     if (!v) return { required: true };
