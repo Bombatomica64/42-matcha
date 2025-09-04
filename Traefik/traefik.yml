@@ -5,14 +5,15 @@ api:
 entryPoints:
   web:
     address: ":80"
-    http:
-      redirections:
-        entryPoint:
-          to: websecure
-          scheme: https
-          permanent: true
+    http3:
+      advertisedPort: 443
+  # Enable websecure for internal HTTP/3 support  
   websecure:
     address: ":443"
+    http3: {}
+    http:
+      tls:
+        options: default
 
 providers:
   docker:
@@ -21,3 +22,16 @@ providers:
   file:
     filename: /etc/traefik/dynamic.yml
     watch: true
+
+# Security headers and settings
+serversTransport:
+  insecureSkipVerify: true
+
+# Enable access logs for production monitoring
+accessLog:
+  filePath: "/var/log/access.log"
+
+# Global settings
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false

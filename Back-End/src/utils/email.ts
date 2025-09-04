@@ -7,7 +7,7 @@ import { logger } from "../server";
  * Email service for sending various types of emails
  */
 export class EmailService {
-	constructor(private baseUrl: string = "http://localhost:4200/") {} //TODO ADD TO ENV
+	constructor(private baseUrl: string = "https://matcha.bombatomica64.dev/") {} //TODO ADD TO ENV
 	private transporter = nodemailer.createTransport({
 		host: process.env.EMAIL_HOST,
 		port: Number(process.env.EMAIL_PORT),
