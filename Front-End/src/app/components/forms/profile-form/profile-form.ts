@@ -285,6 +285,13 @@ export class ProfileForm {
   httpEndpoint: HttpEndpoint = "/users/profile"
   httpMethod: HttpMethod = "PATCH"
 
+  private formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   onSubmit() {
     if (this.profileForm.valid) {
       const raw = this.profileForm.value;
@@ -315,8 +322,8 @@ export class ProfileForm {
       if (raw.sexual_orientation !== profile.sexual_orientation) {
         payload.sexual_orientation = raw.sexual_orientation as User['sexual_orientation'];
       }
-      if (raw.birth_date?.toISOString().split('T')[0] !== profile.birth_date) {
-        payload.birth_date = raw.birth_date ? raw.birth_date.toISOString().split('T')[0] : '';
+      if (raw.birth_date && this.formatDate(raw.birth_date) !== profile.birth_date) {
+        payload.birth_date = this.formatDate(raw.birth_date);
       }
       if (raw.location?.lat !== profile.location?.latitude || raw.location?.lng !== profile.location?.longitude) {
         payload.location = { latitude: raw.location!.lat!, longitude: raw.location!.lng! };
@@ -330,6 +337,8 @@ export class ProfileForm {
       this.auth.request(payload, this.httpEndpoint, this.httpMethod).subscribe({
         next: (response: ProfileData) => {
           console.log('Update success:', response);
+          this.profileService.reloadProfile();
+          this.isEditable.set(false);
         },
         error: (error: ErrorResponse) => {
           console.error('Update error:', error);
