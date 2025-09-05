@@ -256,3 +256,14 @@ components:
         - data
         - meta
         - links
+    ChatUserIsTyping:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        isTyping:
+          type: boolean
+      required:
+        - userId
+        - isTyping

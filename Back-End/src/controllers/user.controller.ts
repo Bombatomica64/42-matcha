@@ -9,7 +9,7 @@ import { logger } from "../server";
 type ErrorResponse = components["schemas"]["ErrorResponse"];
 type SuccessResponse = components["schemas"]["SuccessResponse"];
 type User = components["schemas"]["User"];
-
+type SuccessfulLikeResponse = components["schemas"]["SuccessfulLikeResponse"];
 export class UserController {
 	private userService: UserService;
 
@@ -257,14 +257,12 @@ export class UserController {
 		try {
 			const result = await this.userService.likeUser(userId, targetUserId, like);
 
-			const successResponse: SuccessResponse = {
+			const successResponse: SuccessfulLikeResponse = {
 				message: like ? "User liked successfully" : "User disliked successfully",
-				data: {
-					isMatch: result.isMatch,
-					matchId: result.matchId,
-					action: like ? "liked" : "disliked",
-					targetUserId,
-				},
+				isMatch: result.isMatch,
+				matchId: result.matchId,
+				action: like ? "like" : "dislike",
+				targetUserId,
 			};
 			res.status(201).json(successResponse);
 		} catch (error) {

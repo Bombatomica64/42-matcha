@@ -1,0 +1,179 @@
+asyncapi: 2.6.0
+info:
+  title: Matcha Real-Time Chat API
+  version: '1.0.0'
+  description: |
+    AsyncAPI specification for the Matcha real-time chat system using Socket.IO namespaces.
+    This document describes the /chat namespace and its events for room-based messaging.
+servers:
+  production:
+    url: wss://matcha.bombatomica64.dev/chat
+    protocol: socket.io
+    description: Production chat namespace
+  development:
+    url: ws://localhost:3000/chat
+    protocol: socket.io
+    description: Local development chat namespace
+channels:
+  join:
+    description: Join a chat room (server validates membership)
+    subscribe:
+      operationId: joinRoom
+      message:
+        name: JoinRoom
+        payload:
+          type: object
+          properties:
+            roomId:
+              type: string
+              description: Chat room ID to join
+          required:
+            - roomId
+  leave:
+    description: Leave a chat room
+    subscribe:
+      operationId: leaveRoom
+      message:
+        name: LeaveRoom
+        payload:
+          type: object
+          properties:
+            roomId:
+              type: string
+              description: Chat room ID to leave
+          required:
+            - roomId
+  message:
+    description: Send a message to a chat room
+    subscribe:
+      operationId: sendMessage
+      message:
+        name: ChatMessage
+        payload:
+          $ref: '#/components/schemas/NewChatMessagePayload'
+    publish:
+      operationId: receiveMessage
+      message:
+        name: NewMessage
+        payload:
+          $ref: '#/components/schemas/ChatMessage'
+  typing:
+    description: Typing indicator for a chat room
+    subscribe:
+      operationId: sendTyping
+      message:
+        name: Typing
+        payload:
+          $ref: '#/components/schemas/TypingPayload'
+    publish:
+      operationId: receiveTyping
+      message:
+        name: UserTyping
+        payload:
+          $ref: '#/components/schemas/UserTypingPayload'
+components:
+  schemas:
+    NewChatMessagePayload:
+      oneOf:
+        - type: object
+          properties:
+            chat_room_id:
+              type: string
+            message_type:
+              type: string
+              enum: [text]
+            content:
+              type: string
+            media_filename:
+              type: [string, "null"]
+            media_file_path:
+              type: [string, "null"]
+            media_file_size:
+              type: [integer, "null"]
+            media_mime_type:
+              type: [string, "null"]
+            media_duration:
+              type: [number, "null"]
+            thumbnail_path:
+              type: [string, "null"]
+          required: [chat_room_id, message_type, content]
+        - type: object
+          properties:
+            chat_room_id:
+              type: string
+            message_type:
+              type: string
+              enum: [image, video, audio]
+            content:
+              type: [string, "null"]
+            media_filename:
+              type: [string, "null"]
+            media_file_path:
+              type: string
+            media_file_size:
+              type: [integer, "null"]
+            media_mime_type:
+              type: string
+            media_duration:
+              type: [number, "null"]
+            thumbnail_path:
+              type: [string, "null"]
+          required: [chat_room_id, message_type, media_file_path, media_mime_type]
+    ChatMessage:
+      type: object
+      properties:
+        id:
+          type: string
+        chat_room_id:
+          type: string
+        sender_id:
+          type: string
+        message_type:
+          type: string
+          enum: [text, image, video, audio]
+        content:
+          type: [string, "null"]
+        media_filename:
+          type: [string, "null"]
+        media_file_path:
+          type: [string, "null"]
+        media_file_size:
+          type: [integer, "null"]
+        media_mime_type:
+          type: [string, "null"]
+        media_duration:
+          type: [number, "null"]
+        thumbnail_path:
+          type: [string, "null"]
+        created_at:
+          type: string
+          format: date-time
+        read_at:
+          type: [string, "null"]
+          format: date-time
+      required:
+        - id
+        - chat_room_id
+        - sender_id
+        - message_type
+        - created_at
+    TypingPayload:
+      type: object
+      properties:
+        roomId:
+          type: string
+        isTyping:
+          type: boolean
+      required:
+        - roomId
+        - isTyping
+    UserTypingPayload:
+      type: object
+      properties:
+        userId:
+          type: string
+        isTyping:
+          type: boolean
+      required:
+        - userId
+        - isTyping

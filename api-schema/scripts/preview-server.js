@@ -5,6 +5,7 @@ const path = require('path');
 
 const app = express();
 const port = 3001;
+const asyncDocsDir = path.join(__dirname, '../generated/asyncapi-docs');
 
 // Load OpenAPI spec
 const swaggerDocument = YAML.load(path.join(__dirname, '../openapi.yaml'));
@@ -68,6 +69,11 @@ app.get('/', (req, res) => {
           <a href="http://localhost:8080" class="btn redoc" target="_blank">📖 Redoc</a>
           <span class="description">Beautiful, clean documentation (run 'npm run docs' first)</span>
         </div>
+
+        <div>
+          <a href="/asyncapi" class="btn" target="_blank">📡 AsyncAPI (HTML)</a>
+          <span class="description">Real-time API docs for Socket.IO (run 'npm run asyncapi:build' first)</span>
+        </div>
         
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
           <h3>🛠 Available Commands:</h3>
@@ -76,6 +82,8 @@ app.get('/', (req, res) => {
             <li><code>npm run preview</code> - Start Redocly preview on port 8081</li>
             <li><code>npm run validate</code> - Validate OpenAPI schema</li>
             <li><code>npm run generate:frontend</code> - Generate TypeScript types</li>
+            <li><code>npm run asyncapi:build</code> - Build AsyncAPI HTML docs</li>
+            <li><code>npm run asyncapi:preview</code> - Live preview AsyncAPI docs on port 8090</li>
           </ul>
         </div>
       </div>
@@ -83,6 +91,9 @@ app.get('/', (req, res) => {
     </html>
   `);
 });
+
+// Serve built AsyncAPI docs if available
+app.use('/asyncapi', express.static(asyncDocsDir));
 
 // Error handling
 app.use((err, req, res, next) => {

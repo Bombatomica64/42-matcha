@@ -15,6 +15,19 @@ export class ChatRoomRepository extends BaseRepository<ChatRoom> {
 		});
 	}
 
+	async findById(id: string): Promise<ChatRoom | null> {
+		const res = await this.pool.query("SELECT * FROM chat_rooms WHERE id = $1", [id]);
+		return res.rows[0] ?? null;
+	}
+
+	async userIsInRoom(userId: string, roomId: string): Promise<boolean> {
+		const res = await this.pool.query(
+			"SELECT 1 FROM chat_rooms WHERE id = $1 AND (user1_id = $2 OR user2_id = $2) LIMIT 1",
+			[roomId, userId],
+		);
+		return (res.rowCount ?? 0) > 0;
+	}
+
 	async findByUserId(userId: string): Promise<ChatRoom[]> {
 		const query = `
             SELECT * FROM chat_rooms

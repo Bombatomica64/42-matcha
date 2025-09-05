@@ -25,6 +25,7 @@ SELECT id,
        created_at,
        updated_at
 FROM public.users
-LIMIT 1;
+ORDER BY updated_at DESC
+LIMIT 100;
 
-SELECT * FROM get_discoverable_users('3631423c-fc47-4ba9-bffc-448bed706aec') LIMIT 1;
+-- SELECT * FROM get_discoverable_users('3631423c-fc47-4ba9-bffc-448bed706aec') LIMIT 1;
