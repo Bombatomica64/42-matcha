@@ -6,6 +6,7 @@ import { Home } from './pages/home/home';
 import { authGuard } from './guards/auth-guard';
 import { guestGuard } from './guards/guest-guard';
 import path from 'path';
+import { Profile } from './pages/profile/profile';
 
 export const routes: Routes = [
 {
@@ -31,6 +32,11 @@ export const routes: Routes = [
 //   path: 'user/:username',
 //   component: UserProfile
 // },
+{
+  path: 'home/profile',
+  component: Profile,
+  canActivate: [authGuard]
+},
 {
 	path: '',
 	redirectTo: '/login',

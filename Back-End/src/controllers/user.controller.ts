@@ -5,6 +5,7 @@ import { extractPaginationQuery } from "@utils/pagination";
 import { validatePatchRequest, validatePutRequest } from "@utils/user-validation";
 import type { Request, Response } from "express";
 import { logger } from "../server";
+import { dbUserToApiUser } from "@mappers/user.mapper";
 
 type ErrorResponse = components["schemas"]["ErrorResponse"];
 type SuccessResponse = components["schemas"]["SuccessResponse"];
@@ -40,9 +41,9 @@ export class UserController {
 				};
 				return res.status(404).json(errorResponse);
 			}
-
+			const apiUser = dbUserToApiUser(user);
 			// Return User object wrapped in user property to match test expectations
-			return res.json({ user: user as unknown as User });
+			return res.json({ user: apiUser });
 		} catch (error) {
 			logger.error(`Failed to get self user: ${userId}`, error);
 			const errorResponse: ErrorResponse = {
@@ -72,9 +73,9 @@ export class UserController {
 				res.status(404).json(errorResponse);
 				return;
 			}
-
+			const apiUser = dbUserToApiUser(user);
 			// Return User object wrapped in user property to match test expectations
-			res.json({ user: user as unknown as User });
+			res.json({ user: apiUser });
 		} catch (error) {
 			logger.error(`Failed to get user by ID: ${id}`, error);
 			const errorResponse: ErrorResponse = {

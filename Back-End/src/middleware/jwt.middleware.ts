@@ -11,11 +11,6 @@ const nonProtectedEndpoints: Array<string> = [
 	"/auth/verifyEmail",
 	"/auth/resetPassword",
 	"/auth/refresh",
-	"/auth/login",
-	"/auth/register",
-	"/auth/verifyEmail",
-	"/auth/resetPassword",
-	"/auth/refresh",
 ];
 
 const userRepository = new UserRepository(pool);
