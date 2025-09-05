@@ -32,7 +32,7 @@ export class ChatController {
 			const chatRooms = await this.chatService.getUserChatRooms(userId);
 			res.json(chatRooms);
 		} catch (error) {
-			logger.error("Error fetching user chats:", error);
+			logger.error(`Error fetching user chats: ${error}`);
 			res.status(500).json({
 				error: "Internal server error",
 				message: "Failed to fetch chat rooms",
@@ -69,7 +69,7 @@ export class ChatController {
 
 			res.json(chatRoom);
 		} catch (error) {
-			logger.error("Error fetching chat room:", error);
+			logger.error(`Error fetching chat room: ${error}`);
 			res.status(500).json({
 				error: "Internal server error",
 				message: "Failed to fetch chat room",
@@ -124,7 +124,7 @@ export class ChatController {
 				return;
 			}
 
-			logger.error("Error fetching chat messages:", error);
+			logger.error(`Error fetching chat messages: ${error}`);
 			res.status(500).json({
 				error: "Internal server error",
 				message: "Failed to fetch chat messages",
@@ -162,7 +162,7 @@ export class ChatController {
 				message: "Chat room deleted successfully",
 			} as SuccessResponse);
 		} catch (error) {
-			logger.error("Error deleting chat room:", error);
+			logger.error(`Error deleting chat room: ${error}`);
 			res.status(500).json({
 				error: "Internal server error",
 				message: "Failed to delete chat room",

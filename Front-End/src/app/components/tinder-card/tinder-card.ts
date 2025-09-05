@@ -4,36 +4,20 @@ import { HttpEndpoint, HttpMethod, HttpRequestService, PaginationQuery } from '.
 import { operations, components } from '../../../types/api'
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
+import { Card } from '../card/card';
 
 export type DiscoverUsersQuery = operations['discoverUsers']['parameters']['query'];
 type DiscoverUsersResponse = operations['discoverUsers']['responses']['200']['content']['application/json'];
 type DiscoverUsersData = DiscoverUsersResponse['data'];
-//cdkDragLockAxis="x"
-//cdkDragBoundary=":host" non funziona con :hos
 
 @Component({
   selector: 'app-tinder-card',
-  imports: [CdkDrag, CardModule, ButtonModule],
+  imports: [CdkDrag, CardModule, ButtonModule, Card],
   template: `
       <div #box class="example-box" cdkDrag [cdkDragFreeDragPosition]="dragPosition()" (cdkDragMoved)="onDragMoved($event)" (cdkDragEnded)="onDragEnded($event)">
         <div #content class="content">
           @if (users().length > 0 && currentUserIndex() < users().length) {
-            <p-card [style]="{ width: '25rem', overflow: 'hidden', height: '100%' }">
-              <ng-template #header>
-                  <img alt="Foto profilo" class="w-full" [src]="getMainPhotoUrl()" />
-              </ng-template>
-              <ng-template #title>{{ users()[currentUserIndex()].first_name }} {{ users()[currentUserIndex()].last_name }}</ng-template>
-              <ng-template #subtitle>Età: {{ calculateAge(users()[currentUserIndex()].birth_date) }}</ng-template>
-              <p class="bio">
-                {{ users()[currentUserIndex()].bio || 'Nessuna bio disponibile' }}
-              </p>
-              <ng-template #footer>
-                  <div class="flex gap-4 mt-1">
-                      <p-button label="Cancel" severity="secondary" class="w-full" [outlined]="true" styleClass="w-full" />
-                      <p-button label="Save" class="w-full" styleClass="w-full" />
-                  </div>
-              </ng-template>
-            </p-card>
+            <app-card [user]="users()[currentUserIndex()]" />
           }
         </div>
       </div>
@@ -99,14 +83,6 @@ export class TinderCard {
   private line2?: HTMLDivElement;
 
   dragPosition = signal<{x: number, y: number}>({x: 10, y: 10});
-  // constructor(){
-  //   effect(() => {
-  //     if (this.dragPosition().x > this.cachedHostWidth / 2 + 100 || this.dragPosition().y > this.cachedHostHeight / 2 -100){
-  //       this.content!.nativeElement.style.transform = `rotate(15deg)`
-  //       console.log('Rotating card');
-  //     }
-  //   });
-  // }
 
   auth = inject(HttpRequestService);
   httpEndpoint: HttpEndpoint = "/users/discover";
@@ -286,26 +262,6 @@ export class TinderCard {
     }
     // Ricalcola la posizione centrale (chiama updateHostSize per aggiornare dragPosition)
     this.updateHostSize();
-  }
-
-  // Metodo per ottenere l'URL della foto principale
-  getMainPhotoUrl(): string {
-    const user = this.users()[this.currentUserIndex()];
-    const mainPhoto = user.photos?.find(photo => photo.is_main);
-    return mainPhoto?.image_url || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNlHxpViduYZdKNiOmJRnkvFnKf88RcG-Edg&s';  // Placeholder se non c'è foto
-  }
-
-  // Metodo per calcolare l'età (opzionale, basato su birth_date)
-  calculateAge(birthDate?: string): number | string {
-    if (!birthDate) return 'N/A';
-    const birth = new Date(birthDate);
-    const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      age--;
-    }
-    return age;
   }
 
 }

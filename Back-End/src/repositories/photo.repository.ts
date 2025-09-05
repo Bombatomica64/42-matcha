@@ -77,7 +77,7 @@ export class PhotoRepository extends BaseRepository<Photo> {
 	async countByUserId(userId: string): Promise<number> {
 		const query = "SELECT COUNT(*) as count FROM user_photos WHERE user_id = $1";
 		const result = await pool.query(query, [userId]);
-		return parseInt(result.rows[0].count);
+		return parseInt(result.rows[0].count, 10);
 	}
 
 	async createPhoto(userId: string, file: Express.Multer.File): Promise<Photo> {

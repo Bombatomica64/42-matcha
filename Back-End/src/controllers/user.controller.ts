@@ -1,11 +1,10 @@
 import type { components } from "@generated/typescript/api";
-import type { UpdateUserData } from "@models/user.entity";
+import { apiUserToDbUser, dbUserToApiUser } from "@mappers/user.mapper";
 import type { UserService } from "@services/user.services";
 import { extractPaginationQuery } from "@utils/pagination";
 import { validatePatchRequest, validatePutRequest } from "@utils/user-validation";
 import type { Request, Response } from "express";
 import { logger } from "../server";
-import { dbUserToApiUser } from "@mappers/user.mapper";
 
 type ErrorResponse = components["schemas"]["ErrorResponse"];
 type SuccessResponse = components["schemas"]["SuccessResponse"];
@@ -45,7 +44,7 @@ export class UserController {
 			// Return User object wrapped in user property to match test expectations
 			return res.json({ user: apiUser });
 		} catch (error) {
-			logger.error(`Failed to get self user: ${userId}`, error);
+			logger.error(`Failed to get self user: ${userId}, error: ${error}`);
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to retrieve user profile",
@@ -77,7 +76,7 @@ export class UserController {
 			// Return User object wrapped in user property to match test expectations
 			res.json({ user: apiUser });
 		} catch (error) {
-			logger.error(`Failed to get user by ID: ${id}`, error);
+			logger.error(`Failed to get user by ID: ${id}, error: ${error}`);
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to retrieve user",
@@ -92,7 +91,7 @@ export class UserController {
 	 */
 	public async patchProfile(req: Request, res: Response): Promise<void> {
 		const userId = res.locals?.user?.id;
-
+		logger.info(`Patching profile for user ID: ${userId} with data: ${JSON.stringify(req.body)}`);
 		if (!userId) {
 			const errorResponse: ErrorResponse = {
 				error: "Unauthorized",
@@ -129,9 +128,12 @@ export class UserController {
 		}
 
 		try {
+			logger.error(
+				`Patching user profile: ${userId} with data: ${JSON.stringify(validation.cleanedData)}`,
+			);
 			const updatedUser = await this.userService.updateUser(
 				userId,
-				validation.cleanedData as Partial<UpdateUserData>,
+				apiUserToDbUser(validation.cleanedData),
 			);
 
 			if (!updatedUser) {
@@ -147,7 +149,7 @@ export class UserController {
 			// Return User object wrapped in user property to match test expectations
 			res.json({ user: updatedUser as unknown as User });
 		} catch (error) {
-			logger.error(`Failed to patch user profile: ${userId}`, error);
+			logger.error(`Failed to patch user profile: ${userId}, error: ${error}`);
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to update profile",
@@ -190,7 +192,7 @@ export class UserController {
 		try {
 			const updatedUser = await this.userService.updateUser(
 				userId,
-				validation.cleanedData as UpdateUserData,
+				apiUserToDbUser(validation.cleanedData),
 			);
 
 			if (!updatedUser) {
@@ -206,7 +208,7 @@ export class UserController {
 			// Return User object wrapped in user property to match test expectations
 			res.json({ user: updatedUser as unknown as User });
 		} catch (error) {
-			logger.error(`Failed to put user profile: ${userId}`, error);
+			logger.error(`Failed to put user profile: ${userId}, error: ${error}`);
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to replace profile",
@@ -269,7 +271,7 @@ export class UserController {
 			};
 			res.status(201).json(successResponse);
 		} catch (error) {
-			logger.error(`Failed to like/dislike user: ${userId} -> ${targetUserId}`, error);
+			logger.error(`Failed to like/dislike user: ${userId} -> ${targetUserId}, error: ${error}`);
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: `Failed to ${like ? "like" : "dislike"} user`,
@@ -310,7 +312,7 @@ export class UserController {
 				res.status(404).json(errorResponse);
 			}
 		} catch (error) {
-			logger.error(`Failed to unlike user: ${userId} -> ${targetUserId}`, error);
+			logger.error(`Failed to unlike user: ${userId} -> ${targetUserId}, error: ${error}`);
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to remove like",
@@ -326,8 +328,8 @@ export class UserController {
 	public async getUserLikes(req: Request, res: Response): Promise<void> {
 		const userId = req.params.id;
 		const currentUserId = res.locals?.user?.id;
-		const page = parseInt(req.query.page as string) || 1;
-		const limit = parseInt(req.query.limit as string) || 20;
+		const page = parseInt(req.query.page as string, 10) || 1;
+		const limit = parseInt(req.query.limit as string, 10) || 20;
 
 		if (!currentUserId) {
 			const errorResponse: ErrorResponse = {
@@ -362,7 +364,7 @@ export class UserController {
 			};
 			res.json(successResponse);
 		} catch (error) {
-			logger.error(`Failed to get user likes: ${userId}`, error);
+			logger.error(`Failed to get user likes: ${userId}, error: ${error}`);
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to retrieve user likes",
@@ -378,8 +380,8 @@ export class UserController {
 	public async getBlockedUsers(req: Request, res: Response): Promise<void> {
 		const userId = req.params.id;
 		const currentUserId = res.locals?.user?.id;
-		const page = parseInt(req.query.page as string) || 1;
-		const limit = parseInt(req.query.limit as string) || 20;
+		const page = parseInt(req.query.page as string, 10) || 1;
+		const limit = parseInt(req.query.limit as string, 10) || 20;
 
 		if (!currentUserId) {
 			const errorResponse: ErrorResponse = {
@@ -414,7 +416,7 @@ export class UserController {
 			};
 			res.json(successResponse);
 		} catch (error) {
-			logger.error(`Failed to get blocked users: ${userId}`, error);
+			logger.error(`Failed to get blocked users: ${userId}, error: ${error}`);
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to retrieve blocked users",
@@ -457,7 +459,7 @@ export class UserController {
 			// According to OpenAPI spec, block should return 204 No Content
 			res.status(204).send();
 		} catch (error) {
-			logger.error(`Failed to block user: ${currentUserId} -> ${targetUserId}`, error);
+			logger.error(`Failed to block user: ${currentUserId} -> ${targetUserId}, error: ${error}`);
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to block user",
@@ -490,7 +492,7 @@ export class UserController {
 			// According to OpenAPI spec, unblock should return 204 No Content
 			res.status(204).send();
 		} catch (error) {
-			logger.error(`Failed to unblock user: ${currentUserId} -> ${targetUserId}`, error);
+			logger.error(`Failed to unblock user: ${currentUserId} -> ${targetUserId}, error: ${error}`);
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to unblock user",
@@ -506,8 +508,8 @@ export class UserController {
 	public async getUserMatches(req: Request, res: Response): Promise<void> {
 		const userId = req.params.id;
 		const currentUserId = res.locals?.user?.id;
-		const page = parseInt(req.query.page as string) || 1;
-		const limit = parseInt(req.query.limit as string) || 20;
+		const page = parseInt(req.query.page as string, 10) || 1;
+		const limit = parseInt(req.query.limit as string, 10) || 20;
 
 		if (!currentUserId) {
 			const errorResponse: ErrorResponse = {
@@ -542,7 +544,7 @@ export class UserController {
 			};
 			res.status(200).json(successResponse);
 		} catch (error) {
-			logger.error(`Failed to get user matches: ${userId}`, error);
+			logger.error(`Failed to get user matches: ${userId}, error: ${error}`);
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to fetch matches",
@@ -558,8 +560,8 @@ export class UserController {
 	public async getCurrentUserLikes(req: Request, res: Response): Promise<void> {
 		const currentUserId = res.locals?.user?.id;
 		const type = (req.query.type as "given" | "received" | "mutual") || "received";
-		const page = parseInt(req.query.page as string) || 1;
-		const limit = parseInt(req.query.limit as string) || 20;
+		const page = parseInt(req.query.page as string, 10) || 1;
+		const limit = parseInt(req.query.limit as string, 10) || 20;
 
 		if (!currentUserId) {
 			const errorResponse: ErrorResponse = {
@@ -597,7 +599,7 @@ export class UserController {
 			};
 			res.status(200).json(successResponse);
 		} catch (error) {
-			logger.error(`Failed to get current user likes: ${currentUserId}`, error);
+			logger.error(`Failed to get current user likes: ${currentUserId}, error: ${error}`);
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to fetch likes",
@@ -612,8 +614,8 @@ export class UserController {
 	 */
 	public async getCurrentUserBlocks(req: Request, res: Response): Promise<void> {
 		const currentUserId = res.locals?.user?.id;
-		const page = parseInt(req.query.page as string) || 1;
-		const limit = parseInt(req.query.limit as string) || 20;
+		const page = parseInt(req.query.page as string, 10) || 1;
+		const limit = parseInt(req.query.limit as string, 10) || 20;
 
 		if (!currentUserId) {
 			const errorResponse: ErrorResponse = {
@@ -639,7 +641,7 @@ export class UserController {
 			};
 			res.status(200).json(successResponse);
 		} catch (error) {
-			logger.error(`Failed to get current user blocks: ${currentUserId}`, error);
+			logger.error(`Failed to get current user blocks: ${currentUserId}, error: ${error}`);
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to fetch blocked users",
@@ -654,8 +656,8 @@ export class UserController {
 	 */
 	public async getCurrentUserMatches(req: Request, res: Response): Promise<void> {
 		const currentUserId = res.locals?.user?.id;
-		const page = parseInt(req.query.page as string) || 1;
-		const limit = parseInt(req.query.limit as string) || 20;
+		const page = parseInt(req.query.page as string, 10) || 1;
+		const limit = parseInt(req.query.limit as string, 10) || 20;
 
 		if (!currentUserId) {
 			const errorResponse: ErrorResponse = {
@@ -681,7 +683,7 @@ export class UserController {
 			};
 			res.status(200).json(successResponse);
 		} catch (error) {
-			logger.error(`Failed to get current user matches: ${currentUserId}`, error);
+			logger.error(`Failed to get current user matches: ${currentUserId}, error: ${error}`);
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to fetch matches",
@@ -710,8 +712,8 @@ export class UserController {
 		try {
 			// Parse and validate query parameters
 			const query = req.query.query as string;
-			const ageMin = req.query.age_min ? parseInt(req.query.age_min as string) : undefined;
-			const ageMax = req.query.age_max ? parseInt(req.query.age_max as string) : undefined;
+			const ageMin = req.query.age_min ? parseInt(req.query.age_min as string, 10) : undefined;
+			const ageMax = req.query.age_max ? parseInt(req.query.age_max as string, 10) : undefined;
 			const gender = req.query.gender as string;
 			const location = req.query.location as string;
 			const interests = req.query.interests as string;
@@ -788,7 +790,7 @@ export class UserController {
 			// Return standardized paginated response
 			res.status(200).json(result);
 		} catch (error) {
-			logger.error(`Failed to search users for: ${currentUserId}`, error);
+			logger.error(`Failed to search users for: ${currentUserId}, error: ${error}`);
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to search users",
@@ -816,16 +818,18 @@ export class UserController {
 
 		try {
 			// Parse query parameters with page-based pagination
-			const maxDistance = req.query.maxDistance ? parseInt(req.query.maxDistance as string) : 10; //10 km default
+			const maxDistance = req.query.maxDistance
+				? parseInt(req.query.maxDistance as string, 10)
+				: 10; //10 km default
 			const ageMin = req.query.ageMin
-				? parseInt(req.query.ageMin as string) < 18
+				? parseInt(req.query.ageMin as string, 10) < 18
 					? 18
-					: parseInt(req.query.ageMin as string)
+					: parseInt(req.query.ageMin as string, 10)
 				: 18; //18 years default
 			const ageMax = req.query.ageMax
-				? parseInt(req.query.ageMax as string) > 100
+				? parseInt(req.query.ageMax as string, 10) > 100
 					? 100
-					: parseInt(req.query.ageMax as string)
+					: parseInt(req.query.ageMax as string, 10)
 				: 100; //100 years default
 			const minFameRating = req.query.minFameRating
 				? parseFloat(req.query.minFameRating as string) < 0

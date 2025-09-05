@@ -151,7 +151,7 @@ export class LikeService {
       WHERE liker_id = $1 AND is_like = true
     `;
 		const countResult = await this.likeRepository.query(countQuery, [userId]);
-		const total = parseInt(countResult.rows[0].count);
+		const total = parseInt(countResult.rows[0].count, 10);
 
 		const hasNext = likes.length > limit;
 		const actualLikes = hasNext ? likes.slice(0, -1) : likes;
@@ -340,7 +340,7 @@ export class LikeService {
 			isMatch: true,
 		}));
 
-		const total = parseInt(countResult.rows[0].count);
+		const total = parseInt(countResult.rows[0].count, 10);
 
 		return { likes, total };
 	}

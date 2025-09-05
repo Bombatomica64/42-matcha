@@ -58,9 +58,7 @@ export class UserService {
 	/**
 	 * Get selected user by ID (with sensitive fields filtered)
 	 */
-	public async getUserById(
-		id: string,
-	): Promise<User | null> {
+	public async getUserById(id: string): Promise<User | null> {
 		const user = await this.userRepository.findById(id);
 		return user;
 	}
@@ -262,7 +260,7 @@ export class UserService {
 			photos: [],
 		})) as User[];
 
-		const total = parseInt(countResult.rows[0].total);
+		const total = parseInt(countResult.rows[0].total, 10);
 
 		// Create standardized paginated response
 		return createPaginatedResponse(users, total, page, limit, "/users/discover", {

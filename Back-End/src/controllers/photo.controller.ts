@@ -38,7 +38,7 @@ export class PhotoController {
 
 			res.status(200).json(response);
 		} catch (error) {
-			logger.error("Failed to retrieve user photos", { error });
+			logger.error(`Failed to retrieve user photos: ${error}`);
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to retrieve photos",
@@ -82,7 +82,7 @@ export class PhotoController {
 
 			res.status(201).json(response);
 		} catch (error) {
-			logger.error("Failed to upload photo", { error });
+			logger.error(`Failed to upload photo: ${error}`);
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to upload photo",

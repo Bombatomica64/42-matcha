@@ -58,7 +58,7 @@ io.use(async (socket, next) => {
 
 		next();
 	} catch (err) {
-		logger.error("Socket authentication error:", err);
+		logger.error(`Socket authentication error: ${err}`);
 		next(new Error("Authentication error: Invalid token"));
 	}
 });
@@ -75,7 +75,7 @@ io.on("connection", (socket: Socket) => {
 		event: "system",
 		message: `Welcome ${socket.user.first_name}! You are connected.`,
 		timestamp: new Date().toISOString(),
-		userId: "system"
+		userId: "system",
 	});
 
 	// Ping/Pong handler
@@ -86,7 +86,7 @@ io.on("connection", (socket: Socket) => {
 			message: "Pong! Server is alive",
 			timestamp: new Date().toISOString(),
 			originalData: data,
-			userId: socket.userId
+			userId: socket.userId,
 		});
 	});
 
@@ -99,14 +99,14 @@ io.on("connection", (socket: Socket) => {
 			message: typeof data === "string" ? data : data.message || JSON.stringify(data),
 			timestamp: new Date().toISOString(),
 			userId: socket.userId,
-			userName: socket.user.first_name
+			userName: socket.user.first_name,
 		};
 
 		// Echo back to sender with confirmation
 		socket.emit("message", {
 			...messageData,
 			event: "messageConfirm",
-			message: `Message sent: ${messageData.message}`
+			message: `Message sent: ${messageData.message}`,
 		});
 
 		// Broadcast to all other users (optional - uncomment if you want broadcasting)
@@ -122,7 +122,7 @@ io.on("connection", (socket: Socket) => {
 			event: "system",
 			message: `You joined room: ${roomId}`,
 			timestamp: new Date().toISOString(),
-			userId: "system"
+			userId: "system",
 		});
 
 		// Notify others in the room
@@ -130,7 +130,7 @@ io.on("connection", (socket: Socket) => {
 			event: "system",
 			message: `${socket.user.first_name} joined the room`,
 			timestamp: new Date().toISOString(),
-			userId: "system"
+			userId: "system",
 		});
 	});
 
@@ -142,7 +142,7 @@ io.on("connection", (socket: Socket) => {
 			event: "system",
 			message: `You left room: ${roomId}`,
 			timestamp: new Date().toISOString(),
-			userId: "system"
+			userId: "system",
 		});
 
 		// Notify others in the room
@@ -150,7 +150,7 @@ io.on("connection", (socket: Socket) => {
 			event: "system",
 			message: `${socket.user.first_name} left the room`,
 			timestamp: new Date().toISOString(),
-			userId: "system"
+			userId: "system",
 		});
 	});
 
@@ -164,13 +164,13 @@ io.on("connection", (socket: Socket) => {
 			socket.to(roomId).emit("userTyping", {
 				userId: socket.userId,
 				userName: socket.user.first_name,
-				isTyping: data.isTyping || true
+				isTyping: data.isTyping || true,
 			});
 		} else {
 			socket.broadcast.emit("userTyping", {
 				userId: socket.userId,
 				userName: socket.user.first_name,
-				isTyping: data.isTyping || true
+				isTyping: data.isTyping || true,
 			});
 		}
 	});
@@ -183,14 +183,14 @@ io.on("connection", (socket: Socket) => {
 			userId: socket.userId,
 			userName: socket.user.first_name,
 			status: status,
-			timestamp: new Date().toISOString()
+			timestamp: new Date().toISOString(),
 		});
 
 		socket.emit("message", {
 			event: "system",
 			message: `Your status updated to: ${status}`,
 			timestamp: new Date().toISOString(),
-			userId: "system"
+			userId: "system",
 		});
 	});
 
@@ -203,7 +203,7 @@ io.on("connection", (socket: Socket) => {
 			message: `Custom event received: ${JSON.stringify(data)}`,
 			timestamp: new Date().toISOString(),
 			originalData: data,
-			userId: socket.userId
+			userId: socket.userId,
 		});
 	});
 
@@ -216,7 +216,7 @@ io.on("connection", (socket: Socket) => {
 			message: "This is a test error response",
 			timestamp: new Date().toISOString(),
 			errorCode: "TEST_ERROR",
-			originalData: data
+			originalData: data,
 		});
 	});
 
@@ -229,7 +229,7 @@ io.on("connection", (socket: Socket) => {
 			userId: socket.userId,
 			userName: socket.user.first_name,
 			status: "offline",
-			timestamp: new Date().toISOString()
+			timestamp: new Date().toISOString(),
 		});
 	});
 });

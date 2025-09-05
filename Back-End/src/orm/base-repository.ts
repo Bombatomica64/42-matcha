@@ -1,6 +1,7 @@
 import type { components, PaginatedResponse } from "@generated/typescript/api";
 import { calculatePagination, createPaginatedResponse } from "@utils/pagination";
 import type { Pool, QueryResult } from "pg";
+import { logger } from "../server";
 
 type PaginationRequest = components["schemas"]["PaginationQuery"];
 
@@ -150,15 +151,28 @@ export abstract class BaseRepository<T> {
 		const keys = Object.keys(filteredUpdates);
 		if (keys.length === 0) return this.findById(id);
 
-		const setClause = keys.map((key, index) => `${key} = $${index + 2}`).join(", ");
+		const setClause = keys
+			.map((key, index) => {
+				if (key === "location") {
+					// Usa ST_GeomFromGeoJSON per convertire il GeoJSON in geometria PostGIS
+					// Prima converti l'oggetto in stringa JSON
+					const locationValue = filteredUpdates[key];
+					if (typeof locationValue === 'object' && locationValue !== null) {
+						filteredUpdates[key] = JSON.stringify(locationValue);
+					}
+					return `${key} = ST_GeomFromGeoJSON($${index + 2}::text)`;
+				}
+				return `${key} = $${index + 2}`;
+			})
+			.join(", ");
 		const values = [id, ...Object.values(filteredUpdates)];
 
 		const query = `
-      UPDATE ${this.tableName} 
-      SET ${setClause}, updated_at = NOW() 
-      WHERE ${this.primaryKey} = $1 
-      RETURNING *
-    `;
+				UPDATE ${this.tableName} 
+				SET ${setClause}, updated_at = NOW() 
+				WHERE ${this.primaryKey} = $1 
+				RETURNING *
+			`;
 
 		const result = await this.pool.query(query, values);
 		return result.rows[0] || null;

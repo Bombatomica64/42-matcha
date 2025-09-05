@@ -1,7 +1,7 @@
 import { env } from "node:process";
 import bcrypt from "bcrypt";
 
-const SALT_ROUNDS = parseInt(env.BCRYPT_SALT_ROUNDS ? env.BCRYPT_SALT_ROUNDS : "12") || 12; // Higher = more secure but slower
+const SALT_ROUNDS = parseInt(env.BCRYPT_SALT_ROUNDS ? env.BCRYPT_SALT_ROUNDS : "12", 10) || 12; // Higher = more secure but slower
 
 export const hashPassword = async (password: string): Promise<string> => {
 	return bcrypt.hash(password, SALT_ROUNDS);

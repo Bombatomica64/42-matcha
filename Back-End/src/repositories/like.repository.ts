@@ -93,7 +93,7 @@ export class LikeRepository extends BaseRepository<UserLike> {
     `;
 
 		const result = await this.pool.query(query, [user1Id, user2Id]);
-		return parseInt(result.rows[0].count) === 2;
+		return parseInt(result.rows[0].count, 10) === 2;
 	}
 
 	/**
@@ -151,9 +151,9 @@ export class LikeRepository extends BaseRepository<UserLike> {
 		const row = result.rows[0];
 
 		return {
-			total_likes: parseInt(row.total_likes) || 0,
-			total_dislikes: parseInt(row.total_dislikes) || 0,
-			recent_likes: parseInt(row.recent_likes) || 0,
+			total_likes: parseInt(row.total_likes, 10) || 0,
+			total_dislikes: parseInt(row.total_dislikes, 10) || 0,
+			recent_likes: parseInt(row.recent_likes, 10) || 0,
 		};
 	}
 
@@ -199,7 +199,7 @@ export class LikeRepository extends BaseRepository<UserLike> {
     `;
 
 		const result = await this.pool.query(query, [userId]);
-		const likesInLastHour = parseInt(result.rows[0].count);
+		const likesInLastHour = parseInt(result.rows[0].count, 10);
 
 		return likesInLastHour < maxLikesPerHour;
 	}

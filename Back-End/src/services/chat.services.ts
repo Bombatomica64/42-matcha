@@ -136,7 +136,7 @@ export class ChatService {
 
 			return result;
 		} catch (error) {
-			logger.error("Error marking messages as read:", error);
+			logger.error(`Error marking messages as read: ${error}`);
 			return false;
 		}
 	}

@@ -43,7 +43,7 @@ export class EmailService {
 			else
 				logger.error(`Failed to send verification email to ${email}: ${ret.rejected.join(", ")}`);
 		} catch (error) {
-			logger.error(`Error sending verification email to ${email}:`, error);
+			logger.error(`Error sending verification email to ${email}: ${error}`);
 			throw new Error("Failed to send verification email");
 		}
 	}
@@ -67,7 +67,7 @@ export class EmailService {
 			else
 				logger.error(`Failed to send password reset email to ${email}: ${ret.rejected.join(", ")}`);
 		} catch (error) {
-			logger.error(`Error sending password reset email to ${email}:`, error);
+			logger.error(`Error sending password reset email to ${email}: ${error}`);
 			throw new Error("Failed to send password reset email");
 		}
 	}
