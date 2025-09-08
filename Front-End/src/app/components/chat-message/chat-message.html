@@ -21,7 +21,10 @@
 		[muted]="true"
 		[autoplay]="false"
 	>
-		<source [src]="content().media_file_path" [type]="content().media_mime_type || 'video/mp4'" />
+		<source
+			[src]="content().media_file_path"
+			[type]="content().media_mime_type || 'video/mp4'"
+		/>
 	</video>
 
 	<vg-overlay-play></vg-overlay-play>
@@ -49,7 +52,10 @@
 		controls
 		[autoplay]="false"
 	>
-		<source [src]="content().media_file_path" [type]="content().media_mime_type || 'audio/mpeg'" />
+		<source
+			[src]="content().media_file_path"
+			[type]="content().media_mime_type || 'audio/mpeg'"
+		/>
 	</audio>
 
 	<vg-buffering></vg-buffering>

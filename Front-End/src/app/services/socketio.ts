@@ -65,7 +65,7 @@ export class SocketService {
 			}
 
 			this.socket = io(socketUrl, {
-			transports: ['webtransport', 'websocket', 'polling'],
+			transports: [ 'websocket', 'polling'],
 			withCredentials: true,
 			auth: { token },
 			timeout: 20000,

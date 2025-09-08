@@ -7,7 +7,7 @@ const server = createServer(app);
 
 const io = new Server(server, {
 	// Enable webtransport with fallbacks
-	transports: ['webtransport', 'websocket', 'polling'],
+	transports: [ 'websocket', 'polling'],
 
 	allowUpgrades: true,
 	cors: {
