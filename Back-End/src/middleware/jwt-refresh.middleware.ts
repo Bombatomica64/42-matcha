@@ -50,7 +50,7 @@ export const jwtRefreshMiddleware = async (req: Request, res: Response, next: Ne
 		logger.info(`Access token refreshed for user ${refreshPayload.userId}`);
 		next();
 	} catch (error) {
-		logger.error("JWT refresh middleware error:", error);
+		logger.error(`JWT refresh middleware error: ${error}`);
 		return res.status(401).json({ message: "Token processing failed" });
 	}
 };

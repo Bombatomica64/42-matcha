@@ -193,7 +193,7 @@ export class BlockRepository extends BaseRepository<UserBlock> {
     `;
 
 		const result = await this.pool.query(query, [blockerId]);
-		return parseInt(result.rows[0].count);
+		return parseInt(result.rows[0].count, 10);
 	}
 
 	/**
@@ -206,7 +206,7 @@ export class BlockRepository extends BaseRepository<UserBlock> {
     `;
 
 		const result = await this.pool.query(query, [blockedId]);
-		return parseInt(result.rows[0].count);
+		return parseInt(result.rows[0].count, 10);
 	}
 
 	/**

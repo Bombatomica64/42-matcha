@@ -22,15 +22,17 @@ export function dbUserToApiUser(dbUser: DbUser): ApiUser {
 		dbUser.location &&
 		typeof dbUser.location === "object" &&
 		"coordinates" in dbUser.location &&
-		Array.isArray((dbUser.location as any).coordinates) &&
-		(dbUser.location as any).coordinates.length === 2
+		Array.isArray(dbUser.location.coordinates) &&
+		dbUser.location.coordinates.length === 2
 	) {
 		// GeoJSON Point coordinates are [longitude, latitude]
-		const [lon, lat] = (dbUser.location as any).coordinates as [number, number];
+		const [lon, lat] = dbUser.location.coordinates as [number, number];
 		location = { latitude: lat, longitude: lon };
 	}
 
-	logger.info(`User Location resolved -> ${location ? `${location.latitude},${location.longitude}` : "undefined"}`);
+	logger.info(
+		`User Location resolved -> ${location ? `${location.latitude},${location.longitude}` : "undefined"}`,
+	);
 
 	return {
 		id: dbUser.id,
@@ -66,18 +68,37 @@ export function dbUserToApiUser(dbUser: DbUser): ApiUser {
  * This handles the reverse mapping for user registration/updates
  */
 export function apiUserToDbUser(apiData: Partial<ApiUser>): Partial<DbUser> {
-	return {
-		username: apiData.name || "",
-		email: apiData.email,
-		birth_date: apiData.birth_date ? new Date(apiData.birth_date) : undefined,
-		bio: apiData.bio,
-		first_name: apiData.first_name,
-		last_name: apiData.last_name,
-		gender: apiData.gender,
+	const dbData: Partial<DbUser> = {};
+
+	// Only map fields that are actually provided (not undefined)
+	if (apiData.name !== undefined) {
+		dbData.username = apiData.name || "";
+	}
+	if (apiData.email !== undefined) {
+		dbData.email = apiData.email || "";
+	}
+	if (apiData.birth_date !== undefined) {
+		dbData.birth_date = apiData.birth_date ? new Date(apiData.birth_date) : undefined;
+	}
+	if (apiData.bio !== undefined) {
+		dbData.bio = apiData.bio;
+	}
+	if (apiData.first_name !== undefined) {
+		dbData.first_name = apiData.first_name;
+	}
+	if (apiData.last_name !== undefined) {
+		dbData.last_name = apiData.last_name;
+	}
+	if (apiData.gender !== undefined) {
+		dbData.gender = apiData.gender;
+	}
+	if (apiData.sexual_orientation !== undefined) {
 		// Filter out 'other' since DB doesn't support it
-		sexual_orientation:
-			apiData.sexual_orientation === "other" ? "bisexual" : apiData.sexual_orientation,
-		location:
+		dbData.sexual_orientation =
+			apiData.sexual_orientation === "other" ? "bisexual" : apiData.sexual_orientation;
+	}
+	if (apiData.location !== undefined) {
+		dbData.location =
 			apiData.location &&
 			apiData.location.longitude !== undefined &&
 			apiData.location.latitude !== undefined
@@ -85,9 +106,10 @@ export function apiUserToDbUser(apiData: Partial<ApiUser>): Partial<DbUser> {
 						type: "Point",
 						coordinates: [apiData.location.longitude, apiData.location.latitude],
 					}
-				: undefined,
-		// Note: photos and hashtags are handled separately in the service layer
-	};
+				: undefined;
+	}
+
+	return dbData;
 }
 
 /**

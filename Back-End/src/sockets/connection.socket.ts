@@ -59,7 +59,7 @@ io.use(async (socket, next) => {
 
 		next();
 	} catch (err) {
-		logger.error("Socket authentication error:", err);
+		logger.error(`Socket authentication error: ${err}`);
 		next(new Error("Authentication error: Invalid token"));
 	}
 });
@@ -76,7 +76,7 @@ io.on("connection", (socket: Socket) => {
 		event: "system",
 		message: `Welcome ${socket.user.first_name}! You are connected.`,
 		timestamp: new Date().toISOString(),
-		userId: "system"
+		userId: "system",
 	});
 
 
@@ -91,11 +91,9 @@ io.on("connection", (socket: Socket) => {
 			message: "Pong! Server is alive",
 			timestamp: new Date().toISOString(),
 			originalData: data,
-			userId: socket.userId
+			userId: socket.userId,
 		});
 	});
-
-
 
 
 	// // Typing indicator
@@ -127,18 +125,16 @@ io.on("connection", (socket: Socket) => {
 			userId: socket.userId,
 			userName: socket.user.first_name,
 			status: status,
-			timestamp: new Date().toISOString()
+			timestamp: new Date().toISOString(),
 		});
 
 		socket.emit("message", {
 			event: "system",
 			message: `Your status updated to: ${status}`,
 			timestamp: new Date().toISOString(),
-			userId: "system"
+			userId: "system",
 		});
 	});
-
-
 
 	// Error test handler
 	socket.on("errorTest", (data) => {
@@ -149,7 +145,7 @@ io.on("connection", (socket: Socket) => {
 			message: "This is a test error response",
 			timestamp: new Date().toISOString(),
 			errorCode: "TEST_ERROR",
-			originalData: data
+			originalData: data,
 		});
 	});
 
@@ -162,7 +158,7 @@ io.on("connection", (socket: Socket) => {
 			userId: socket.userId,
 			userName: socket.user.first_name,
 			status: "offline",
-			timestamp: new Date().toISOString()
+			timestamp: new Date().toISOString(),
 		});
 	});
 });

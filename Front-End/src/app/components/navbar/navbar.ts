@@ -39,8 +39,6 @@ import { Router, RouterLink } from '@angular/router';
 	</p-toolbar>
   `,
   styles: `
-    .logoImg {
-    }
 	:host {
 	  display: flex;
 	  flex-direction: row;

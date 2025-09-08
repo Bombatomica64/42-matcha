@@ -160,7 +160,7 @@ export class MatchRepository extends BaseRepository<Match> {
     `;
 
 		const result = await this.pool.query(query, [userId]);
-		return parseInt(result.rows[0].count);
+		return parseInt(result.rows[0].count, 10);
 	}
 
 	/**

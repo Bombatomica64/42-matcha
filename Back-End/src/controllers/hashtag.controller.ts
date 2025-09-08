@@ -45,7 +45,7 @@ export class HashtagController {
 				return res.status(204).json({ message: "No hashtags found" });
 			}
 		} catch (error) {
-			logger.error("Error searching hashtags by keyword:", error);
+			logger.error(`Error searching hashtags by keyword: ${error}`);
 			return res.status(500).json({ message: "Internal server error" });
 		}
 	}
@@ -78,7 +78,7 @@ export class HashtagController {
 			if (error instanceof Error && error.message === "Hashtag not found") {
 				return res.status(404).json({ error: "Hashtag not found" } as ErrorResponse);
 			}
-			logger.error("Error adding hashtag to user:", error);
+			logger.error(`Error adding hashtag to user: ${error}`);
 			return res.status(500).json({ message: "Internal server error" } as ErrorResponse);
 		}
 	}
@@ -105,7 +105,7 @@ export class HashtagController {
 				return res.status(404).json({ error: "Hashtag not found" } as ErrorResponse);
 			}
 		} catch (error) {
-			logger.error("Error removing hashtag from user:", error);
+			logger.error(`Error removing hashtag from user: ${error}`);
 			return res.status(500).json({ message: "Internal server error" } as ErrorResponse);
 		}
 	}

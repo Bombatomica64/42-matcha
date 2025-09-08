@@ -115,7 +115,7 @@ export class AuthController {
 
 			res.status(201).json(successResponse);
 		} catch (error) {
-			logger.error("Registration error:", error);
+			logger.error(`Registration error: ${error}`);
 
 			const errorResponse: ErrorResponse = {
 				error: "Bad Request",
@@ -175,7 +175,7 @@ export class AuthController {
 
 			res.status(200).json(successResponse);
 		} catch (error) {
-			logger.error("Login error:", error);
+			logger.error(`Login error: ${error}`);
 
 			const errorResponse: ErrorResponse = {
 				error: "Unauthorized",
@@ -223,7 +223,7 @@ export class AuthController {
 			};
 			res.status(200).json(successResponse);
 		} catch (error) {
-			logger.error("Token refresh error:", error);
+			logger.error(`Token refresh error: ${error}`);
 
 			const errorResponse: ErrorResponse = {
 				error: "Unauthorized",
@@ -249,7 +249,7 @@ export class AuthController {
 			};
 			res.status(200).json(successResponse);
 		} catch (error) {
-			logger.error("Logout error:", error);
+			logger.error(`Logout error: ${error}`);
 
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
@@ -295,7 +295,7 @@ export class AuthController {
 			};
 			res.status(200).json(successResponse);
 		} catch (error) {
-			logger.error("Email verification error:", error);
+			logger.error(`Email verification error: ${error}`);
 
 			const errorResponse: ErrorResponse = {
 				error: "Bad Request",
@@ -331,7 +331,7 @@ export class AuthController {
 			};
 			res.status(200).json(successResponse);
 		} catch (error) {
-			logger.error("Password reset error:", error);
+			logger.error(`Password reset error: ${error}`);
 
 			const errorResponse: ErrorResponse = {
 				error: "Bad Request",
@@ -389,7 +389,7 @@ export class AuthController {
 			};
 			res.status(200).json(successResponse);
 		} catch (error) {
-			logger.error("Password reset error:", error);
+			logger.error(`Password reset error: ${error}`);
 
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",

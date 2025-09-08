@@ -1,8 +1,8 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://matcha.bombatomica64.dev/api',
-  socketUrl: 'https://matcha.bombatomica64.dev',
+  apiUrl: 'http://localhost:3000',
+  socketUrl: 'http://localhost:3000',
   // Development SSR (still use external URLs since dev server runs locally)
-  serverApiUrl: 'https://matcha.bombatomica64.dev/api',
-  serverSocketUrl: 'https://matcha.bombatomica64.dev'
+  serverApiUrl: 'http://localhost:3000',
+  serverSocketUrl: 'http://localhost:3000'
 };

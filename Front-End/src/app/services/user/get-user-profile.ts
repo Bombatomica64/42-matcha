@@ -15,7 +15,27 @@ export class GetUserProfile {
   httpMethod: HttpMethod = "GET";
   params = "";
 
-  profile = signal<ProfileData | null>(null);
+    private defaultUser: ProfileData = {
+    id: '',
+    email: '',
+    name: '',
+    birth_date: '',
+    bio: '',
+    first_name: '',
+    last_name: '',
+    gender: undefined,
+    sexual_orientation: undefined,
+    location: undefined,
+    fame_rating: 0,
+    online_status: false,
+    likes_received: 0,
+    views: 0,
+    matches: 0,
+    photos: [],
+    hashtags: []
+  };
+
+  profile = signal<ProfileData>(this.defaultUser);
 
   constructor() {
     console.log('ProfileService initialized');
@@ -34,7 +54,7 @@ export class GetUserProfile {
       },
       error: (error: ErrorResponse) => {
         console.error(error);
-        this.profile.set(null); // Gestisci l'errore impostando null
+        this.profile.set({ ...this.defaultUser, bio: 'Errore nel caricamento del profilo' });
       }
     });
   }

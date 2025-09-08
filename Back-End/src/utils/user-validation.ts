@@ -1,5 +1,6 @@
-import type { UpdateUserData } from "@models/user.entity";
+import type { components } from "@generated/typescript/api";
 
+type UpdateUserData = Partial<components["schemas"]["User"]>;
 // Define readonly fields that cannot be modified
 export const READONLY_FIELDS = [
 	"id",
@@ -166,15 +167,14 @@ export function validateFieldValues(body: Partial<UpdateUserData>): {
 	if (body.location) {
 		if (
 			typeof body.location !== "object" ||
-			body.location.type !== "Point" ||
-			!Array.isArray(body.location.coordinates) ||
-			body.location.coordinates.length !== 2 ||
-			typeof body.location.coordinates[0] !== "number" ||
-			typeof body.location.coordinates[1] !== "number"
+			body.location.latitude === undefined ||
+			body.location.longitude === undefined ||
+			typeof body.location.latitude !== "number" ||
+			typeof body.location.longitude !== "number"
 		) {
 			errors.push("Location must be a valid GeoJSON Point with [longitude, latitude] coordinates");
 		} else {
-			const [lng, lat] = body.location.coordinates;
+			const { longitude: lng, latitude: lat } = body.location;
 			if (lng < -180 || lng > 180) {
 				errors.push("Longitude must be between -180 and 180");
 			}
@@ -185,8 +185,8 @@ export function validateFieldValues(body: Partial<UpdateUserData>): {
 	}
 
 	// Validate string lengths
-	if (body.username && (body.username.length < 3 || body.username.length > 20)) {
-		errors.push("Username must be between 3 and 20 characters");
+	if (body.name && (body.name.length < 3 || body.name.length > 20)) {
+		errors.push("Name must be between 3 and 20 characters");
 	}
 
 	if (body.first_name && (body.first_name.length < 1 || body.first_name.length > 50)) {
