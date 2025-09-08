@@ -9,17 +9,22 @@ import { BadgeModule } from 'primeng/badge';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { RatingModule } from 'primeng/rating';
 
+
 import { adultValidator } from '../../components/forms/register-form/register-form';
 import { SelectModule } from 'primeng/select';
 import { components } from '../../../types/api';
 import { HttpEndpoint, HttpMethod, HttpRequestService } from '../../services/http-request';
 import { Card } from "../../components/card/card";
+import { UserImages } from "../../components/user-images/user-images";
 
 
 type User = components['schemas']['User'];
 // type SexualOrientation = User['sexual_orientation'];
 // type Gender = User['gender'];
-// type ProfileData = components['schemas']['User'];
+type PhotoResponse = components['schemas']['PhotoResponse'];//post
+type GetPhotoResponse = components['schemas']['PhotoListResponse'];//get
+type ErrorResponse = components['schemas']['ErrorResponse'];
+
 // type ErrorResponse = components['schemas']['ErrorResponse'];
 
 @Component({
@@ -33,11 +38,13 @@ type User = components['schemas']['User'];
     Card,
     ProfileForm,
     RatingModule,
-    FormsModule
+    FormsModule,
+    UserImages,
 ],
   template: `
     <div style="padding: 1rem;">
       <app-card [user]="profileService.profile()"/>
+      <app-user-images />
     </div>
 
     <div style="display: flex; flex-direction: column; padding: 1rem;">
@@ -46,7 +53,7 @@ type User = components['schemas']['User'];
 
       <app-profile-form />
     </div>
-    
+
     <div style="padding: 1rem;">
       <p>Hashtags: {{ profileService.profile().hashtags }}</p>
       <p>Photos: {{ profileService.profile().photos }}</p>
@@ -91,7 +98,20 @@ type User = components['schemas']['User'];
 export class Profile {
   profileService = inject(GetUserProfile);
 
-  //hastag dopo
-  //foto dopo
+//  httpEndpoint: HttpEndpoint = "/photos"
+//  httpMethod: HttpMethod = "POST"
+//
+//  constructor() {
+//	  this.auth.requestParams("", this.httpEndpoint, this.httpMethod).subscribe({
+//      next: (response: GetPhotoResponse) => {
+//        console.log('photo success:', response);
+//      },
+//      error: (error: ErrorResponse) => {
+//        console.error('photo error:', error);
+//      }
+//    });
+//	}
+//
+//  auth = inject(HttpRequestService)
 }
 

@@ -157,7 +157,7 @@ export abstract class BaseRepository<T> {
 					// Usa ST_GeomFromGeoJSON per convertire il GeoJSON in geometria PostGIS
 					// Prima converti l'oggetto in stringa JSON
 					const locationValue = filteredUpdates[key];
-					if (typeof locationValue === 'object' && locationValue !== null) {
+					if (typeof locationValue === "object" && locationValue !== null) {
 						filteredUpdates[key] = JSON.stringify(locationValue);
 					}
 					return `${key} = ST_GeomFromGeoJSON($${index + 2}::text)`;
