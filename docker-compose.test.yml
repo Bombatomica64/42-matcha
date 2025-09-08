@@ -1,0 +1,39 @@
+services:
+  backend:
+    build:
+      context: ./Back-End
+      dockerfile: Dockerfile
+    env_file:
+      - ./Back-End/.env.test
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - traefik
+    ports:
+      - "3000:3000"
+
+  db:
+    build:
+      context: ./Db
+      dockerfile: Dockerfile
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - traefik
+    env_file:
+      - ./Db/.env
+    ports:
+      - "5432:5432"
+
+networks:
+  traefik:
+    driver: bridge
+
+volumes:
+  db_data:
+    driver: local
+  uploads:
+    driver: local

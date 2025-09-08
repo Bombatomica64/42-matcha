@@ -2,12 +2,13 @@ import crypto from "node:crypto";
 import process from "node:process";
 import nodemailer from "nodemailer";
 import { logger } from "../server";
+import { env } from "@config/env";
 
 /**
  * Email service for sending various types of emails
  */
 export class EmailService {
-	constructor(private baseUrl: string = "https://matcha.bombatomica64.dev/") {} //TODO ADD TO ENV
+	constructor(private baseUrl: string = env.CORS_ORIGIN) {} //TODO ADD TO ENV
 	private transporter = nodemailer.createTransport({
 		host: process.env.EMAIL_HOST,
 		port: Number(process.env.EMAIL_PORT),

@@ -22,3 +22,7 @@ html, body {
 app-root {
   display: block;
 }
+body {
+  margin: 0;
+  background: url('/images/background3.png') center center / cover no-repeat fixed;
+}

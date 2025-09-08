@@ -7,6 +7,7 @@ import { authGuard } from './guards/auth-guard';
 import { guestGuard } from './guards/guest-guard';
 import path from 'path';
 import { Profile } from './pages/profile/profile';
+import { Landing } from './pages/landing/landing';
 
 export const routes: Routes = [
 {
@@ -18,6 +19,11 @@ export const routes: Routes = [
 	path: 'register',
 	component: Register,
   canActivate: [guestGuard]
+},
+{
+	path: 'landing',
+	component: Landing,
+	canActivate: [guestGuard]
 },
 {
   path: 'auth/verifyEmail',
