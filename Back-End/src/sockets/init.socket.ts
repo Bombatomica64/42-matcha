@@ -7,7 +7,8 @@ const server = createServer(app);
 
 const io = new Server(server, {
 	// Enable webtransport with fallbacks
-  transports: ['websocket', 'polling'], // Remove webtransport temporarily
+	transports: [ 'websocket', 'polling'],
+
 	allowUpgrades: true,
 	cors: {
 		origin: [

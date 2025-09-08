@@ -6,6 +6,7 @@ import type { Socket } from "socket.io";
 import { pool } from "../database";
 import { logger } from "../server";
 import { io } from "./init.socket";
+import { registerChatNamespace } from "./chat.sockets";
 
 declare module "socket.io" {
 	interface Socket {
@@ -78,6 +79,10 @@ io.on("connection", (socket: Socket) => {
 		userId: "system",
 	});
 
+
+	// Register namespace-based chat handlers (once, not per connection)
+	registerChatNamespace(io);
+
 	// Ping/Pong handler
 	socket.on("ping", (data) => {
 		logger.info(`Ping received from user ${socket.userId}:`, data);
@@ -90,90 +95,27 @@ io.on("connection", (socket: Socket) => {
 		});
 	});
 
-	// Message handler - echo back and broadcast to others
-	socket.on("message", (data) => {
-		logger.info(`Message from user ${socket.userId}:`, data);
 
-		const messageData = {
-			event: "message",
-			message: typeof data === "string" ? data : data.message || JSON.stringify(data),
-			timestamp: new Date().toISOString(),
-			userId: socket.userId,
-			userName: socket.user.first_name,
-		};
+	// // Typing indicator
+	// socket.on("typing", (data) => {
+	// 	logger.info(`User ${socket.userId} is typing:`, data);
 
-		// Echo back to sender with confirmation
-		socket.emit("message", {
-			...messageData,
-			event: "messageConfirm",
-			message: `Message sent: ${messageData.message}`,
-		});
-
-		// Broadcast to all other users (optional - uncomment if you want broadcasting)
-		// socket.broadcast.emit("message", messageData);
-	});
-
-	// Room management
-	socket.on("joinRoom", (roomId) => {
-		socket.join(roomId);
-		logger.info(`User ${socket.userId} joined room: ${roomId}`);
-
-		socket.emit("message", {
-			event: "system",
-			message: `You joined room: ${roomId}`,
-			timestamp: new Date().toISOString(),
-			userId: "system",
-		});
-
-		// Notify others in the room
-		socket.to(roomId).emit("message", {
-			event: "system",
-			message: `${socket.user.first_name} joined the room`,
-			timestamp: new Date().toISOString(),
-			userId: "system",
-		});
-	});
-
-	socket.on("leaveRoom", (roomId) => {
-		socket.leave(roomId);
-		logger.info(`User ${socket.userId} left room: ${roomId}`);
-
-		socket.emit("message", {
-			event: "system",
-			message: `You left room: ${roomId}`,
-			timestamp: new Date().toISOString(),
-			userId: "system",
-		});
-
-		// Notify others in the room
-		socket.to(roomId).emit("message", {
-			event: "system",
-			message: `${socket.user.first_name} left the room`,
-			timestamp: new Date().toISOString(),
-			userId: "system",
-		});
-	});
-
-	// Typing indicator
-	socket.on("typing", (data) => {
-		logger.info(`User ${socket.userId} is typing:`, data);
-
-		// Broadcast typing indicator to room or all users
-		const roomId = data.roomId;
-		if (roomId) {
-			socket.to(roomId).emit("userTyping", {
-				userId: socket.userId,
-				userName: socket.user.first_name,
-				isTyping: data.isTyping || true,
-			});
-		} else {
-			socket.broadcast.emit("userTyping", {
-				userId: socket.userId,
-				userName: socket.user.first_name,
-				isTyping: data.isTyping || true,
-			});
-		}
-	});
+	// 	// Broadcast typing indicator to room or all users
+	// 	const roomId = data.roomId;
+	// 	if (roomId) {
+	// 		socket.to(roomId).emit("userTyping", {
+	// 			userId: socket.userId,
+	// 			userName: socket.user.first_name,
+	// 			isTyping: data.isTyping || true
+	// 		});
+	// 	} else {
+	// 		socket.broadcast.emit("userTyping", {
+	// 			userId: socket.userId,
+	// 			userName: socket.user.first_name,
+	// 			isTyping: data.isTyping || true
+	// 		});
+	// 	}
+	// });
 
 	// User status updates
 	socket.on("userStatus", (status) => {
@@ -191,19 +133,6 @@ io.on("connection", (socket: Socket) => {
 			message: `Your status updated to: ${status}`,
 			timestamp: new Date().toISOString(),
 			userId: "system",
-		});
-	});
-
-	// Custom event handler
-	socket.on("customEvent", (data) => {
-		logger.info(`Custom event from user ${socket.userId}:`, data);
-
-		socket.emit("customEventResponse", {
-			event: "customEventResponse",
-			message: `Custom event received: ${JSON.stringify(data)}`,
-			timestamp: new Date().toISOString(),
-			originalData: data,
-			userId: socket.userId,
 		});
 	});
 

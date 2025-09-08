@@ -18,22 +18,27 @@ export class SocketService {
 	private tokenStore = inject(TokenStore);
 	private platformId = inject(PLATFORM_ID);
 	private isInitialized = false;
+	private currentNamespace: string = '';
 
 
 	/**
-	 * Initialize the socket connection with handlers
+	 * Initialize the socket connection with handlers.
+	 * Optionally provide a namespace (e.g., '/chat').
 	 */
-	initialize(handlers: SocketHandlers = {}): void {
+		initialize(handlers: SocketHandlers = {}, namespace?: string): void {
 		// Only initialize socket on browser platform
 		if (!isPlatformBrowser(this.platformId)) {
 			console.log('[SocketService] Skipping socket initialization on server');
 			return;
 		}
 
-		if (this.isInitialized) {
-			console.warn('Socket already initialized');
-			return;
-		}
+			const ns = namespace ? (namespace.startsWith('/') ? namespace : `/${namespace}`) : '';
+			const alreadySameNs = this.socket && this.currentNamespace === ns;
+			if (this.isInitialized && alreadySameNs && this.socket?.connected) {
+				// Already connected to the same namespace; just attach any additional handlers
+				this.setupEventHandlers(handlers);
+				return;
+			}
 
 		const token = this.tokenStore.getAccessToken();
 		if (!token) {
@@ -41,30 +46,78 @@ export class SocketService {
 			return;
 		}
 
-		// Use different URLs for SSR vs browser
-		const socketUrl = isPlatformBrowser(this.platformId)
+		// Use different URLs for SSR vs browser and append optional namespace
+		const baseUrl = isPlatformBrowser(this.platformId)
 			? environment.socketUrl
 			: environment.serverSocketUrl;
+		const socketUrl = `${baseUrl}${ns}`;
 
 		console.log('[SocketService] Connecting to:', socketUrl);
 		console.log('[SocketService] Token:', token ? 'Present' : 'Missing');
 		console.log('[SocketService] Platform:', isPlatformBrowser(this.platformId) ? 'Browser' : 'Server');
+		if (ns) console.log('[SocketService] Namespace:', ns);
 
-		this.socket = io(socketUrl, {
-			transports: ['websocket', 'polling'],
+			// If switching namespace from a previous connection, disconnect first
+			if (this.socket && !alreadySameNs) {
+				try { this.socket.disconnect(); } catch {}
+				this.socket = null;
+				this.isInitialized = false;
+			}
+
+			this.socket = io(socketUrl, {
+			transports: [ 'websocket', 'polling'],
 			withCredentials: true,
 			auth: { token },
 			timeout: 20000,
-			forceNew: true,
+				forceNew: !alreadySameNs,
 			reconnection: true,
 			reconnectionDelay: 1000,
 			reconnectionDelayMax: 5000,
 			reconnectionAttempts: 5
 		});
 
-		console.log('[SocketService] Socket instance created with transports:', ['webtransport', 'websocket', 'polling']);
+		console.log('[SocketService] Socket instance created with transports:', ['websocket', 'polling']);
 		this.setupEventHandlers(handlers);
 		this.isInitialized = true;
+		this.currentNamespace = ns;
+	}
+
+	/**
+	 * Connect directly to a namespace (e.g., '/chat').
+	 * If already connected, disconnects and reconnects to the new namespace.
+	 */
+	connectNamespace(namespace: string, handlers: SocketHandlers = {}): void {
+		if (!isPlatformBrowser(this.platformId)) {
+			console.log('[SocketService] Skipping connectNamespace on server:', namespace);
+			return;
+		}
+			this.ensureConnected(namespace, handlers);
+	}
+
+		/** Ensure a single persistent connection; connect if not connected or namespace differs. */
+		ensureConnected(namespace?: string, handlers: SocketHandlers = {}): void {
+			if (!isPlatformBrowser(this.platformId)) return;
+			const ns = namespace ? (namespace.startsWith('/') ? namespace : `/${namespace}`) : '';
+
+			if (this.socket && this.socket.connected && this.currentNamespace === ns) {
+				this.setupEventHandlers(handlers);
+				return;
+			}
+			if (this.socket && this.currentNamespace === ns && !this.socket.connected) {
+				this.socket.connect();
+				this.setupEventHandlers(handlers);
+				this.isInitialized = true;
+				return;
+			}
+			this.initialize(handlers, ns || undefined);
+		}
+
+	// Convenience helpers for chat namespace usage
+	join(roomId: string): void {
+		this.emit('join', typeof roomId === 'string' ? roomId : String(roomId));
+	}
+	joinWithUser(userId: string): void {
+		this.emit('join:withUser', typeof userId === 'string' ? userId : String(userId));
 	}
 
 	/**

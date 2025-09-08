@@ -94,6 +94,8 @@ components:
       $ref: './schemas/user.yaml#/components/schemas/User'
     userProfilePatchRequest:
       $ref: './schemas/user.yaml#/components/schemas/UserProfilePatchRequest'
+    SuccessfulLikeResponse:
+      $ref: './schemas/user.yaml#/components/schemas/SuccessfulLikeResponse'
     # Reference photo schemas
     photo:
       $ref: './schemas/photos.yaml#/components/schemas/Photo'

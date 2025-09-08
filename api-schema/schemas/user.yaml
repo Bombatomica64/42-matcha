@@ -355,7 +355,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './common.yaml#/components/schemas/SuccessResponse'
+                $ref: '#/components/schemas/SuccessfulLikeResponse'
               example:
                 message: "User liked successfully"
         '404':
@@ -1279,3 +1279,28 @@ components:
             longitude:
               type: number
               format: float
+    SuccessfulLikeResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "User successfully liked/Disliked"
+        isMatch:
+          type: boolean
+          description: Indicates if the like resulted in a mutual match
+          example: true
+        matchId:
+          type: string
+          format: uuid
+          description: The ID of the match, if applicable
+          example: "d1e5f1c2-3b4c-4f5d-8e6f-7g8h9i0j1k2l"
+        action:
+          type: string
+          enum: [like, dislike]
+          description: The action taken, either "like" or "dislike"
+          example: "like"
+        targetUserId:
+          type: string
+          format: uuid
+          description: The ID of the user who was liked/disliked
+          example: "3631423c-fc47-4ba9-bffc-448bed706aec"
