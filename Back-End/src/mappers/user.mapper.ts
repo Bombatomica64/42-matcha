@@ -30,10 +30,20 @@ export function dbUserToApiUser(dbUser: DbUser): ApiUser {
 		location = { latitude: lat, longitude: lon };
 	}
 
-	logger.info(
-		`User Location resolved -> ${location ? `${location.latitude},${location.longitude}` : "undefined"}`,
-	);
-
+	const photos: ApiPhoto[] =
+		dbUser.photos?.map((photo) => ({
+			id: photo.id,
+			user_id: photo.user_id,
+			filename: photo.filename ?? "",
+			original_filename: photo.original_filename,
+			image_url: photo.file_path,
+			file_size: photo.file_size,
+			mime_type: photo.mime_type ?? "image/jpeg",
+			is_main: photo.is_main,
+			display_order: photo.display_order ?? 0,
+			uploaded_at: photo.uploaded_at,
+		})) || [];
+	logger.info(`Mapped photos: ${JSON.stringify(photos)}`);
 	return {
 		id: dbUser.id,
 		email: dbUser.email,
@@ -51,13 +61,8 @@ export function dbUserToApiUser(dbUser: DbUser): ApiUser {
 		views: dbUser.views_count,
 		matches: dbUser.matches_count,
 		// Convert database photos to API photos
-		photos: dbUser.photos?.map((photo) => ({
-			id: photo.id,
-			user_id: photo.user_id,
-			image_url: photo.image_url,
-			is_main: photo.is_main,
-			uploaded_at: photo.uploaded_at,
-		})) as ApiPhoto[],
+		photos: photos,
+
 		// Hashtags are already strings in DB
 		hashtags: dbUser.hashtags,
 	};
@@ -148,7 +153,7 @@ export function createMinimalUserResponse(dbUser: DbUser): Partial<ApiUser> {
 			.map((photo) => ({
 				id: photo.id,
 				user_id: photo.user_id,
-				image_url: photo.image_url,
+				image_url: photo.file_path,
 				is_main: true,
 				uploaded_at: photo.uploaded_at,
 			})) as ApiPhoto[],

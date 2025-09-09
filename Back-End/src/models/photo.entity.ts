@@ -4,7 +4,7 @@ export interface Photo {
 	user_id: string;
 	filename: string;
 	original_filename?: string;
-	image_url: string; // This is the file_path in database but presented as image_url
+	file_path: string; // This is the file_path in database but presented as image_url
 	file_size?: number;
 	mime_type: "image/jpeg" | "image/png" | "image/gif" | "image/webp";
 	is_main: boolean;
