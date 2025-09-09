@@ -5,9 +5,10 @@ import { VerifyEmail } from './pages/verify-email/verify-email';
 import { Home } from './pages/home/home';
 import { authGuard } from './guards/auth-guard';
 import { guestGuard } from './guards/guest-guard';
-import path from 'path';
 import { Profile } from './pages/profile/profile';
 import { Landing } from './pages/landing/landing';
+import { Chat } from './pages/chat/chat';
+import { chatMessagesResolver } from './resolvers/chat-messages.resolver';
 
 export const routes: Routes = [
 {
@@ -34,10 +35,12 @@ export const routes: Routes = [
   component: Home,
   canActivate: [authGuard]
 },
-// {
-//   path: 'user/:username',
-//   component: UserProfile
-// },
+{
+  path: 'home/chat/:id',
+  component: Chat,
+  canActivate: [authGuard],
+  resolve: { chatPrefetch: chatMessagesResolver }
+},
 {
   path: 'home/profile',
   component: Profile,

@@ -16,7 +16,7 @@ export interface ChatCacheEntry {
 export class ChatCacheService {
   private platformId = inject(PLATFORM_ID);
   private memory = new Map<string, ChatCacheEntry>();
-  private saveTimers = new Map<string, any>();
+  private saveTimers = new Map<string, NodeJS.Timeout>();
 
   private readonly DB_NAME = 'matcha-chat';
   private readonly STORE = 'rooms';

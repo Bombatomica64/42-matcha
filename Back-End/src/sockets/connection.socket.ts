@@ -17,6 +17,9 @@ declare module "socket.io" {
 
 const userRepository = new UserRepository(pool);
 
+// Register all custom namespaces (must happen before clients attempt to connect)
+registerChatNamespace(io);
+
 // JWT Authentication middleware
 io.use(async (socket, next) => {
 	try {
@@ -80,8 +83,6 @@ io.on("connection", (socket: Socket) => {
 	});
 
 
-	// Register namespace-based chat handlers (once, not per connection)
-	registerChatNamespace(io);
 
 	// Ping/Pong handler
 	socket.on("ping", (data) => {

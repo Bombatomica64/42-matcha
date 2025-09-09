@@ -2,6 +2,9 @@
 import type { Server, Socket } from "socket.io";
 import { ChatMessageRepository } from "@repositories/chatMessage.repository";
 import { ChatRoomRepository } from "@repositories/chatRoom.repository";
+import { UserRepository } from "@repositories/user.repository";
+import { dbUserToApiUser } from "@mappers/user.mapper";
+import { decodeJwt, verifyJwt } from "@utils/jwt";
 import { pool } from "../database";
 import { logger } from "../server";
 import type { components } from "@generated/typescript/api";
@@ -9,6 +12,9 @@ import type { components } from "@generated/typescript/api";
 
 const chatMessageRepo = new ChatMessageRepository(pool);
 const chatRoomRepo = new ChatRoomRepository(pool);
+const userRepo = new UserRepository(pool);
+
+// Augment Socket type to include authenticated user info (runtime only)
 
 
 type ChatMessage = components["schemas"]["ChatMessage"];
@@ -43,30 +49,82 @@ export function registerChatNamespace(io: Server) {
 	const nsp = io.of("/chat");
 
 	nsp.use(async (socket, next) => {
-		// Optionally, add per-namespace middleware (e.g., logging, extra auth)
-		next();
+		try {
+			// Prefer Authorization bearer, then auth.token, then access_token cookie
+			const authHeader = socket.handshake.headers['authorization'];
+			let token: string | undefined;
+			if (typeof authHeader === 'string' && authHeader.toLowerCase().startsWith('bearer ')) {
+				token = authHeader.substring(7).trim();
+			} else if (typeof socket.handshake.auth?.token === 'string') {
+				token = socket.handshake.auth.token;
+			} else if (typeof socket.handshake.headers.cookie === 'string') {
+				const m = /(?:^|; )access_token=([^;]+)/.exec(socket.handshake.headers.cookie);
+				if (m) token = decodeURIComponent(m[1]);
+			}
+			if (!token) {
+				return next(new Error('Unauthorized'));
+			}
+			const decoded = decodeJwt(token);
+			if (!decoded || decoded.type !== 'access' || !decoded.userId) {
+				return next(new Error('Invalid token'));
+			}
+			// Expiry check
+			if (decoded.exp && Date.now() >= decoded.exp * 1000) {
+				return next(new Error('Token expired'));
+			}
+			// Optionally verify signature fully
+			const verified = await verifyJwt(token);
+			if (!verified) return next(new Error('Token verification failed'));
+			const user = await userRepo.findById(decoded.userId);
+			if (!user) return next(new Error('User not found'));
+			socket.userId = decoded.userId;
+			socket.user = dbUserToApiUser(user);
+			return next();
+		} catch (err) {
+			logger.error(`Socket auth error: ${err}`);
+			return next(new Error('Auth error'));
+		}
 	});
 
-	nsp.on("connection", (socket: Socket) => {
-		logger.info(`User ${socket.userId} connected to /chat namespace (${socket.id})`);
+	// Ensure chat_rooms table exists (in case init.sql wasn't applied yet)
+	void pool.query('SELECT 1 FROM chat_rooms LIMIT 1').catch(async (e) => {
+		if (/relation "chat_rooms" does not exist/i.test(String(e))) {
+			logger.warn('chat_rooms table missing. Creating minimal schema on the fly.');
+			await pool.query(`CREATE TABLE IF NOT EXISTS chat_rooms (
+				id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+				user1_id UUID REFERENCES users(id) ON DELETE CASCADE,
+				user2_id UUID REFERENCES users(id) ON DELETE CASCADE,
+				created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+			)`);
+		}
+	});
 
-		// Join user to their personal room for private messages (optional)
-		socket.join(`user_${socket.userId}`);
+		nsp.on("connection", (socket: Socket) => {
+			logger.info(`User ${socket.userId ?? 'unknown'} connected to /chat namespace (${socket.id})`);
 
-		// Send welcome message
-		socket.emit("message", {
-			event: "system",
-			message: `Welcome ${socket.user.first_name}! You are connected to chat namespace.`,
-			timestamp: new Date().toISOString(),
-			userId: "system"
-		});
+			if (socket.userId) {
+				// personal room
+				socket.join(`user_${socket.userId}`);
+			}
+
+			// Safe welcome message
+			const s = socket as Socket & { userId?: string; user?: { first_name?: string } };
+			socket.emit("system", {
+				message: `Welcome ${s.user?.first_name ? s.user.first_name : ''}`.trim() || 'Welcome!',
+				timestamp: new Date().toISOString(),
+				userId: "system"
+			});
 
 		// Join a chat room by ID (server validates membership)
-		socket.on("join", async (payload: string | { roomId: string }) => {
+			socket.on("join", async (payload: string | { roomId: string }) => {
 			const roomId = typeof payload === "string" ? payload : payload?.roomId;
 			if (!roomId) return;
+				if (!socket.userId) {
+					socket.emit("error", { code: "UNAUTH", message: "Not authenticated" });
+					return;
+				}
 			// Validate once against DB
-			const allowed = await chatRoomRepo.userIsInRoom(socket.userId, roomId).catch(() => false);
+				const allowed = await chatRoomRepo.userIsInRoom(socket.userId, roomId).catch(() => false);
 			if (!allowed) {
 				socket.emit("error", { code: "FORBIDDEN", message: "You are not a member of this chat" });
 				return;
@@ -78,17 +136,21 @@ export function registerChatNamespace(io: Server) {
 		});
 
 		// Join (or create) a 1:1 chat by peer user id
-		socket.on("join:withUser", async (payload: string | { userId: string }) => {
+			socket.on("join:withUser", async (payload: string | { userId: string }) => {
 			const peerUserId = typeof payload === "string" ? payload : payload?.userId;
 			if (!peerUserId) {
 				socket.emit("error", { code: "BAD_REQUEST", message: "userId is required" });
 				return;
 			}
+				if (!socket.userId) {
+					socket.emit("error", { code: "UNAUTH", message: "Not authenticated" });
+					return;
+				}
 
 			// Find or create the room for the two users
-			let room = await chatRoomRepo.findByUserIds(socket.userId, peerUserId);
+				let room = await chatRoomRepo.findByUserIds(socket.userId, peerUserId);
 			if (!room) {
-				room = await chatRoomRepo.createChatRoom(socket.userId, peerUserId);
+					room = await chatRoomRepo.createChatRoom(socket.userId, peerUserId);
 				if (!room) {
 					socket.emit("error", { code: "SERVER_ERROR", message: "Unable to create chat room" });
 					return;

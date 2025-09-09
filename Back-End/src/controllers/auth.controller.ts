@@ -161,17 +161,25 @@ export class AuthController {
 
 			const successResponse: LoginResponse = {
 				message: "Login successful",
-				token: result.accessToken, // Keep existing field name for now
+				token: result.accessToken,
 				user_id: result.user.id,
 			};
 
-			// Set refresh token in httpOnly cookie for security
+			// HttpOnly refresh token (long-lived)
 			res.cookie("refreshToken", result.refreshToken, {
 				httpOnly: true,
 				secure: env.NODE_ENV === "production",
 				sameSite: "strict",
-				maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-			}); //TODO: Implement refresh token rotation
+				maxAge: 7 * 24 * 60 * 60 * 1000,
+			});
+
+			// Access token also as cookie for SSR prefetch (short-lived, NOT httpOnly so client can mirror if needed)
+			res.cookie("access_token", result.accessToken, {
+				httpOnly: false,
+				secure: env.NODE_ENV === "production",
+				sameSite: "lax",
+				maxAge: 15 * 60 * 1000, // 15 minutes
+			});
 
 			res.status(200).json(successResponse);
 		} catch (error) {
@@ -217,6 +225,13 @@ export class AuthController {
 				return;
 			}
 
+			// Update access token cookie
+			res.cookie("access_token", result.accessToken, {
+				httpOnly: false,
+				secure: env.NODE_ENV === "production",
+				sameSite: "lax",
+				maxAge: 15 * 60 * 1000,
+			});
 			const successResponse = {
 				message: "Token refreshed successfully",
 				access_token: result.accessToken,
@@ -240,8 +255,9 @@ export class AuthController {
 	 */
 	async logout(_req: Request, res: Response): Promise<void> {
 		try {
-			// Clear refresh token cookie
+			// Clear auth cookies
 			res.clearCookie("refreshToken");
+			res.clearCookie("access_token");
 
 			// TODO: Implement JWT token blacklisting if needed
 			const successResponse: LogoutResponse = {

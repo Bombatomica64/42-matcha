@@ -1,13 +1,16 @@
 import { Component, computed, effect, inject, input, signal, type OnDestroy, type OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ScrollerModule } from 'primeng/scroller';
-import { ChatList } from '../../components/chat-list/chat-list';
 import { ChatMessage } from '../../components/chat-message/chat-message';
 import { SocketService } from '../../services/socketio';
 import { ChatCacheService } from '../../services/chat-cache';
 import { HttpRequestService, type HttpMethod, type HttpEndpoint } from '../../services/http-request';
 import { firstValueFrom } from 'rxjs';
 import type { components } from '../../../types/api';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { NgxBorderBeamComponent } from '@omnedia/ngx-border-beam';
+import { Menu } from "primeng/menu";
 
 // Types
 type HttpChatMessage = components['schemas']['ChatMessage'];
@@ -15,7 +18,7 @@ type PaginationQuery = components['schemas']['PaginationQuery'];
 
 @Component({
 	selector: 'app-chat',
-	imports: [ScrollerModule, ChatMessage, ChatList],
+	imports: [ScrollerModule, ChatMessage, InputGroupModule, InputGroupAddonModule, NgxBorderBeamComponent, Menu],
 	templateUrl: './chat.html',
 	styleUrl: './chat.scss'
 })

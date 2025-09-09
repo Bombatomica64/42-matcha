@@ -20,7 +20,11 @@ export const jwtMiddleware = async (req: Request, res: Response, next: NextFunct
 		return next();
 	}
 
-	const jwt = req.headers.authorization?.split(" ")[1];
+	// Access token retrieval: Authorization header (Bearer) preferred, else cookie fallback
+	let jwt = req.headers.authorization?.split(" ")[1];
+	if (!jwt && req.cookies?.access_token) {
+		jwt = req.cookies.access_token;
+	}
 
 	if (!jwt) {
 		return res.status(401).json({ message: "Unauthorized" });
@@ -68,8 +72,14 @@ export const jwtMiddleware = async (req: Request, res: Response, next: NextFunct
 			userId = decoded?.userId || "";
 			currentToken = newAccessToken;
 
-			// Send new access token to client via header
+			// Send new access token to client via header and update cookie
 			res.setHeader("X-New-Access-Token", newAccessToken);
+			res.cookie("access_token", newAccessToken, {
+				httpOnly: false, // kept readable by client to mirror state if needed
+				secure: process.env.NODE_ENV === 'production',
+				sameSite: 'lax',
+				maxAge: 15 * 60 * 1000
+			});
 		}
 
 		// Verify the current token (original or refreshed)

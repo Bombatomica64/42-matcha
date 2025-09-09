@@ -26,3 +26,16 @@ body {
   margin: 0;
   background: url('/images/background3.png') center center / cover no-repeat fixed;
 }
+
+/* Shared container styling reused across routed views and side widgets */
+.router-frame {
+  height: 100%;
+  width: 100%;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.04);
+  -webkit-backdrop-filter: blur(.2rem);
+  backdrop-filter: blur(.2rem);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}

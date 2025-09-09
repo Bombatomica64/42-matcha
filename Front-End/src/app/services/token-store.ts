@@ -2,8 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID, inject } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
-// import { AuthService } from '../jwthandler.service';
-import { firstValueFrom } from 'rxjs';
+
 
 /**
  * Represents the structure of the JWT token payload
@@ -46,11 +45,25 @@ export class TokenStore {
 	 */
 	private initTokensFromStorage(): void {
 		if (isPlatformBrowser(this.platformId)) {
-			const accessToken = localStorage.getItem(this.TOKEN_KEY);
+			let accessToken = localStorage.getItem(this.TOKEN_KEY);
+			// Fallback to cookie if localStorage empty (SSR-provided cookie or first load)
+			if (!accessToken) {
+				const cookieMatch = /(?:^|; )access_token=([^;]+)/.exec(document.cookie);
+				if (cookieMatch) accessToken = decodeURIComponent(cookieMatch[1]);
+			}
 			const refreshToken = localStorage.getItem(this.REFRESH_TOKEN_KEY);
-
 			this.accessTokenSignal.set(accessToken);
 			this.refreshTokenSignal.set(refreshToken);
+		} else {
+			// SSR: look for global shim the server may set (non-secure exposure only for rendering)
+			const g = globalThis as unknown as { __REQ_AUTH_HEADER?: string; __REQ_COOKIE_HEADER?: string };
+			let token: string | undefined;
+			const cookie = g.__REQ_COOKIE_HEADER;
+			if (cookie) {
+				const match = /(?:^|; )access_token=([^;]+)/.exec(cookie);
+				if (match) token = decodeURIComponent(match[1]);
+			}
+			if (token) this.accessTokenSignal.set(token);
 		}
 	}
 
@@ -112,7 +125,7 @@ export class TokenStore {
 		try {
 			const decoded = jwtDecode<TokenPayload>(token);
 			return decoded.exp * 1000 < Date.now();
-		} catch (e) {
+		} catch {
 			return true;
 		}
 	}

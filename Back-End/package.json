@@ -16,6 +16,7 @@
     "check:fix": "biome check --write src/",
     "organize-imports": "biome check --apply-unsafe src/",
     "seed:users": "node scripts/seed-users.js",
+    "migrate": "tsx src/migrate.ts",
     "test:db:start": "./scripts/start-test-db.sh",
     "test:db:stop": "./scripts/stop-test-db.sh",
     "test:db:clean": "./scripts/stop-test-db.sh --clean",

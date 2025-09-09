@@ -1,42 +1,40 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterOutlet, RouterLink } from '@angular/router';
-import { Navbar } from './components/navbar/navbar';
 import { MainSidebar } from "./components/sidebars/mainsidebar/main-sidebar";
 import { TokenStore } from './services/token-store';
-import { SimpleChatTest } from './components/simple-chat-test/simple-chat-test';
 import { ButtonModule } from 'primeng/button';
 import { ToolbarModule } from 'primeng/toolbar';
 import { NgOptimizedImage } from '@angular/common';
+import { ChatList } from "./components/chat-list/chat-list";
 
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MainSidebar, SimpleChatTest, ButtonModule, RouterLink, ToolbarModule, NgOptimizedImage],
+  imports: [RouterOutlet, MainSidebar, ButtonModule, RouterLink, ToolbarModule, NgOptimizedImage, ChatList],
   template: `
-    <div class="app-sidebar">
+  <div class="app-sidebar">
       @if (!isLoggedIn()) {
-        <!--app-navbar /-->
 		<div class="flex items-center">
 			<img ngSrc="images/logoConNome_noBackground.png" class="logoImg"
-                 alt="Logo" 
-                 width="150" 
-                 height="150" 
-                 style="margin-bottom: 1rem" 
+                 alt="Logo"
+                 width="150"
+                 height="150"
+                 style="margin-bottom: 1rem"
                  priority />
 			<!--p-button label="Files" text plain /-->
 			<!--p-button label="Edit" text plain /-->
 			<!--p-button label="View" text plain /-->
 		</div>
-	  }				
+	  }
       @if (isLoggedIn()) {
         <app-main-sidebar />
       }
     </div>
-    <div class="router-frame">
+  <div class="router-frame">
       <router-outlet ></router-outlet>
     </div>
     @if (isLoggedIn()) {
-      <app-simple-chat-test />
+      <app-chat-list />
     } @else {
 		<div class="right-sidebar">
 		<p-toolbar [style]="{ 'border-radius': '3rem', 'padding': '0rem', }">
@@ -109,14 +107,14 @@ export class App {
   });
 
   private get isRegister() {
-	return this.router.url === '/register' || this.router.url === '/landing';
+    return this.router.url === '/register' || this.router.url === '/landing';
   }
 
   get targetRoute() {
-	return this.isRegister ? '/login' : '/register';
+    return this.isRegister ? '/login' : '/register';
   }
 
   get routeLabel() {
-	return this.isRegister ? 'Login' : 'Register';
+    return this.isRegister ? 'Login' : 'Register';
   }
 }

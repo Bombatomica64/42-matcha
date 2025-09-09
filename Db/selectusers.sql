@@ -1,31 +1,32 @@
-SELECT id,
-       username,
-       email,
-       birth_date,
-       password,
-       bio,
-       first_name,
-       last_name,
-       activated,
-       profile_complete,
-       gender,
-       sexual_orientation,
-       location,
-       location_manual,
-       fame_rating,
-       last_seen,
-       online_status,
-       email_verification_token,
-       email_verified_at,
-       password_reset_token,
-       password_reset_expires_at,
-       likes_received_count,
-       views_count,
-       matches_count,
-       created_at,
-       updated_at
-FROM public.users
-ORDER BY updated_at DESC
-LIMIT 100;
-
--- SELECT * FROM get_discoverable_users('3631423c-fc47-4ba9-bffc-448bed706aec') LIMIT 1;
+-- SELECT id,
+--        username,
+--        email,
+--        birth_date,
+--        password,
+--        bio,
+--        first_name,
+--        last_name,
+--        activated,
+--        profile_complete,
+--        gender,
+--        sexual_orientation,
+--        location,
+--        location_manual,
+--        fame_rating,
+--        last_seen,
+--        online_status,
+--        email_verification_token,
+--        email_verified_at,
+--        password_reset_token,
+--        password_reset_expires_at,
+--        likes_received_count,
+--        views_count,
+--        matches_count,
+--        created_at,
+--        updated_at
+-- FROM public.users
+-- ORDER BY updated_at DESC
+-- LIMIT 100;
+-- INSERT INTO public.chat_rooms (user1_id, user2_id)
+-- VALUES ('30adebfa-4688-4411-99a0-e73b61ce589a', '4756a1b7-7662-4e41-bad3-2a273f115d2c');
+SELECT * FROM public.chat_rooms;

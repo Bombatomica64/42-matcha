@@ -1,0 +1,14 @@
+ .chat-layout {
+	 display: grid;
+	 grid-template-columns: 1fr 320px;
+	 height: 100%;
+	 width: 100%;
+	 overflow: hidden;
+ }
+ .chat-main { min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+ .chat-side { border-left: 1px solid rgba(0,0,0,0.1); overflow: auto; }
+ .chat-scroller { height: 100%; }
+ @media (max-width: 1023px) {
+	 .chat-layout { grid-template-columns: 1fr; }
+	 .chat-side { display: none; }
+ }
