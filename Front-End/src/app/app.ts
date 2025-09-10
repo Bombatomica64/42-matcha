@@ -8,17 +8,17 @@ import { MainSidebar } from "./components/sidebars/mainsidebar/main-sidebar";
 import { TokenStore } from "./services/token-store";
 
 @Component({
-	selector: "app-root",
-	imports: [
-		RouterOutlet,
-		MainSidebar,
-		ButtonModule,
-		RouterLink,
-		ToolbarModule,
-		NgOptimizedImage,
-		ChatList,
-	],
-	template: `
+  selector: "app-root",
+  imports: [
+    RouterOutlet,
+    MainSidebar,
+    ButtonModule,
+    RouterLink,
+    ToolbarModule,
+    NgOptimizedImage,
+    ChatList,
+  ],
+  template: `
   <div class="app-sidebar">
       @if (!isLoggedIn()) {
 		<div class="flex items-center">
@@ -59,7 +59,7 @@ import { TokenStore } from "./services/token-store";
       </div>
     }
   `,
-	styles: `
+  styles: `
     app-main-sidebar {
       //height: 100%;
       display: flex;
@@ -104,25 +104,25 @@ import { TokenStore } from "./services/token-store";
   `,
 })
 export class App {
-	private router = inject(Router);
-	private tokenStore = inject(TokenStore);
-	protected readonly title = signal("Front-End");
+  private router = inject(Router);
+  private tokenStore = inject(TokenStore);
+  protected readonly title = signal("Front-End");
 
-	isLoggedIn = computed(() => {
-		//TODO implement proper auth check through router
-		// getAccessToken() already returns null for expired/invalid tokens
-		return !!this.tokenStore.getAccessToken();
-	});
+  isLoggedIn = computed(() => {
+    //TODO implement proper auth check through router
+    // getAccessToken() already returns null for expired/invalid tokens
+    return !!this.tokenStore.getAccessToken();
+  });
 
-	private get isRegister() {
-		return this.router.url === "/register" || this.router.url === "/landing";
-	}
+  private get isRegister() {
+    return this.router.url === "/register" || this.router.url === "/landing";
+  }
 
-	get targetRoute() {
-		return this.isRegister ? "/login" : "/register";
-	}
+  get targetRoute() {
+    return this.isRegister ? "/login" : "/register";
+  }
 
-	get routeLabel() {
-		return this.isRegister ? "Login" : "Register";
-	}
+  get routeLabel() {
+    return this.isRegister ? "Login" : "Register";
+  }
 }

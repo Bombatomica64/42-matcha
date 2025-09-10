@@ -5,11 +5,18 @@ import { jwtDecode } from "jwt-decode";
 /**
  * Represents the structure of the JWT token payload
  */
-interface TokenPayload {
-	/** Subject (user ID) */
-	sub: string;
-	/** Expiration timestamp */
-	exp: number;
+export interface TokenPayload {
+	userId: string;
+	username: string;
+	type?: "access" | "refresh"; // Add token type
+	location?:
+		| {
+				type: "Point";
+				coordinates: [number, number]; // [longitude, latitude]
+		  }
+		| string;
+	iat?: number; // issued at
+	exp: number; // expiration
 }
 
 /**
@@ -177,4 +184,16 @@ export class TokenStore {
 			window.location.href = "/login";
 		}
 	}
+  get userId(): string | null {
+    const token = this.getAccessToken();
+    if (token) {
+      try {
+        const decoded = jwtDecode<TokenPayload>(token);
+        return decoded.userId;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  }
 }

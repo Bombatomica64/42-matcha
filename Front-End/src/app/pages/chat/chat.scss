@@ -1,9 +1,18 @@
- .chat-layout {
+ :host {
 	 display: flex;
 	 flex-direction: column;
-	 height: 100%;
+	 flex: 1 1 auto;
+	 min-height: 0; // allow descendants with overflow to scroll
 	 width: 100%;
  }
+
+.chat-layout {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	min-height: 0;
+	width: 100%;
+}
 
  .chat-main {
 	 flex: 1 1 auto;
@@ -18,14 +27,28 @@
 	 min-height: 0;
 	 display: flex;
 	 flex-direction: column;
-	 overflow: hidden;
+	 overflow: hidden; // virtual scroller handles its internal scroll
  }
 
  .chat-scroller {
 	 flex: 1 1 auto;
-	 height: 100%;
+	 min-height: 0;
 	 width: 100%;
+	 // no explicit height:100%; let flex distribute space
  }
+
+ .chat-scroller .p-virtualscroller-content {
+	 display: flex;
+	 flex-direction: column;
+	 /* Remove flex gap so itemSize reflects real height; spacing via item bottom padding */
+	 padding: 1rem 1rem .25rem;
+ }
+
+.chat-beam-full, .chat-beam-full > .om-border-beam-wrapper, .chat-beam-full > .om-border-beam-wrapper > .om-border-beam {
+	height: 100%;
+	display: flex;
+	flex: 1 1 auto;
+}
 
  .no-messages { padding: 1rem; opacity: 0.7; font-size: 0.9rem; }
 
@@ -46,6 +69,3 @@
 .composer-field { flex: 1 1 auto; }
 .composer-field :is(input) { width: 100%; }
 
- @media (min-width: 1024px) {
-	 .chat-layout { flex-direction: row; }
- }
