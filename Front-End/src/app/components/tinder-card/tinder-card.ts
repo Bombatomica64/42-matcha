@@ -1,19 +1,38 @@
-import { Component, ElementRef, inject, input, ViewChild, effect, signal } from '@angular/core';
-import {CdkDrag, CdkDragMove, CdkDragEnd} from '@angular/cdk/drag-drop';
-import { HttpEndpoint, HttpMethod, HttpRequestService, PaginationQuery } from '../../services/http-request';
-import { operations, components } from '../../../types/api'
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
-import { Card } from '../card/card';
+import {
+	CdkDrag,
+	type CdkDragEnd,
+	type CdkDragMove,
+} from "@angular/cdk/drag-drop";
+import {
+	Component,
+	ElementRef,
+	effect,
+	inject,
+	input,
+	signal,
+	ViewChild,
+} from "@angular/core";
+import { ButtonModule } from "primeng/button";
+import { CardModule } from "primeng/card";
+import { components, type operations } from "../../../types/api";
+import {
+	type HttpEndpoint,
+	type HttpMethod,
+	HttpRequestService,
+	type PaginationQuery,
+} from "../../services/http-request";
+import { Card } from "../card/card";
 
-export type DiscoverUsersQuery = operations['discoverUsers']['parameters']['query'];
-type DiscoverUsersResponse = operations['discoverUsers']['responses']['200']['content']['application/json'];
-type DiscoverUsersData = DiscoverUsersResponse['data'];
+export type DiscoverUsersQuery =
+	operations["discoverUsers"]["parameters"]["query"];
+type DiscoverUsersResponse =
+	operations["discoverUsers"]["responses"]["200"]["content"]["application/json"];
+type DiscoverUsersData = DiscoverUsersResponse["data"];
 
 @Component({
-  selector: 'app-tinder-card',
-  imports: [CdkDrag, CardModule, ButtonModule, Card],
-  template: `
+	selector: "app-tinder-card",
+	imports: [CdkDrag, CardModule, ButtonModule, Card],
+	template: `
       <div #box class="example-box" cdkDrag [cdkDragFreeDragPosition]="dragPosition()" (cdkDragMoved)="onDragMoved($event)" (cdkDragEnded)="onDragEnded($event)">
         <div #content class="content">
           @if (users().length > 0 && currentUserIndex() < users().length) {
@@ -22,7 +41,7 @@ type DiscoverUsersData = DiscoverUsersResponse['data'];
         </div>
       </div>
   `,
-  styles: `
+	styles: `
   :host {
     display: block;
     width: 100%;
@@ -57,211 +76,220 @@ type DiscoverUsersData = DiscoverUsersResponse['data'];
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
   }
-  `
+  `,
 })
 export class TinderCard {
-  private hostRef = inject(ElementRef<HTMLElement>);
-  hostWidth = input.required<number>();
-  hostHeight = input.required<number>();
+	private hostRef = inject(ElementRef<HTMLElement>);
+	hostWidth = input.required<number>();
+	hostHeight = input.required<number>();
 
-  @ViewChild('box', { read: ElementRef }) box?: ElementRef<HTMLDivElement>;
-  @ViewChild('content', { read: ElementRef }) content?: ElementRef<HTMLDivElement>;
-  private cardWidth = 300;
-  private cardHeight = 450;
-  releasePosition = signal<"left" | "center" | "right">("center");
+	@ViewChild("box", { read: ElementRef }) box?: ElementRef<HTMLDivElement>;
+	@ViewChild("content", { read: ElementRef })
+	content?: ElementRef<HTMLDivElement>;
+	private cardWidth = 300;
+	private cardHeight = 450;
+	releasePosition = signal<"left" | "center" | "right">("center");
 
-  users = signal<DiscoverUsersData>([]);
-  currentUserIndex = signal(0);
+	users = signal<DiscoverUsersData>([]);
+	currentUserIndex = signal(0);
 
-  private cachedHostWidth = 0;
-  private cachedHostHeight = 0;
-  private cachedHostLeft = 0;
-  private cachedHostTop = 0;
-  private ro?: ResizeObserver;
+	private cachedHostWidth = 0;
+	private cachedHostHeight = 0;
+	private cachedHostLeft = 0;
+	private cachedHostTop = 0;
+	private ro?: ResizeObserver;
 
-  private line1?: HTMLDivElement;
-  private line2?: HTMLDivElement;
+	private line1?: HTMLDivElement;
+	private line2?: HTMLDivElement;
 
-  dragPosition = signal<{x: number, y: number}>({x: 10, y: 10});
+	dragPosition = signal<{ x: number; y: number }>({ x: 10, y: 10 });
 
-  auth = inject(HttpRequestService);
-  httpEndpoint: HttpEndpoint = "/users/discover";
-  httpMethod: HttpMethod = "GET";
-  queryParams: DiscoverUsersQuery = { maxDistance: 100000 };
-  paginationParams: PaginationQuery = { page: 1, limit: 10, order: "asc" };
-  params = { ...this.queryParams, ...this.paginationParams };
+	auth = inject(HttpRequestService);
+	httpEndpoint: HttpEndpoint = "/users/discover";
+	httpMethod: HttpMethod = "GET";
+	queryParams: DiscoverUsersQuery = { maxDistance: 100000 };
+	paginationParams: PaginationQuery = { page: 1, limit: 10, order: "asc" };
+	params = { ...this.queryParams, ...this.paginationParams };
 
+	ngOnInit(): void {
+		// Inizializza la posizione di trascinamento qui se necessario
+		this.auth
+			.requestParams(this.params, this.httpEndpoint, this.httpMethod)
+			.subscribe({
+				next: (response: DiscoverUsersResponse) => {
+					console.log(response);
+					console.log(response.data);
+					this.users.set(response.data || []);
+				},
+				error: (error) => {
+					console.error(error);
+				},
+			});
+	}
 
-  ngOnInit(): void {
-    // Inizializza la posizione di trascinamento qui se necessario
-    this.auth.requestParams(
-      this.params,
-      this.httpEndpoint,
-      this.httpMethod
-    ).subscribe({
-      next: (response: DiscoverUsersResponse) => {
-        console.log(response);
-        console.log(response.data);
-        this.users.set(response.data || []);
-      },
-      error: (error) => {
-        console.error(error);
-      }
-    });
-  }
+	ngAfterViewInit(): void {
+		const el = this.box?.nativeElement;
+		if (!el) return;
 
-  ngAfterViewInit(): void {
-    const el = this.box?.nativeElement;
-    if (!el) return;
+		// leggi dimensione card una volta
+		const rect = el.getBoundingClientRect();
+		this.cardWidth = Math.round(rect.width);
+		this.cardHeight = Math.round(rect.height);
 
-    // leggi dimensione card una volta
-    const rect = el.getBoundingClientRect();
-    this.cardWidth = Math.round(rect.width);
-    this.cardHeight = Math.round(rect.height);
+		// misura sincrona iniziale (per non avere 0/0)
+		this.updateHostSize();
 
-    // misura sincrona iniziale (per non avere 0/0)
-    this.updateHostSize();
+		// assicurati della misura dopo il frame e poi installa l'observer
+		requestAnimationFrame(() => {
+			this.updateHostSize();
+			this.ro = new ResizeObserver(() => this.updateHostSize());
+			this.ro.observe(this.hostRef.nativeElement);
+		});
 
-    // assicurati della misura dopo il frame e poi installa l'observer
-    requestAnimationFrame(() => {
-      this.updateHostSize();
-      this.ro = new ResizeObserver(() => this.updateHostSize());
-      this.ro.observe(this.hostRef.nativeElement);
-    });
+		if (this.content) {
+			this.content.nativeElement.style.transformOrigin = "50% 100%";
+		}
+	}
 
-    if (this.content) {
-      this.content.nativeElement.style.transformOrigin = '50% 100%';
-    }
-  }
+	ngOnDestroy() {
+		this.ro?.disconnect();
+	}
 
-  ngOnDestroy() {
-    this.ro?.disconnect();
-  }
+	private updateHostSize(): void {
+		const r = this.hostRef.nativeElement.getBoundingClientRect();
+		this.cachedHostWidth = Math.round(r.width);
+		this.cachedHostHeight = Math.round(r.height);
+		this.cachedHostLeft = Math.round(r.left);
+		this.cachedHostTop = Math.round(r.top);
 
-  private updateHostSize(): void {
-    const r = this.hostRef.nativeElement.getBoundingClientRect();
-    this.cachedHostWidth = Math.round(r.width);
-    this.cachedHostHeight = Math.round(r.height);
-    this.cachedHostLeft = Math.round(r.left);
-    this.cachedHostTop = Math.round(r.top);
+		// calcola qui la posizione iniziale della card ogni volta che cambia la host size
+		const xInitial = this.cachedHostWidth / 2 - this.cardWidth / 2;
+		const yInitial = this.cachedHostHeight / 2 - this.cardHeight / 2;
+		this.dragPosition.set({ x: Math.round(xInitial), y: Math.round(yInitial) });
+	}
 
-    // calcola qui la posizione iniziale della card ogni volta che cambia la host size
-    const xInitial = (this.cachedHostWidth / 2) - (this.cardWidth / 2);
-    const yInitial = (this.cachedHostHeight / 2) - (this.cardHeight / 2);
-    this.dragPosition.set({ x: Math.round(xInitial), y: Math.round(yInitial) });
-  }
+	onDragMoved(event: CdkDragMove) {
+		// posizione "libera" della card (x,y) rispetto al suo container
+		const freePos =
+			typeof event.source.getFreeDragPosition === "function"
+				? event.source.getFreeDragPosition()
+				: this.dragPosition();
 
-  onDragMoved(event: CdkDragMove) {
-    // posizione "libera" della card (x,y) rispetto al suo container
-    const freePos = typeof event.source.getFreeDragPosition === 'function'
-      ? event.source.getFreeDragPosition()
-      : this.dragPosition();
+		const cardRect = this.box?.nativeElement.getBoundingClientRect();
+		const cardCenterX = cardRect
+			? Math.round(cardRect.left) - this.cachedHostLeft + cardRect.width / 2
+			: freePos.x + this.cardWidth / 2;
 
-    const cardRect = this.box?.nativeElement.getBoundingClientRect();
-    const cardCenterX = cardRect
-      ? (Math.round(cardRect.left) - this.cachedHostLeft) + (cardRect.width / 2)
-      : (freePos.x + (this.cardWidth / 2));
+		const firstBoundary = Math.round(this.cachedHostWidth / 3);
+		const secondBoundary = Math.round((this.cachedHostWidth / 3) * 2);
+		const centerBoundary = Math.round(this.cachedHostWidth / 2);
 
-    const firstBoundary = Math.round(this.cachedHostWidth / 3);
-    const secondBoundary = Math.round((this.cachedHostWidth / 3) * 2);
-    const centerBoundary = Math.round(this.cachedHostWidth / 2);
+		//draw 2 red line intangibili
+		if (!this.line1) {
+			this.line1 = document.createElement("div");
+			Object.assign(this.line1.style, {
+				position: "absolute",
+				top: "0",
+				bottom: "0",
+				width: "2px",
+				background: "red",
+				pointerEvents: "none",
+			});
+			this.hostRef.nativeElement.appendChild(this.line1);
+		}
+		if (!this.line2) {
+			this.line2 = document.createElement("div");
+			Object.assign(this.line2.style, {
+				position: "absolute",
+				top: "0",
+				bottom: "0",
+				width: "2px",
+				background: "red",
+				pointerEvents: "none",
+			});
+			this.hostRef.nativeElement.appendChild(this.line2);
+		}
+		this.line1.style.left = `${firstBoundary}px`;
+		this.line2.style.left = `${secondBoundary}px`;
 
-    //draw 2 red line intangibili
-    if (!this.line1) {
-      this.line1 = document.createElement('div');
-      Object.assign(this.line1.style, {
-        position: 'absolute',
-        top: '0',
-        bottom: '0',
-        width: '2px',
-        background: 'red',
-        pointerEvents: 'none'
-      });
-      this.hostRef.nativeElement.appendChild(this.line1);
-    }
-    if (!this.line2) {
-      this.line2 = document.createElement('div');
-      Object.assign(this.line2.style, {
-        position: 'absolute',
-        top: '0',
-        bottom: '0',
-        width: '2px',
-        background: 'red',
-        pointerEvents: 'none'
-      });
-      this.hostRef.nativeElement.appendChild(this.line2);
-    }
-    this.line1.style.left = `${firstBoundary}px`;
-    this.line2.style.left = `${secondBoundary}px`;
+		if (cardCenterX < firstBoundary) {
+			//if (this.box) this.box.nativeElement.style.background = 'red';
+			if (this.content) {
+				this.releasePosition.set("left");
+				this.content.nativeElement.style.border = "1px solid red";
+				this.content.nativeElement.style.transform = "rotate(-20deg)";
+			}
+		} else if (cardCenterX > secondBoundary) {
+			//if (this.box) this.box.nativeElement.style.background = 'blue';
+			if (this.content) {
+				this.releasePosition.set("right");
+				this.content.nativeElement.style.border = "1px solid blue";
+				this.content.nativeElement.style.transform = "rotate(20deg)";
+			}
+		} else {
+			//if (this.box) this.box.nativeElement.style.background = 'white';
+			if (this.content) {
+				this.releasePosition.set("center");
+				this.content.nativeElement.style.border = "1px solid white";
+				this.content.nativeElement.style.transform = "rotate(0deg)";
+			}
+		}
+	}
 
-    if (cardCenterX < firstBoundary) {
-      //if (this.box) this.box.nativeElement.style.background = 'red';
-      if (this.content) {
-        this.releasePosition.set("left");
-        this.content.nativeElement.style.border = '1px solid red';
-        this.content.nativeElement.style.transform = 'rotate(-20deg)';
-      }
-    } else if (cardCenterX > secondBoundary) {
-      //if (this.box) this.box.nativeElement.style.background = 'blue';
-      if (this.content) {
-        this.releasePosition.set("right");
-        this.content.nativeElement.style.border = '1px solid blue';
-        this.content.nativeElement.style.transform = 'rotate(20deg)';
-      }
-    } else {
-      //if (this.box) this.box.nativeElement.style.background = 'white';
-      if (this.content) {
-        this.releasePosition.set("center");
-        this.content.nativeElement.style.border = '1px solid white';
-        this.content.nativeElement.style.transform = 'rotate(0deg)';
-      }
-    }
-  }
+	onDragEnded(event: CdkDragEnd) {
+		console.log("Drag ended, releasePosition:", this.releasePosition);
+		if (this.content && this.releasePosition() == "left") {
+			//animazione di caduta a sinistra
+			// this.content.nativeElement.style.transition = 'transform 0.5s ease';
+			this.content.nativeElement.style.transform =
+				"rotate(-50deg) translateX(-100%) ";
+			this.content.nativeElement.style.opacity = "0";
+			this.content.nativeElement.addEventListener(
+				"transitionend",
+				() => {
+					this.nextUser();
+					this.resetCard();
+				},
+				{ once: true },
+			);
+		} else if (this.content && this.releasePosition() == "right") {
+			//animazione di caduta a destra
+			// this.content.nativeElement.style.transition = 'transform 0.5s ease';
+			this.content.nativeElement.style.transform =
+				"rotate(50deg) translateX(100%)";
+			this.content.nativeElement.style.opacity = "0";
+			this.content.nativeElement.addEventListener(
+				"transitionend",
+				() => {
+					this.nextUser();
+					this.resetCard();
+				},
+				{ once: true },
+			);
+		} else if (this.content) {
+			this.resetCard();
+		}
+	}
 
-  onDragEnded(event: CdkDragEnd) {
-    console.log("Drag ended, releasePosition:", this.releasePosition);
-    if (this.content && this.releasePosition() == "left") {
-      //animazione di caduta a sinistra
-      // this.content.nativeElement.style.transition = 'transform 0.5s ease';
-      this.content.nativeElement.style.transform = 'rotate(-50deg) translateX(-100%) ';
-      this.content.nativeElement.style.opacity = '0';
-      this.content.nativeElement.addEventListener('transitionend', () => {
-        this.nextUser();
-        this.resetCard();
-      }, { once: true });
-    } else if (this.content && this.releasePosition() == "right") {
-      //animazione di caduta a destra
-      // this.content.nativeElement.style.transition = 'transform 0.5s ease';
-      this.content.nativeElement.style.transform = 'rotate(50deg) translateX(100%)';
-      this.content.nativeElement.style.opacity = '0';
-      this.content.nativeElement.addEventListener('transitionend', () => {
-        this.nextUser();
-        this.resetCard();
-      }, { once: true });
-    } else if (this.content) {
-      this.resetCard();
-    }
-  }
+	private nextUser(): void {
+		if (this.currentUserIndex() < this.users().length - 1) {
+			this.currentUserIndex.update((n) => n + 1);
+		} else {
+			// Fine della lista: torna al primo (o gestisci diversamente, ad esempio ricarica)
+			this.currentUserIndex.set(0);
+			console.log("Fine utenti, ricomincio dal primo.");
+		}
+	}
 
-  private nextUser(): void {
-    if (this.currentUserIndex() < this.users().length - 1) {
-      this.currentUserIndex.update(n => n + 1);
-    } else {
-      // Fine della lista: torna al primo (o gestisci diversamente, ad esempio ricarica)
-      this.currentUserIndex.set(0);
-      console.log("Fine utenti, ricomincio dal primo.");
-    }
-  }
-
-  // Metodo per resettare la card alla posizione iniziale
-  private resetCard(): void {
-    if (this.content) {
-      this.content.nativeElement.style.transform = 'rotate(0deg) translateX(0%)';
-      this.content.nativeElement.style.opacity = '1';
-      this.content.nativeElement.style.border = '1px solid white';
-    }
-    // Ricalcola la posizione centrale (chiama updateHostSize per aggiornare dragPosition)
-    this.updateHostSize();
-  }
-
+	// Metodo per resettare la card alla posizione iniziale
+	private resetCard(): void {
+		if (this.content) {
+			this.content.nativeElement.style.transform =
+				"rotate(0deg) translateX(0%)";
+			this.content.nativeElement.style.opacity = "1";
+			this.content.nativeElement.style.border = "1px solid white";
+		}
+		// Ricalcola la posizione centrale (chiama updateHostSize per aggiornare dragPosition)
+		this.updateHostSize();
+	}
 }

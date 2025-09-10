@@ -1,12 +1,12 @@
-import { Component, inject } from '@angular/core';
-import { LoginForm } from '../../components/forms/login-form/login-form';
-import { Router } from '@angular/router';
-import { TokenStore } from '../../services/token-store';
+import { Component, inject } from "@angular/core";
+import { Router } from "@angular/router";
+import { LoginForm } from "../../components/forms/login-form/login-form";
+import { TokenStore } from "../../services/token-store";
 
 @Component({
-  selector: 'app-login',
-  imports: [LoginForm],
-  template: `
+	selector: "app-login",
+	imports: [LoginForm],
+	template: `
   <div class="login-container">
     <p>Login</p>
     <app-login-form
@@ -15,7 +15,7 @@ import { TokenStore } from '../../services/token-store';
     ></app-login-form>
   </div>
   `,
-  styles: `
+	styles: `
   :host {
       flex: 1;
       display: flex;
@@ -34,20 +34,18 @@ import { TokenStore } from '../../services/token-store';
       margin: 0 0 1rem;
       text-align: center;
   }
-  `
+  `,
 })
 export class Login {
-  private router = inject(Router);
-  private tkn = inject(TokenStore);
+	private router = inject(Router);
+	private tkn = inject(TokenStore);
 
-  onLoginSuccess(response: any) {
-    console.log('Login successful:', response);
-    this.tkn.setTokens(response.token);
-    this.router.navigate(['/home']);
-  }
-  onLoginError(error: any) {
-    console.error('Login failed:', error);
-
-  }
-
+	onLoginSuccess(response: any) {
+		console.log("Login successful:", response);
+		this.tkn.setTokens(response.token);
+		this.router.navigate(["/home"]);
+	}
+	onLoginError(error: any) {
+		console.error("Login failed:", error);
+	}
 }

@@ -1,16 +1,16 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed } from "@angular/core/testing";
 
-import { HttpRequest } from './http-request';
+import { HttpRequest } from "./http-request";
 
-describe('HttpRequest', () => {
-  let service: HttpRequest;
+describe("HttpRequest", () => {
+	let service: HttpRequest;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(HttpRequest);
-  });
+	beforeEach(() => {
+		TestBed.configureTestingModule({});
+		service = TestBed.inject(HttpRequest);
+	});
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+	it("should be created", () => {
+		expect(service).toBeTruthy();
+	});
 });

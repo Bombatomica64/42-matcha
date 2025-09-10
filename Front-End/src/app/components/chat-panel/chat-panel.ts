@@ -1,11 +1,11 @@
-import { Component, input, output } from '@angular/core';
-import { ChatList } from '../chat-list/chat-list';
+import { Component, input, output } from "@angular/core";
+import { ChatList } from "../chat-list/chat-list";
 
 @Component({
-  selector: 'app-chat-panel',
-  standalone: true,
-  imports: [ChatList],
-  template: `
+	selector: "app-chat-panel",
+	standalone: true,
+	imports: [ChatList],
+	template: `
     <div class="panel" [class.overlay]="asOverlay()">
       @if (asOverlay()) {
         <div class="panel-header">
@@ -21,7 +21,7 @@ import { ChatList } from '../chat-list/chat-list';
       <div class="backdrop" (click)="close.emit()"></div>
     }
   `,
-  styles: `
+	styles: `
     :host { display: contents; }
     .panel {
       display: flex;
@@ -63,9 +63,9 @@ import { ChatList } from '../chat-list/chat-list';
       background: rgba(0,0,0,0.35);
       z-index: 1000;
     }
-  `
+  `,
 })
 export class ChatPanel {
-  asOverlay = input<boolean>(false);
-  close = output<void>();
+	asOverlay = input<boolean>(false);
+	close = output<void>();
 }

@@ -1,22 +1,28 @@
-import { Component } from '@angular/core';
-import { NgOptimizedImage } from '@angular/common';
-import { ToolbarModule } from 'primeng/toolbar';
-import { ButtonModule } from 'primeng/button';
-import { AvatarModule } from 'primeng/avatar';
-import { Router, RouterLink } from '@angular/router';
-	
+import { NgOptimizedImage } from "@angular/common";
+import { Component, inject } from "@angular/core";
+import { Router, RouterLink } from "@angular/router";
+import { AvatarModule } from "primeng/avatar";
+import { ButtonModule } from "primeng/button";
+import { ToolbarModule } from "primeng/toolbar";
+
 @Component({
-  selector: 'app-navbar',
-  imports: [ToolbarModule, ButtonModule, AvatarModule, NgOptimizedImage, RouterLink],
-  template: `
+	selector: "app-navbar",
+	imports: [
+		ToolbarModule,
+		ButtonModule,
+		AvatarModule,
+		NgOptimizedImage,
+		RouterLink,
+	],
+	template: `
 	<p-toolbar [style]="{ 'border-radius': '3rem', 'padding': '0.6rem', margin: '1rem', flex: '1' }">
 		<ng-template #start>
 			<div class="flex items-center gap-2">
 				<img ngSrc="images/logoConNome_noBackground.png" class="logoImg"
-                     alt="Logo" 
-                     width="150" 
-                     height="150" 
-                     style="margin-right: 1rem" 
+                     alt="Logo"
+                     width="150"
+                     height="150"
+                     style="margin-right: 1rem"
                      priority />
 				<!--p-button label="Files" text plain /-->
 				<!--p-button label="Edit" text plain /-->
@@ -38,7 +44,7 @@ import { Router, RouterLink } from '@angular/router';
 		</ng-template>
 	</p-toolbar>
   `,
-  styles: `
+	styles: `
 	:host {
 	  display: flex;
 	  flex-direction: row;
@@ -51,19 +57,20 @@ import { Router, RouterLink } from '@angular/router';
         width: 120px;
         border-radius: 3rem;
     }
-  `
+  `,
 })
 export class Navbar {
-  constructor(private router: Router) {}
-  private get isRegister() {
-	return this.router.url === '/register';
-  }
+  private router = inject(Router);
 
-  get targetRoute() {
-	return this.isRegister ? '/login' : '/register';
-  }
+	private get isRegister() {
+		return this.router.url === "/register";
+	}
 
-  get routeLabel() {
-	return this.isRegister ? 'Login' : 'Register';
-  }
+	get targetRoute() {
+		return this.isRegister ? "/login" : "/register";
+	}
+
+	get routeLabel() {
+		return this.isRegister ? "Login" : "Register";
+	}
 }

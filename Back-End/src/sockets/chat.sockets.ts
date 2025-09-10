@@ -229,9 +229,13 @@ export function registerChatNamespace(io: Server) {
 			};
 
 			const created = await chatMessageRepo.create(toCreate as Partial<ChatMessage>);
+			logger.info(`Chat message created ${created.id} in room ${chat_room_id} by ${socket.userId}`);
 
-			// Broadcast to others in the room and ack to sender
+			// Broadcast to others and also echo to sender so UI can show their own message without refetch
+			logger.debug({ roomKey, created }, "Emitting newMessage event");
 			socket.to(roomKey).emit("newMessage", created);
+			socket.emit("newMessage", created);
+			// Separate lightweight ack still available if client wants delivery confirmation
 			socket.emit("ack", { id: created.id, chat_room_id });
 		});
 

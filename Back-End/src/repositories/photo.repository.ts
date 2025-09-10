@@ -41,10 +41,14 @@ export class PhotoRepository extends BaseRepository<Photo> {
 		`;
 
 		const result = await pool.query(query, [userId]);
-		return result.rows.map((row: Photo & { uploaded_at: Date }) => ({
-			...row,
-			uploaded_at: new Date(row.uploaded_at).toISOString(),
-		}));
+		return result.rows.map((row: Photo & { uploaded_at: Date }) => {
+			const image_url = row.image_url.startsWith("/") ? row.image_url : `/${row.image_url}`;
+			return {
+				...row,
+				image_url,
+				uploaded_at: new Date(row.uploaded_at).toISOString(),
+			};
+		});
 	}
 
 	async findByIdAndUser(photoId: string, userId: string): Promise<Photo | null> {
@@ -68,8 +72,10 @@ export class PhotoRepository extends BaseRepository<Photo> {
 		if (result.rows.length === 0) return null;
 
 		const row = result.rows[0];
+		const image_url = row.image_url.startsWith("/") ? row.image_url : `/${row.image_url}`;
 		return {
 			...row,
+			image_url,
 			uploaded_at: new Date(row.uploaded_at).toISOString(),
 		};
 	}
@@ -130,8 +136,10 @@ export class PhotoRepository extends BaseRepository<Photo> {
 		]);
 
 		const row = result.rows[0];
+		const image_url = row.image_url.startsWith("/") ? row.image_url : `/${row.image_url}`;
 		return {
 			...row,
+			image_url,
 			uploaded_at: new Date(row.uploaded_at).toISOString(),
 		};
 	}
@@ -159,7 +167,6 @@ export class PhotoRepository extends BaseRepository<Photo> {
 
 		return false;
 	}
-
 	async setAsMain(photoId: string, userId: string): Promise<boolean> {
 		// Use transaction to ensure consistency
 		const client = await pool.connect();
@@ -236,8 +243,10 @@ export class PhotoRepository extends BaseRepository<Photo> {
 		if (result.rows.length === 0) return null;
 
 		const row = result.rows[0];
+		const image_url = row.image_url.startsWith("/") ? row.image_url : `/${row.image_url}`;
 		return {
 			...row,
+			image_url,
 			uploaded_at: new Date(row.uploaded_at).toISOString(),
 		};
 	}

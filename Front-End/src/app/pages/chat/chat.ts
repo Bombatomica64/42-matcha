@@ -1,30 +1,39 @@
-import { Component, computed, effect, inject, input, signal, type OnDestroy, type OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ScrollerModule } from 'primeng/scroller';
-import { ChatMessage } from '../../components/chat-message/chat-message';
-import { SocketService } from '../../services/socketio';
-import { ChatCacheService } from '../../services/chat-cache';
-import { HttpRequestService, type HttpMethod, type HttpEndpoint } from '../../services/http-request';
-import { firstValueFrom } from 'rxjs';
-import type { components } from '../../../types/api';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { NgxBorderBeamComponent } from '@omnedia/ngx-border-beam';
-import { Menu } from "primeng/menu";
+import { Component, computed, effect, inject, type OnDestroy, type OnInit, signal } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { NgxBorderBeamComponent } from "@omnedia/ngx-border-beam";
+import { InputGroupModule } from "primeng/inputgroup";
+import { InputGroupAddonModule } from "primeng/inputgroupaddon";
+import { ScrollerModule } from "primeng/scroller";
+import { firstValueFrom } from "rxjs";
+import type { components } from "../../../types/api";
+import { ChatMessage } from "../../components/chat-message/chat-message";
+import { ChatCacheService } from "../../services/chat-cache";
+import {
+	type HttpEndpoint,
+	type HttpMethod,
+	HttpRequestService,
+} from "../../services/http-request";
+import { SocketService } from "../../services/socketio";
 
 // Types
-type HttpChatMessage = components['schemas']['ChatMessage'];
-type PaginationQuery = components['schemas']['PaginationQuery'];
+type HttpChatMessage = components["schemas"]["ChatMessage"];
+type PaginationQuery = components["schemas"]["PaginationQuery"];
 
 @Component({
-	selector: 'app-chat',
-	imports: [ScrollerModule, ChatMessage, InputGroupModule, InputGroupAddonModule, NgxBorderBeamComponent, Menu],
-	templateUrl: './chat.html',
-	styleUrl: './chat.scss'
+	selector: "app-chat",
+	imports: [
+		ScrollerModule,
+		ChatMessage,
+		InputGroupModule,
+		InputGroupAddonModule,
+		NgxBorderBeamComponent,
+	],
+	templateUrl: "./chat.html",
+	styleUrl: "./chat.scss",
 })
 export class Chat implements OnInit, OnDestroy {
-	// Inputs
-	chatRoomId = input.required<string>();
+	// Room id derived from router params instead of @Input to avoid timing issues
+	private chatRoomIdSig = signal<string | null>(null);
 	urlParams = signal<PaginationQuery | null>(null);
 
 	// Services
@@ -55,23 +64,44 @@ export class Chat implements OnInit, OnDestroy {
 		const merged = [...this.older(), ...this.live()];
 		return merged
 			.slice()
-			.sort((a, b) => new Date(a.created_at as string).getTime() - new Date(b.created_at as string).getTime());
+			.sort(
+				(a, b) =>
+					new Date(a.created_at as string).getTime() -
+					new Date(b.created_at as string).getTime(),
+			);
 	});
 
-	// Room-scoped message handler
+	// Room-scoped message handler with debug logging
 	private onNewMessage = (raw: unknown) => {
-		if (!raw || typeof raw !== 'object') return;
+		if (!raw || typeof raw !== "object") return;
 		const m = raw as Partial<HttpChatMessage>;
-		if (!m.id) return;
-		if (this.currentRoomId && m.chat_room_id !== this.currentRoomId) return;
-		if (this.seenIds.has(m.id)) return;
+		console.debug("[chat] incoming newMessage", m, "currentRoomId=", this.currentRoomId);
+		if (!m.id) {
+			console.debug("[chat] ignoring message without id", m);
+			return;
+		}
+		if (this.currentRoomId && m.chat_room_id !== this.currentRoomId) {
+			console.debug("[chat] ignoring message for different room", m.chat_room_id, this.currentRoomId);
+			return;
+		}
+		if (this.seenIds.has(m.id)) {
+			console.debug("[chat] duplicate message skipped", m.id);
+			return;
+		}
 		this.seenIds.add(m.id);
-		this.live.update(arr => [...arr, m as HttpChatMessage]);
+		this.live.update((arr) => [...arr, m as HttpChatMessage]);
+		console.debug("[chat] appended message", m.id, "total messages", this.live().length + this.older().length);
 	};
 
 	ngOnInit(): void {
+		// Ensure room id is available as early as possible
+		const initialId = this.route.snapshot.paramMap.get("id");
+		if (initialId) this.chatRoomIdSig.set(initialId);
 		// Seed from resolver if present (SSR prefetch)
-		const pre = this.route.snapshot.data['chatPrefetch'] as { roomId: string; messagesAsc: HttpChatMessage[] } | null;
+		const pre = this.route.snapshot.data['chatPrefetch'] as {
+			roomId: string;
+			messagesAsc: HttpChatMessage[];
+		} | null;
 		if (pre?.roomId && pre.messagesAsc?.length) {
 			this.older.set(pre.messagesAsc);
 			for (const m of pre.messagesAsc) if (m.id) this.seenIds.add(m.id);
@@ -79,9 +109,11 @@ export class Chat implements OnInit, OnDestroy {
 			this.cache.upsertMessages(pre.roomId, pre.messagesAsc);
 		}
 		// Parent component (ChatList) establishes the socket connection
+	}
+	constructor() {
 		effect(() => {
-			const rid = this.chatRoomId();
-			if (rid == null) return;
+			const rid = this.chatRoomIdSig();
+			if (!rid) return;
 			const roomId = String(rid);
 			this.currentRoomId = roomId;
 
@@ -94,16 +126,17 @@ export class Chat implements OnInit, OnDestroy {
 
 			// Join the room now or on connect
 			if (this.socket.isConnected) {
-				this.socket.emit('join', roomId);
+				this.socket.emit("join", roomId);
 			} else {
-				if (this.connectHandler) this.socket.off('connect', this.connectHandler);
-				this.connectHandler = () => this.socket.emit('join', roomId);
-				this.socket.on('connect', this.connectHandler);
+				if (this.connectHandler)
+					this.socket.off("connect", this.connectHandler);
+				this.connectHandler = () => this.socket.emit("join", roomId);
+				this.socket.on("connect", this.connectHandler);
 			}
 
 			// Bind room-filtered listener
-			this.socket.off('newMessage', this.onNewMessage);
-			this.socket.on('newMessage', this.onNewMessage);
+			this.socket.off("newMessage", this.onNewMessage);
+			this.socket.on("newMessage", this.onNewMessage);
 
 			// Load from cache immediately, then fetch latest and prefetch rest
 			void this.hydrateFromCacheAndFetch(roomId);
@@ -111,9 +144,9 @@ export class Chat implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this.socket.off('newMessage', this.onNewMessage);
+		this.socket.off("newMessage", this.onNewMessage);
 		if (this.connectHandler) {
-			this.socket.off('connect', this.connectHandler);
+			this.socket.off("connect", this.connectHandler);
 			this.connectHandler = null;
 		}
 	}
@@ -124,14 +157,20 @@ export class Chat implements OnInit, OnDestroy {
 			this.loadingInitial.set(true);
 			const query = `?page=1&limit=${this.pageSize}&sort=created_at&order=desc`;
 			const data = await firstValueFrom(
-				this.http.request(null, `/chat/${roomId}/messages${query}` as HttpEndpoint, 'GET' as HttpMethod)
+				this.http.request(
+					null,
+					`/chat/${roomId}/messages${query}` as HttpEndpoint,
+					"GET" as HttpMethod,
+				),
 			);
-			const arr: HttpChatMessage[] = Array.isArray(data) ? data as HttpChatMessage[] : [];
+			const arr: HttpChatMessage[] = Array.isArray(data)
+				? (data as HttpChatMessage[])
+				: [];
 			const asc = [...arr].reverse();
 			for (const m of asc) if (m?.id) this.seenIds.add(m.id);
 			this.older.set(asc);
 		} catch (e) {
-			const msg = e instanceof Error ? e.message : 'Failed to load messages';
+			const msg = e instanceof Error ? e.message : "Failed to load messages";
 			this.loadError.set(msg);
 		} finally {
 			this.loadingInitial.set(false);
@@ -146,8 +185,8 @@ export class Chat implements OnInit, OnDestroy {
 			this.older.set(cached.messagesAsc as HttpChatMessage[]);
 			this.seenIds = new Set(
 				cached.messagesAsc
-					.map(m => (m && 'id' in m ? (m as HttpChatMessage).id : undefined))
-					.filter((v): v is string => typeof v === 'string')
+					.map((m) => (m && "id" in m ? (m as HttpChatMessage).id : undefined))
+					.filter((v): v is string => typeof v === "string"),
 			);
 		}
 
@@ -159,7 +198,9 @@ export class Chat implements OnInit, OnDestroy {
 
 		// 4) If not fully loaded, prefetch all older pages in background once per session
 		if (!cached?.fullyLoaded) {
-			void this.prefetchAll(roomId).then(() => this.cache.markFullyLoaded(roomId));
+			void this.prefetchAll(roomId).then(() =>
+				this.cache.markFullyLoaded(roomId),
+			);
 		}
 	}
 
@@ -173,14 +214,20 @@ export class Chat implements OnInit, OnDestroy {
 			try {
 				const query = `?page=${next}&limit=${this.pageSize}&sort=created_at&order=desc`;
 				const pageData = await firstValueFrom(
-					this.http.request(null, `/chat/${roomId}/messages${query}` as HttpEndpoint, 'GET' as HttpMethod)
+					this.http.request(
+						null,
+						`/chat/${roomId}/messages${query}` as HttpEndpoint,
+						"GET" as HttpMethod,
+					),
 				);
-				const arr: HttpChatMessage[] = Array.isArray(pageData) ? pageData as HttpChatMessage[] : [];
+				const arr: HttpChatMessage[] = Array.isArray(pageData)
+					? (pageData as HttpChatMessage[])
+					: [];
 				if (!arr.length) break;
 				const asc = [...arr].reverse();
-				const dedup = asc.filter(m => !!m?.id && !this.seenIds.has(m.id));
-				dedup.forEach(m => m.id && this.seenIds.add(m.id));
-				this.older.update(curr => [...dedup as HttpChatMessage[], ...curr]);
+				const dedup = asc.filter((m) => !!m?.id && !this.seenIds.has(m.id));
+				dedup.forEach((m) => m.id && this.seenIds.add(m.id));
+				this.older.update((curr) => [...(dedup as HttpChatMessage[]), ...curr]);
 				this.cache.upsertMessages(roomId, dedup as HttpChatMessage[]);
 				next++;
 			} catch {
@@ -193,7 +240,7 @@ export class Chat implements OnInit, OnDestroy {
 	// Load older pages (page 2, 3, ...) using server order desc and prepend as asc
 	async loadOlder(): Promise<void> {
 		if (this.loadingOlder()) return;
-		const rid = this.chatRoomId();
+		const rid = this.chatRoomIdSig();
 		if (rid == null) return;
 		const roomId = String(rid);
 		const nextPage = this.page() + 1;
@@ -201,19 +248,75 @@ export class Chat implements OnInit, OnDestroy {
 			this.loadingOlder.set(true);
 			const query = `?page=${nextPage}&limit=${this.pageSize}&sort=created_at&order=desc`;
 			const pageData = await firstValueFrom(
-				this.http.request(null, `/chat/${roomId}/messages${query}` as HttpEndpoint, 'GET' as HttpMethod)
+				this.http.request(
+					null,
+					`/chat/${roomId}/messages${query}` as HttpEndpoint,
+					"GET" as HttpMethod,
+				),
 			);
-			const arr: HttpChatMessage[] = Array.isArray(pageData) ? pageData as HttpChatMessage[] : [];
+			const arr: HttpChatMessage[] = Array.isArray(pageData)
+				? (pageData as HttpChatMessage[])
+				: [];
 			const asc = [...arr].reverse();
-			const dedup = asc.filter(m => !!m?.id && !this.seenIds.has(m.id));
-			dedup.forEach(m => m.id && this.seenIds.add(m.id));
-			this.older.update(curr => [...dedup as HttpChatMessage[], ...curr]);
+			const dedup = asc.filter((m) => !!m?.id && !this.seenIds.has(m.id));
+			dedup.forEach((m) => m.id && this.seenIds.add(m.id));
+			this.older.update((curr) => [...(dedup as HttpChatMessage[]), ...curr]);
 			this.page.set(nextPage);
 		} catch (e) {
-			const msg = e instanceof Error ? e.message : 'Failed to load older messages';
+			const msg =
+				e instanceof Error ? e.message : "Failed to load older messages";
 			this.loadError.set(msg);
 		} finally {
 			this.loadingOlder.set(false);
 		}
+	}
+
+	//Send message (accepts input element or event for robustness)
+	sendMessage(ref: HTMLInputElement | Event): void {
+		let input: HTMLInputElement | null = null;
+		if (ref instanceof Event) {
+			const target = ref.target as (HTMLInputElement | null);
+			if (target && target.tagName === 'INPUT') input = target;
+		} else {
+			input = ref;
+		}
+		if (!input) {
+			input = document.getElementById('chatMessageInput') as HTMLInputElement | null;
+		}
+		if (!input) return;
+
+		const rid = this.chatRoomIdSig();
+		if (!rid) {
+			console.warn('No room id yet; postponing send');
+			return;
+		}
+		const roomId = String(rid);
+		const raw = input.value;
+		const content = raw.trim();
+		if (!content) return;
+
+		console.debug('Sending message payload', { roomId, contentLength: content.length });
+		this.socket.emit('message', {
+			chat_room_id: roomId,
+			message_type: 'text',
+			content,
+		} as HttpChatMessage);
+
+		input.value = '';
+		queueMicrotask(() => input?.focus());
+		try {
+			const scrollerEl = document.querySelector('.chat-scroller .p-virtualscroller-content');
+			if (scrollerEl) scrollerEl.scrollTop = scrollerEl.scrollHeight;
+		} catch {}
+	}
+
+	// Initialize room id from route params after construction
+	ngAfterContentInit(): void {
+		const id = this.route.snapshot.paramMap.get("id");
+		if (id) this.chatRoomIdSig.set(id);
+		this.route.paramMap.subscribe((pm) => {
+			const newId = pm.get("id");
+			if (newId && newId !== this.chatRoomIdSig()) this.chatRoomIdSig.set(newId);
+		});
 	}
 }

@@ -1,8 +1,6 @@
-import { Injectable, signal } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { PLATFORM_ID, inject } from '@angular/core';
-import { jwtDecode } from 'jwt-decode';
-
+import { isPlatformBrowser } from "@angular/common";
+import { Injectable, inject, PLATFORM_ID, signal } from "@angular/core";
+import { jwtDecode } from "jwt-decode";
 
 /**
  * Represents the structure of the JWT token payload
@@ -19,11 +17,11 @@ interface TokenPayload {
  * Handles token storage, retrieval, and validation
  */
 @Injectable({
-	providedIn: 'root',
+	providedIn: "root",
 })
 export class TokenStore {
-	private readonly TOKEN_KEY = 'access_token';
-	private readonly REFRESH_TOKEN_KEY = 'refresh_token';
+	private readonly TOKEN_KEY = "access_token";
+	private readonly REFRESH_TOKEN_KEY = "refresh_token";
 	private platformId = inject(PLATFORM_ID);
 
 	// Signal-based token storage
@@ -48,7 +46,9 @@ export class TokenStore {
 			let accessToken = localStorage.getItem(this.TOKEN_KEY);
 			// Fallback to cookie if localStorage empty (SSR-provided cookie or first load)
 			if (!accessToken) {
-				const cookieMatch = /(?:^|; )access_token=([^;]+)/.exec(document.cookie);
+				const cookieMatch = /(?:^|; )access_token=([^;]+)/.exec(
+					document.cookie,
+				);
 				if (cookieMatch) accessToken = decodeURIComponent(cookieMatch[1]);
 			}
 			const refreshToken = localStorage.getItem(this.REFRESH_TOKEN_KEY);
@@ -56,7 +56,10 @@ export class TokenStore {
 			this.refreshTokenSignal.set(refreshToken);
 		} else {
 			// SSR: look for global shim the server may set (non-secure exposure only for rendering)
-			const g = globalThis as unknown as { __REQ_AUTH_HEADER?: string; __REQ_COOKIE_HEADER?: string };
+			const g = globalThis as unknown as {
+				__REQ_AUTH_HEADER?: string;
+				__REQ_COOKIE_HEADER?: string;
+			};
 			let token: string | undefined;
 			const cookie = g.__REQ_COOKIE_HEADER;
 			if (cookie) {
@@ -92,7 +95,8 @@ export class TokenStore {
 	 * @param accessToken - The JWT access token
 	 * @param refreshToken - The refresh token for obtaining new access tokens
 	 */
-	setTokens(accessToken: string): void { //,refreshToken: string
+	setTokens(accessToken: string): void {
+		//,refreshToken: string
 		this.accessTokenSignal.set(accessToken);
 		// this.refreshTokenSignal.set(refreshToken);
 
@@ -170,7 +174,7 @@ export class TokenStore {
 	logout(): void {
 		this.clearTokens();
 		if (isPlatformBrowser(this.platformId)) {
-			window.location.href = '/login';
+			window.location.href = "/login";
 		}
 	}
 }

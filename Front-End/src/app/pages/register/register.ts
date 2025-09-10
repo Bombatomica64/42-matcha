@@ -1,16 +1,16 @@
-import { Component } from '@angular/core';
-import { RegisterForm } from '../../components/forms/register-form/register-form';
+import { Component } from "@angular/core";
+import { RegisterForm } from "../../components/forms/register-form/register-form";
 
 @Component({
-  selector: 'app-register',
-  imports: [RegisterForm],
-  template: `
+	selector: "app-register",
+	imports: [RegisterForm],
+	template: `
   <div class="login-container">
 	<p>Register</p>
   	<app-register-form></app-register-form>
   </div>
   `,
-  styles: `
+	styles: `
   :host {
       flex: 1;
       display: flex;
@@ -29,8 +29,6 @@ import { RegisterForm } from '../../components/forms/register-form/register-form
       margin: 0 0 1rem;
       text-align: center;
   }
-  `
+  `,
 })
-export class Register {
-
-}
+export class Register {}

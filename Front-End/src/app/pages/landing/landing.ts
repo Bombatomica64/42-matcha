@@ -1,11 +1,11 @@
-import { Component } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
-import { RouterLink } from '@angular/router';
+import { Component } from "@angular/core";
+import { RouterLink } from "@angular/router";
+import { ButtonModule } from "primeng/button";
 
 @Component({
-  selector: 'app-landing',
-  imports: [ButtonModule, RouterLink],
-  template: `
+	selector: "app-landing",
+	imports: [ButtonModule, RouterLink],
+	template: `
     <p>
       benvenuto in questo bellissimo sito di incontri
     </p>
@@ -16,8 +16,6 @@ import { RouterLink } from '@angular/router';
         severity="secondary">
 	</button>
   `,
-  styles: ``
+	styles: ``,
 })
-export class Landing {
-
-}
+export class Landing {}

@@ -1,14 +1,15 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output } from "@angular/core";
 
 @Component({
-  selector: 'app-primary-button',
-  imports: [],
-  template: `
+	selector: "app-primary-button",
+	imports: [],
+	template: `
     <button class="primary-button" [attr.type]="type()" [disabled]="disabled()" (click)="handleButtonClick()"> <!-- buttonClicked.emit() -->
       {{ label() }}
     </button>
   `,
-  styles: [`
+	styles: [
+		`
     .primary-button {
       background-color: blue;
       color: white;
@@ -21,16 +22,17 @@ import { Component, input, output } from '@angular/core';
     .primary-button:hover {
       background-color: darkblue;
     }
-  `]
+  `,
+	],
 })
 export class PrimaryButton {
-	label = input('');
-	type = input('button');
+	label = input("");
+	type = input("button");
 	disabled = input(false);
 
 	buttonClicked = output();
 	handleButtonClick() {
-		console.log('Button clicked:', this.label());
+		console.log("Button clicked:", this.label());
 		this.buttonClicked.emit();
 	}
 }

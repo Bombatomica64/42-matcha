@@ -1,18 +1,25 @@
-import { Component, inject, input } from '@angular/core';
-import type { NewChatMessagePayload } from '../../../types/api';
-import { VgApiService, VgCoreModule, VgMediaDirective } from '@videogular/ngx-videogular/core';
-import { VgControlsModule } from '@videogular/ngx-videogular/controls';
-import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
-import { VgBufferingModule } from '@videogular/ngx-videogular/buffering';
-
-
+import { Component, inject, input } from "@angular/core";
+import { VgBufferingModule } from "@videogular/ngx-videogular/buffering";
+import { VgControlsModule } from "@videogular/ngx-videogular/controls";
+import {
+	VgApiService,
+	VgCoreModule,
+	VgMediaDirective,
+} from "@videogular/ngx-videogular/core";
+import { VgOverlayPlayModule } from "@videogular/ngx-videogular/overlay-play";
+import type { NewChatMessagePayload } from "../../../types/api";
 
 @Component({
-	selector: 'app-chat-message',
+	selector: "app-chat-message",
 	standalone: true,
-	imports: [VgCoreModule, VgControlsModule, VgOverlayPlayModule, VgBufferingModule],
-	templateUrl: './chat-message.html',
-	styles: ``
+	imports: [
+		VgCoreModule,
+		VgControlsModule,
+		VgOverlayPlayModule,
+		VgBufferingModule,
+	],
+	templateUrl: "./chat-message.html",
+	styles: ``,
 })
 export class ChatMessage {
 	content = input.required<NewChatMessagePayload>();

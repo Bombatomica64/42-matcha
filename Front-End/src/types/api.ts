@@ -26,7 +26,7 @@ type NewChatMessagePayload =
 			media_mime_type?: string;
 			media_duration?: number;
 			thumbnail_path?: string;
-		}
+	  }
 	| {
 			chat_room_id: string;
 			message_type: "image" | "video" | "audio";
@@ -37,6 +37,6 @@ type NewChatMessagePayload =
 			media_mime_type: string;
 			media_duration?: number;
 			thumbnail_path?: string;
-		};
+	  };
 type TypingPayload = { roomId: string; isTyping: boolean };
 export type { NewChatMessagePayload, TypingPayload };

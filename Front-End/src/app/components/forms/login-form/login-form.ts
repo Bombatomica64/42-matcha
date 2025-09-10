@@ -1,23 +1,35 @@
-import { Component, EventEmitter, inject, Output } from '@angular/core';
-import type { AfterViewInit } from '@angular/core';
-import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import { HttpRequestService } from '../../../services/http-request';
-import type { HttpEndpoint, HttpMethod } from '../../../services/http-request';
-import type { components } from '../../../../types/api'; // Adjust the path as necessary
+import type { AfterViewInit } from "@angular/core";
+import { Component, EventEmitter, inject, Output } from "@angular/core";
+import {
+	FormControl,
+	FormGroup,
+	ReactiveFormsModule,
+	Validators,
+} from "@angular/forms";
+import { ButtonModule } from "primeng/button";
+import { InputGroupModule } from "primeng/inputgroup";
+import { InputGroupAddonModule } from "primeng/inputgroupaddon";
 
-import { InputTextModule } from 'primeng/inputtext';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { ButtonModule } from 'primeng/button';
-import { MessageModule } from 'primeng/message';
+import { InputTextModule } from "primeng/inputtext";
+import { MessageModule } from "primeng/message";
+import type { components } from "../../../../types/api"; // Adjust the path as necessary
+import type { HttpEndpoint, HttpMethod } from "../../../services/http-request";
+import { HttpRequestService } from "../../../services/http-request";
 
-type LoginRequest = components['schemas']['LoginRequest'];
-type LoginResponse = components['schemas']['LoginResponse'];
+type LoginRequest = components["schemas"]["LoginRequest"];
+type LoginResponse = components["schemas"]["LoginResponse"];
 
 @Component({
-  selector: 'app-login-form',
-  imports: [ReactiveFormsModule, InputGroupModule, InputGroupAddonModule, InputTextModule, ButtonModule, MessageModule],
-  template: `
+	selector: "app-login-form",
+	imports: [
+		ReactiveFormsModule,
+		InputGroupModule,
+		InputGroupAddonModule,
+		InputTextModule,
+		ButtonModule,
+		MessageModule,
+	],
+	template: `
   @let emailCtrl = loginForm.controls.email_or_username;
   @let pwdCtrl = loginForm.controls.password;
 
@@ -70,7 +82,7 @@ type LoginResponse = components['schemas']['LoginResponse'];
     </button>
   </form>
   `,
-  styles: `
+	styles: `
     :host {
 	  display: flex;
 	  flex-direction: column;
@@ -87,43 +99,51 @@ type LoginResponse = components['schemas']['LoginResponse'];
 		flex-direction: column;
 		margin-bottom: 1rem;
 	}
-  `
+  `,
 })
 export class LoginForm implements AfterViewInit {
-  httpEndpoint: HttpEndpoint = "/auth/login"
-  httpMethod: HttpMethod = "POST"
+	httpEndpoint: HttpEndpoint = "/auth/login";
+	httpMethod: HttpMethod = "POST";
 
-  loginForm = new FormGroup({
-	email_or_username: new FormControl('',  {nonNullable: true, validators: [Validators.required]}),
-	password: new FormControl('', {nonNullable: true, validators: [Validators.required, Validators.minLength(6)]})
-  });
+	loginForm = new FormGroup({
+		email_or_username: new FormControl("", {
+			nonNullable: true,
+			validators: [Validators.required],
+		}),
+		password: new FormControl("", {
+			nonNullable: true,
+			validators: [Validators.required, Validators.minLength(6)],
+		}),
+	});
 
-  @Output() loginSuccess = new EventEmitter<LoginResponse>();
+	@Output() loginSuccess = new EventEmitter<LoginResponse>();
 	@Output() loginError = new EventEmitter<unknown>();
 
 	private autoSubmitAttempted = false;
 
-  onSubmit() {
-	if (this.loginForm.valid) {
-	  const credentials = this.loginForm.value as LoginRequest;
-	  console.log('Form submitted with:', credentials);
+	onSubmit() {
+		if (this.loginForm.valid) {
+			const credentials = this.loginForm.value as LoginRequest;
+			console.log("Form submitted with:", credentials);
 
-	  this.auth.request(credentials, this.httpEndpoint, this.httpMethod).subscribe({
-      next: (response : LoginResponse) => {
-        console.log('Login success:', response);
-        this.loginSuccess.emit(response);
-      },
-      error: (error) => {
-        console.error('Login error:', error);
-        this.loginError.emit(error);
-      }
-    });
-	} else {
-	  console.error('Form is invalid');
+			this.auth
+				.request(credentials, this.httpEndpoint, this.httpMethod)
+				.subscribe({
+					next: (response: LoginResponse) => {
+						console.log("Login success:", response);
+						this.loginSuccess.emit(response);
+					},
+					error: (error) => {
+						console.error("Login error:", error);
+						this.loginError.emit(error);
+					},
+				});
+		} else {
+			console.error("Form is invalid");
+		}
 	}
-  }
 
-  auth = inject(HttpRequestService)
+	auth = inject(HttpRequestService);
 
 	ngAfterViewInit(): void {
 		// Delay to allow browser autofill to populate fields
@@ -133,17 +153,20 @@ export class LoginForm implements AfterViewInit {
 	}
 
 	private tryAutoSubmit(): void {
-    console.log('Attempting auto-submit check...');
+		console.log("Attempting auto-submit check...");
 		if (this.autoSubmitAttempted) return;
 		const emailCtrl = this.loginForm.controls.email_or_username;
 		const pwdCtrl = this.loginForm.controls.password;
 		if (!emailCtrl || !pwdCtrl) return;
 		const bothFilled = !!emailCtrl.value && !!pwdCtrl.value;
-		const bothPristineUntouched = emailCtrl.pristine && pwdCtrl.pristine && !emailCtrl.touched && !pwdCtrl.touched;
+		const bothPristineUntouched =
+			emailCtrl.pristine &&
+			pwdCtrl.pristine &&
+			!emailCtrl.touched &&
+			!pwdCtrl.touched;
 		if (bothFilled && this.loginForm.valid && bothPristineUntouched) {
 			this.autoSubmitAttempted = true;
 			this.onSubmit();
 		}
 	}
 }
-

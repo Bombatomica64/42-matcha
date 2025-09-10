@@ -1,4 +1,5 @@
 import process from "node:process";
+import path from "node:path";
 import { env } from "@config/env";
 import type { components } from "@generated/typescript/api-nonextended";
 import { jwtMiddleware } from "@middleware/jwt.middleware";
@@ -15,7 +16,16 @@ import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { pool } from "./database";
 
-const logger = pino({ name: "matcha-server" });
+const logger = pino({
+	name: "matcha-server",
+	transport: {
+		target: 'pino-pretty',
+		options: {
+			colorize: true
+		}
+	}
+});
+
 const app: Express = express();
 
 declare module "express-serve-static-core" {
@@ -50,7 +60,7 @@ pool.connect((err, _client, release) => {
 			} else {
 				logger.info(`Total users in database: ${result.rows[0].count}`);
 				// Only auto-seed in development, not in test environment
-				if (parseInt(result.rows[0].count, 10) === 0 ) {
+				if (parseInt(result.rows[0].count, 10) === 0) {
 					logger.warn("No users found in database. Auto-seeding 500 users...");
 					import("@utils/seeder")
 						.then(({ seedUsers }) => {
@@ -121,6 +131,10 @@ app.get("/", (_req, res) => {
 });
 
 app.use(jwtMiddleware);
+
+// Protected static serving of uploaded photos. Only authenticated users (JWT) can fetch.
+// Frontend can embed with <img src="${env.API_URL}/uploads/..."> and the browser will send cookies.
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // API Routes
 app.use("/auth", authRoutes());

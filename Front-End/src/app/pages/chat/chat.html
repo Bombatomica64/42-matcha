@@ -1,18 +1,38 @@
 <div class="chat-layout">
-	<om-border-beam>
-  <div class="chat-main">
-		<p-virtual-scroller [items]="messages()" [itemSize]="50" styleClass="chat-scroller">
-			<ng-template pTemplate="item" let-message let-options="options">
-				<app-chat-message [content]="message" [options]="options"></app-chat-message>
-			</ng-template>
-		</p-virtual-scroller>
-    <p-input-group class="p-m-3">
-      <input type="text" pInputText placeholder="Type a message..." class="w-full" (keydown.enter)="sendMessage($event)" #messageInput />
-      <span pInputGroupAddon class="p-button p-component p-button-icon-only" (click)="sendMessage(messageInput)">
-        <i class="pi pi-send"></i>
-        <span class="p-button-label p-c">Send</span>
-      </span>
-    </p-input-group>
-	</div>
+  <om-border-beam>
+    <div class="chat-main">
+      <div class="chat-messages">
+        @if (messages().length === 0) {
+          <div class="no-messages">
+            <p>No messages yet. Start the conversation!</p>
+          </div>
+        } @else {
+          <p-virtual-scroller [items]="messages()" [itemSize]="50" styleClass="chat-scroller">
+            <ng-template pTemplate="item" let-message let-options="options">
+              <app-chat-message [content]="message" [options]="options"></app-chat-message>
+            </ng-template>
+          </p-virtual-scroller>
+        }
+      </div>
+      <form class="composer" (submit)="sendMessage(messageInput); $event.preventDefault();" autocomplete="off">
+        <div class="composer-inner">
+          <span class="p-float-label composer-field">
+            <input
+              #messageInput
+              id="chatMessageInput"
+              type="text"
+              pInputText
+              (keydown.enter)="sendMessage(messageInput)"
+              class="composer-input"
+            />
+            <label for="chatMessageInput">Type a message...</label>
+          </span>
+          <button type="submit" class="p-button p-component p-button-icon-only composer-send" [disabled]="!messageInput.value.trim()">
+            <i class="pi pi-send"></i>
+            <span class="p-button-label p-c">Send</span>
+          </button>
+        </div>
+      </form>
+    </div>
   </om-border-beam>
 </div>

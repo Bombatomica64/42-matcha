@@ -1,14 +1,20 @@
-import { Component, ElementRef, inject, type OnDestroy, type OnInit, signal } from '@angular/core';
+import {
+	Component,
+	ElementRef,
+	inject,
+	type OnDestroy,
+	type OnInit,
+	signal,
+} from "@angular/core";
 import { TinderCard } from "../../components/tinder-card/tinder-card";
 
-
 @Component({
-  selector: 'app-home',
-  imports: [TinderCard],
-  template: `
+	selector: "app-home",
+	imports: [TinderCard],
+	template: `
       <app-tinder-card [hostWidth]="hostWidth()" [hostHeight]="hostHeight()"></app-tinder-card>
   `,
-  styles: `
+	styles: `
     :host {
       display: flex;
       flex-direction: row;
@@ -17,33 +23,33 @@ import { TinderCard } from "../../components/tinder-card/tinder-card";
       width: 100%;
       overflow: hidden;
     }
-  `
+  `,
 })
 export class Home implements OnInit, OnDestroy {
-  // signals that hold current host size
-  hostWidth = signal(0);
-  hostHeight = signal(0);
+	// signals that hold current host size
+	hostWidth = signal(0);
+	hostHeight = signal(0);
 
-  // element and observer
-  private el = inject(ElementRef<HTMLElement>);
-  private ro?: ResizeObserver;
+	// element and observer
+	private el = inject(ElementRef<HTMLElement>);
+	private ro?: ResizeObserver;
 
-  ngOnInit(): void {
-    // set initial size
-    this.updateSize();
+	ngOnInit(): void {
+		// set initial size
+		this.updateSize();
 
-    // observe size changes
-    this.ro = new ResizeObserver(() => this.updateSize());
-    this.ro.observe(this.el.nativeElement);
-  }
+		// observe size changes
+		this.ro = new ResizeObserver(() => this.updateSize());
+		this.ro.observe(this.el.nativeElement);
+	}
 
-  ngOnDestroy(): void {
-    this.ro?.disconnect();
-  }
+	ngOnDestroy(): void {
+		this.ro?.disconnect();
+	}
 
-  private updateSize(): void {
-    const rect = this.el.nativeElement.getBoundingClientRect();
-    this.hostWidth.set(Math.round(rect.width));
-    this.hostHeight.set(Math.round(rect.height));
-  }
+	private updateSize(): void {
+		const rect = this.el.nativeElement.getBoundingClientRect();
+		this.hostWidth.set(Math.round(rect.width));
+		this.hostHeight.set(Math.round(rect.height));
+	}
 }

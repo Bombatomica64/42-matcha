@@ -1,17 +1,24 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { Router, RouterOutlet, RouterLink } from '@angular/router';
-import { MainSidebar } from "./components/sidebars/mainsidebar/main-sidebar";
-import { TokenStore } from './services/token-store';
-import { ButtonModule } from 'primeng/button';
-import { ToolbarModule } from 'primeng/toolbar';
-import { NgOptimizedImage } from '@angular/common';
+import { NgOptimizedImage } from "@angular/common";
+import { Component, computed, inject, signal } from "@angular/core";
+import { Router, RouterLink, RouterOutlet } from "@angular/router";
+import { ButtonModule } from "primeng/button";
+import { ToolbarModule } from "primeng/toolbar";
 import { ChatList } from "./components/chat-list/chat-list";
-
+import { MainSidebar } from "./components/sidebars/mainsidebar/main-sidebar";
+import { TokenStore } from "./services/token-store";
 
 @Component({
-  selector: 'app-root',
-  imports: [RouterOutlet, MainSidebar, ButtonModule, RouterLink, ToolbarModule, NgOptimizedImage, ChatList],
-  template: `
+	selector: "app-root",
+	imports: [
+		RouterOutlet,
+		MainSidebar,
+		ButtonModule,
+		RouterLink,
+		ToolbarModule,
+		NgOptimizedImage,
+		ChatList,
+	],
+	template: `
   <div class="app-sidebar">
       @if (!isLoggedIn()) {
 		<div class="flex items-center">
@@ -52,7 +59,7 @@ import { ChatList } from "./components/chat-list/chat-list";
       </div>
     }
   `,
-  styles: `
+	styles: `
     app-main-sidebar {
       //height: 100%;
       display: flex;
@@ -94,27 +101,28 @@ import { ChatList } from "./components/chat-list/chat-list";
         width: 120px;
         border-radius: 3rem;
     }
-  `
+  `,
 })
 export class App {
-  private router = inject(Router);
-  private tokenStore = inject(TokenStore);
-  protected readonly title = signal('Front-End');
+	private router = inject(Router);
+	private tokenStore = inject(TokenStore);
+	protected readonly title = signal("Front-End");
 
-  isLoggedIn = computed(() => { //TODO implement proper auth check through router
-    // getAccessToken() already returns null for expired/invalid tokens
-    return !!this.tokenStore.getAccessToken();
-  });
+	isLoggedIn = computed(() => {
+		//TODO implement proper auth check through router
+		// getAccessToken() already returns null for expired/invalid tokens
+		return !!this.tokenStore.getAccessToken();
+	});
 
-  private get isRegister() {
-    return this.router.url === '/register' || this.router.url === '/landing';
-  }
+	private get isRegister() {
+		return this.router.url === "/register" || this.router.url === "/landing";
+	}
 
-  get targetRoute() {
-    return this.isRegister ? '/login' : '/register';
-  }
+	get targetRoute() {
+		return this.isRegister ? "/login" : "/register";
+	}
 
-  get routeLabel() {
-    return this.isRegister ? 'Login' : 'Register';
-  }
+	get routeLabel() {
+		return this.isRegister ? "Login" : "Register";
+	}
 }
