@@ -35,7 +35,7 @@ import {
 	type HttpMethod,
 	HttpRequestService,
 } from "../../../services/http-request";
-import { Map } from "../../map/map";
+import { MapComponent } from "../../map/map";
 
 type RegisterRequest = components["schemas"]["RegisterRequest"];
 type RegisterResponse = components["schemas"]["RegisterResponse"];
@@ -77,7 +77,7 @@ export function adultValidator(minAge: number): ValidatorFn {
 		CommonModule,
 		MessageModule,
 		DatePickerModule,
-		Map,
+		MapComponent,
 		AutoFocusModule,
 	],
 	templateUrl: "./register-form.html",

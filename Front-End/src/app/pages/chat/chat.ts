@@ -1,9 +1,8 @@
 import { Component, computed, effect, inject, type OnDestroy, type OnInit, signal } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { NgxBorderBeamComponent } from "@omnedia/ngx-border-beam";
 import { InputGroupModule } from "primeng/inputgroup";
 import { InputGroupAddonModule } from "primeng/inputgroupaddon";
-import { ScrollerModule } from "primeng/scroller";
+import { ScrollerModule, type ScrollerScrollIndexChangeEvent } from "primeng/scroller";
 import { firstValueFrom } from "rxjs";
 import type { components } from "../../../types/api";
 import { ChatMessage } from "../../components/chat-message/chat-message";
@@ -27,7 +26,6 @@ type PaginationQuery = components["schemas"]["PaginationQuery"];
     ChatMessage,
     InputGroupModule,
     InputGroupAddonModule,
-    NgxBorderBeamComponent,
   ],
   templateUrl: "./chat.html",
   styleUrl: "./chat.scss",
@@ -163,6 +161,7 @@ export class Chat implements OnInit, OnDestroy {
     try {
       this.loadingInitial.set(true);
       const query = `?page=1&limit=${this.pageSize}&sort=created_at&order=desc`;
+      console.debug('[chat] loadLatest start', { roomId, query });
       const data = await firstValueFrom(
         this.http.request(
           null,
@@ -170,15 +169,20 @@ export class Chat implements OnInit, OnDestroy {
           "GET" as HttpMethod,
         ),
       );
-      const arr: HttpChatMessage[] = Array.isArray(data)
-        ? (data as HttpChatMessage[])
-        : [];
+      const arr: HttpChatMessage[] = this.normalizeResponse(data);
+      console.debug('[chat] loadLatest raw response shape', {
+        isArray: Array.isArray(data),
+        hasDataProp: !!(data && typeof data === 'object' && 'data' in data),
+        returned: arr.length,
+      });
       const asc = [...arr].reverse();
       for (const m of asc) if (m?.id) this.seenIds.add(m.id);
       this.older.set(asc);
+      console.debug('[chat] loadLatest loaded', { count: asc.length });
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to load messages";
       this.loadError.set(msg);
+      console.warn('[chat] loadLatest error', e);
     } finally {
       this.loadingInitial.set(false);
     }
@@ -186,6 +190,7 @@ export class Chat implements OnInit, OnDestroy {
 
   // Hydrate from cache if present, then fetch latest page and prefetch the entire history in background
   private async hydrateFromCacheAndFetch(roomId: string) {
+    console.debug('[chat] hydrateFromCacheAndFetch', { roomId });
     // 1) Hydrate from cache (IDB or memory) with ascending messages
     const cached = await this.cache.load(roomId);
     if (cached?.messagesAsc?.length) {
@@ -195,6 +200,7 @@ export class Chat implements OnInit, OnDestroy {
           .map((m) => (m && "id" in m ? (m as HttpChatMessage).id : undefined))
           .filter((v): v is string => typeof v === "string"),
       );
+      console.debug('[chat] cache hydrated', { cached: cached.messagesAsc.length });
     }
 
     // 2) Always fetch the latest page to capture anything new since cache
@@ -202,6 +208,7 @@ export class Chat implements OnInit, OnDestroy {
 
     // 3) Persist current merged in cache
     this.cache.upsertMessages(roomId, this.messages());
+    console.debug('[chat] cache upsert after latest', { total: this.messages().length });
 
     // 4) If not fully loaded, prefetch all older pages in background once per session
     if (!cached?.fullyLoaded) {
@@ -227,9 +234,7 @@ export class Chat implements OnInit, OnDestroy {
             "GET" as HttpMethod,
           ),
         );
-        const arr: HttpChatMessage[] = Array.isArray(pageData)
-          ? (pageData as HttpChatMessage[])
-          : [];
+        const arr: HttpChatMessage[] = this.normalizeResponse(pageData);
         if (!arr.length) break;
         const asc = [...arr].reverse();
         const dedup = asc.filter((m) => !!m?.id && !this.seenIds.has(m.id));
@@ -261,9 +266,7 @@ export class Chat implements OnInit, OnDestroy {
           "GET" as HttpMethod,
         ),
       );
-      const arr: HttpChatMessage[] = Array.isArray(pageData)
-        ? (pageData as HttpChatMessage[])
-        : [];
+      const arr: HttpChatMessage[] = this.normalizeResponse(pageData);
       const asc = [...arr].reverse();
       const dedup = asc.filter((m) => !!m?.id && !this.seenIds.has(m.id));
       dedup.forEach((m) => m.id && this.seenIds.add(m.id));
@@ -276,6 +279,13 @@ export class Chat implements OnInit, OnDestroy {
     } finally {
       this.loadingOlder.set(false);
     }
+  }
+
+  // Normalize server responses that may be either an array or a paginated object { data: ChatMessage[], ... }
+  private normalizeResponse(resp: unknown): HttpChatMessage[] {
+    if (Array.isArray(resp)) return resp as HttpChatMessage[];
+    if (resp && typeof resp === 'object' && Array.isArray((resp as { data?: unknown }).data)) return (resp as { data: HttpChatMessage[] }).data;
+    return [];
   }
 
   //Send message (accepts input element or event for robustness)
@@ -315,6 +325,13 @@ export class Chat implements OnInit, OnDestroy {
       const scrollerEl = document.querySelector('.chat-scroller .p-virtualscroller-content');
       if (scrollerEl) scrollerEl.scrollTop = scrollerEl.scrollHeight;
     } catch { }
+  }
+
+  onIndexChange(ev: ScrollerScrollIndexChangeEvent) {
+    // PrimeNG provides ScrollerScrollIndexChangeEvent with 'first' (start index) property
+    // When the user scrolls close to the top (first few items), attempt to load older messages.
+    const firstIndex = (ev as unknown as { first?: number }).first ?? 0;
+    if (firstIndex <= 10) void this.loadOlder();
   }
 
   // Initialize room id from route params after construction

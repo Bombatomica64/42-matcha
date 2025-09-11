@@ -29,7 +29,7 @@ import {
 	HttpRequestService,
 } from "../../../services/http-request";
 import { GetUserProfile } from "../../../services/user/get-user-profile";
-import { Map } from "../../map/map";
+import { MapComponent } from "../../map/map";
 import { adultValidator } from "../register-form/register-form";
 
 type User = components["schemas"]["User"];
@@ -49,7 +49,7 @@ type ErrorResponse = components["schemas"]["ErrorResponse"];
 		DatePickerModule,
 		FormsModule,
 		ReactiveFormsModule,
-		Map,
+		MapComponent,
 		SelectModule,
 	],
 	template: `

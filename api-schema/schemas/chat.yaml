@@ -156,21 +156,17 @@ components:
         id:
           type: string
           format: uuid
-        user1_id:
-          type: string
-          format: uuid
-          description: ID of the first user in the chat
-        user2_id:
-          type: string
-          format: uuid
-          description: ID of the second user in the chat
+        small_user1:
+          $ref: './user.yaml#/components/schemas/smallUser'
+        small_user2:
+          $ref: './user.yaml#/components/schemas/smallUser'
         created_at:
           type: string
           format: date-time
       required:
         - id
-        - user1_id
-        - user2_id
+        - small_user1
+        - small_user2
         - created_at
     
     # Response version with populated user objects

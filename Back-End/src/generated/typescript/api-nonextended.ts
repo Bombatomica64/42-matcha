@@ -863,19 +863,19 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        smallUser: {
+            /** Format: uuid */
+            id: string;
+            first_name: string;
+            last_name: string;
+            online_status: boolean;
+            main_photo: components["schemas"]["Photo"];
+        };
         ChatRoom: {
             /** Format: uuid */
             id: string;
-            /**
-             * Format: uuid
-             * @description ID of the first user in the chat
-             */
-            user1_id: string;
-            /**
-             * Format: uuid
-             * @description ID of the second user in the chat
-             */
-            user2_id: string;
+            small_user1: components["schemas"]["smallUser"];
+            small_user2: components["schemas"]["smallUser"];
             /** Format: date-time */
             created_at: string;
         };

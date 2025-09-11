@@ -21,11 +21,9 @@ export const getTokenInterceptor: HttpInterceptorFn = (
 	return next(req).pipe(
 		tap((event: HttpEvent<unknown>) => {
 			if (event.type === HttpEventType.Response) {
-				console.log(req.url, "returned a response with status", event.status);
 				//prendere il token dalla response
 				const body = event.body as LoginResponse | undefined;
 				const token = body?.token;
-				console.log("Extracted token:", token);
 				if (token) {
 					tkn.setTokens(token);
 				}

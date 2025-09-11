@@ -1,5 +1,5 @@
 import type { AfterViewInit } from "@angular/core";
-import { Component, EventEmitter, inject, Output } from "@angular/core";
+import { Component, inject, output } from "@angular/core";
 import {
 	FormControl,
 	FormGroup,
@@ -116,8 +116,8 @@ export class LoginForm implements AfterViewInit {
 		}),
 	});
 
-	@Output() loginSuccess = new EventEmitter<LoginResponse>();
-	@Output() loginError = new EventEmitter<unknown>();
+	loginSuccess = output<LoginResponse>();
+	loginError = output<unknown>();
 
 	private autoSubmitAttempted = false;
 

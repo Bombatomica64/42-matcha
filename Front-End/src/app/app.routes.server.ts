@@ -6,7 +6,19 @@ export const serverRoutes: ServerRoute[] = [
 		renderMode: RenderMode.Server,
 	},
 	{
+		path: "home/chat/:id",
+		renderMode: RenderMode.Client, // dynamic chat route: client-render (no prerender of params)
+	},
+	{
 		path: "register",
+		renderMode: RenderMode.Server,
+	},
+	{
+		path: "home",
+		renderMode: RenderMode.Server,
+	},
+	{
+		path: "home/profile",
 		renderMode: RenderMode.Server,
 	},
 	{

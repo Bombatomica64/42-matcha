@@ -10,6 +10,7 @@
         [items]="messages()"
         [itemSize]="50"
         styleClass="chat-scroller"
+        (onScrollIndexChange)="onIndexChange($event)"
       >
         <ng-template pTemplate="item" let-message>
           <app-chat-message

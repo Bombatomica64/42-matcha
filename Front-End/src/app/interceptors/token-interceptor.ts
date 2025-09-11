@@ -5,7 +5,7 @@ import { TokenStore } from "../services/token-store";
 
 export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
 	if (req.url.includes("/auth/login") || req.url.includes("/auth/refresh")) {
-		console.log("Skipping token attachment for auth endpoints");
+		// console.log("Skipping token attachment for auth endpoints");
 		return next(req);
 	}
 
@@ -26,11 +26,10 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
 	// Only attach tokens in browser environment
 	if (isPlatformBrowser(platformId)) {
 		const accessToken = tokenStore.getAccessToken();
-		console.log(req.url);
 		if (!accessToken) {
 			return next(req);
 		}
-		console.log("Attaching token to request:", accessToken);
+		// console.log("Attaching token to request:", accessToken);
 		const reqWithToken = req.clone({
 			headers: req.headers.set("Authorization", `Bearer ${accessToken}`),
 			withCredentials: true,

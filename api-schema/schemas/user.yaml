@@ -1304,3 +1304,23 @@ components:
           format: uuid
           description: The ID of the user who was liked/disliked
           example: "3631423c-fc47-4ba9-bffc-448bed706aec"
+    smallUser:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        first_name:
+          type: string
+        last_name:
+          type: string
+        online_status:
+          type: boolean
+        main_photo:
+          $ref: './photos.yaml#/components/schemas/Photo'
+      required:
+        - id
+        - first_name
+        - last_name
+        - online_status
+        - main_photo

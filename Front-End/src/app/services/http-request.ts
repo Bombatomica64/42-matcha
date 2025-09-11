@@ -50,8 +50,11 @@ export class HttpRequestService {
 	}
 
 	private getUrl(httpEndpoint: HttpEndpoint): string {
-		return this.isServer()
-			? `${this.serverUrl}${httpEndpoint}`
-			: `${this.clientUrl}${httpEndpoint}`;
+		const base = this.isServer() ? this.serverUrl : this.clientUrl;
+		const full = `${base}${httpEndpoint}`;
+		if (typeof window !== 'undefined' && (httpEndpoint as string).includes('/chat/') && (httpEndpoint as string).includes('/messages')) {
+			console.debug('[http] GET chat messages url', full);
+		}
+		return full;
 	}
 }
