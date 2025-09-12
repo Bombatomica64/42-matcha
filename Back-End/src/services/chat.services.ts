@@ -1,5 +1,5 @@
-import type { components } from "@generated/typescript/api-nonextended";
 import type { PaginatedResponse } from "@generated/typescript/api";
+import type { components } from "@generated/typescript/api-nonextended";
 import type { ChatMessageRepository } from "@repositories/chatMessage.repository";
 import type { ChatRoomRepository } from "@repositories/chatRoom.repository";
 import { logger } from "../server";
@@ -33,9 +33,18 @@ export class ChatService {
 	public async getChatRoomById(chatRoomId: string, userId: string): Promise<ChatRoom | null> {
 		const chatRoom = await this.chatRoomRepository.findById(chatRoomId);
 		if (!chatRoom) return null;
-		const cr = chatRoom as unknown as { user1_id?: string; user2_id?: string; small_user1?: { id: string }; small_user2?: { id: string } };
-		const legacyOk = !!cr.user1_id && !!cr.user2_id && (cr.user1_id === userId || cr.user2_id === userId);
-		const smallOk = !!cr.small_user1 && !!cr.small_user2 && (cr.small_user1.id === userId || cr.small_user2.id === userId);
+		const cr = chatRoom as unknown as {
+			user1_id?: string;
+			user2_id?: string;
+			small_user1?: { id: string };
+			small_user2?: { id: string };
+		};
+		const legacyOk =
+			!!cr.user1_id && !!cr.user2_id && (cr.user1_id === userId || cr.user2_id === userId);
+		const smallOk =
+			!!cr.small_user1 &&
+			!!cr.small_user2 &&
+			(cr.small_user1.id === userId || cr.small_user2.id === userId);
 		if (!legacyOk && !smallOk) throw new Error("Access denied");
 		return chatRoom;
 	}

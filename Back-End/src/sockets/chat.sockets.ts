@@ -1,21 +1,18 @@
-
-import type { Server, Socket } from "socket.io";
+import type { components } from "@generated/typescript/api";
+import { dbUserToApiUser } from "@mappers/user.mapper";
 import { ChatMessageRepository } from "@repositories/chatMessage.repository";
 import { ChatRoomRepository } from "@repositories/chatRoom.repository";
 import { UserRepository } from "@repositories/user.repository";
-import { dbUserToApiUser } from "@mappers/user.mapper";
 import { decodeJwt, verifyJwt } from "@utils/jwt";
+import type { Server, Socket } from "socket.io";
 import { pool } from "../database";
 import { logger } from "../server";
-import type { components } from "@generated/typescript/api";
-
 
 const chatMessageRepo = new ChatMessageRepository(pool);
 const chatRoomRepo = new ChatRoomRepository(pool);
 const userRepo = new UserRepository(pool);
 
 // Augment Socket type to include authenticated user info (runtime only)
-
 
 type ChatMessage = components["schemas"]["ChatMessage"];
 type NewChatMessagePayload =
@@ -29,7 +26,7 @@ type NewChatMessagePayload =
 			media_mime_type?: string;
 			media_duration?: number;
 			thumbnail_path?: string;
-		}
+	  }
 	| {
 			chat_room_id: string;
 			message_type: "image" | "video" | "audio";
@@ -40,9 +37,8 @@ type NewChatMessagePayload =
 			media_mime_type: string;
 			media_duration?: number;
 			thumbnail_path?: string;
-		};
+	  };
 type TypingPayload = { roomId: string; isTyping: boolean };
-
 
 // Register the /chat namespace and its handlers
 export function registerChatNamespace(io: Server) {
@@ -51,45 +47,45 @@ export function registerChatNamespace(io: Server) {
 	nsp.use(async (socket, next) => {
 		try {
 			// Prefer Authorization bearer, then auth.token, then access_token cookie
-			const authHeader = socket.handshake.headers['authorization'];
+			const authHeader = socket.handshake.headers?.authorization;
 			let token: string | undefined;
-			if (typeof authHeader === 'string' && authHeader.toLowerCase().startsWith('bearer ')) {
+			if (typeof authHeader === "string" && authHeader.toLowerCase().startsWith("bearer ")) {
 				token = authHeader.substring(7).trim();
-			} else if (typeof socket.handshake.auth?.token === 'string') {
+			} else if (typeof socket.handshake.auth?.token === "string") {
 				token = socket.handshake.auth.token;
-			} else if (typeof socket.handshake.headers.cookie === 'string') {
+			} else if (typeof socket.handshake.headers.cookie === "string") {
 				const m = /(?:^|; )access_token=([^;]+)/.exec(socket.handshake.headers.cookie);
 				if (m) token = decodeURIComponent(m[1]);
 			}
 			if (!token) {
-				return next(new Error('Unauthorized'));
+				return next(new Error("Unauthorized"));
 			}
 			const decoded = decodeJwt(token);
-			if (!decoded || decoded.type !== 'access' || !decoded.userId) {
-				return next(new Error('Invalid token'));
+			if (!decoded || decoded.type !== "access" || !decoded.userId) {
+				return next(new Error("Invalid token"));
 			}
 			// Expiry check
 			if (decoded.exp && Date.now() >= decoded.exp * 1000) {
-				return next(new Error('Token expired'));
+				return next(new Error("Token expired"));
 			}
 			// Optionally verify signature fully
 			const verified = await verifyJwt(token);
-			if (!verified) return next(new Error('Token verification failed'));
+			if (!verified) return next(new Error("Token verification failed"));
 			const user = await userRepo.findById(decoded.userId);
-			if (!user) return next(new Error('User not found'));
+			if (!user) return next(new Error("User not found"));
 			socket.userId = decoded.userId;
 			socket.user = dbUserToApiUser(user);
 			return next();
 		} catch (err) {
 			logger.error(`Socket auth error: ${err}`);
-			return next(new Error('Auth error'));
+			return next(new Error("Auth error"));
 		}
 	});
 
 	// Ensure chat_rooms table exists (in case init.sql wasn't applied yet)
-	void pool.query('SELECT 1 FROM chat_rooms LIMIT 1').catch(async (e) => {
+	void pool.query("SELECT 1 FROM chat_rooms LIMIT 1").catch(async (e) => {
 		if (/relation "chat_rooms" does not exist/i.test(String(e))) {
-			logger.warn('chat_rooms table missing. Creating minimal schema on the fly.');
+			logger.warn("chat_rooms table missing. Creating minimal schema on the fly.");
 			await pool.query(`CREATE TABLE IF NOT EXISTS chat_rooms (
 				id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 				user1_id UUID REFERENCES users(id) ON DELETE CASCADE,
@@ -99,32 +95,32 @@ export function registerChatNamespace(io: Server) {
 		}
 	});
 
-		nsp.on("connection", (socket: Socket) => {
-			logger.info(`User ${socket.userId ?? 'unknown'} connected to /chat namespace (${socket.id})`);
+	nsp.on("connection", (socket: Socket) => {
+		logger.info(`User ${socket.userId ?? "unknown"} connected to /chat namespace (${socket.id})`);
 
-			if (socket.userId) {
-				// personal room
-				socket.join(`user_${socket.userId}`);
-			}
+		if (socket.userId) {
+			// personal room
+			socket.join(`user_${socket.userId}`);
+		}
 
-			// Safe welcome message
-			const s = socket as Socket & { userId?: string; user?: { first_name?: string } };
-			socket.emit("system", {
-				message: `Welcome ${s.user?.first_name ? s.user.first_name : ''}`.trim() || 'Welcome!',
-				timestamp: new Date().toISOString(),
-				userId: "system"
-			});
+		// Safe welcome message
+		const s = socket as Socket & { userId?: string; user?: { first_name?: string } };
+		socket.emit("system", {
+			message: `Welcome ${s.user?.first_name ? s.user.first_name : ""}`.trim() || "Welcome!",
+			timestamp: new Date().toISOString(),
+			userId: "system",
+		});
 
 		// Join a chat room by ID (server validates membership)
-			socket.on("join", async (payload: string | { roomId: string }) => {
+		socket.on("join", async (payload: string | { roomId: string }) => {
 			const roomId = typeof payload === "string" ? payload : payload?.roomId;
 			if (!roomId) return;
-				if (!socket.userId) {
-					socket.emit("error", { code: "UNAUTH", message: "Not authenticated" });
-					return;
-				}
+			if (!socket.userId) {
+				socket.emit("error", { code: "UNAUTH", message: "Not authenticated" });
+				return;
+			}
 			// Validate once against DB
-				const allowed = await chatRoomRepo.userIsInRoom(socket.userId, roomId).catch(() => false);
+			const allowed = await chatRoomRepo.userIsInRoom(socket.userId, roomId).catch(() => false);
 			if (!allowed) {
 				socket.emit("error", { code: "FORBIDDEN", message: "You are not a member of this chat" });
 				return;
@@ -136,21 +132,21 @@ export function registerChatNamespace(io: Server) {
 		});
 
 		// Join (or create) a 1:1 chat by peer user id
-			socket.on("join:withUser", async (payload: string | { userId: string }) => {
+		socket.on("join:withUser", async (payload: string | { userId: string }) => {
 			const peerUserId = typeof payload === "string" ? payload : payload?.userId;
 			if (!peerUserId) {
 				socket.emit("error", { code: "BAD_REQUEST", message: "userId is required" });
 				return;
 			}
-				if (!socket.userId) {
-					socket.emit("error", { code: "UNAUTH", message: "Not authenticated" });
-					return;
-				}
+			if (!socket.userId) {
+				socket.emit("error", { code: "UNAUTH", message: "Not authenticated" });
+				return;
+			}
 
 			// Find or create the room for the two users
-				let room = await chatRoomRepo.findByUserIds(socket.userId, peerUserId);
+			let room = await chatRoomRepo.findByUserIds(socket.userId, peerUserId);
 			if (!room) {
-					room = await chatRoomRepo.createChatRoom(socket.userId, peerUserId);
+				room = await chatRoomRepo.createChatRoom(socket.userId, peerUserId);
 				if (!room) {
 					socket.emit("error", { code: "SERVER_ERROR", message: "Unable to create chat room" });
 					return;
@@ -163,7 +159,9 @@ export function registerChatNamespace(io: Server) {
 			socket.emit("system", { roomId: room.id, message: `Joined room ${room.id}` });
 
 			// Optionally nudge the peer to join if online
-			socket.to(`user_${peerUserId}`).emit("chat:invite", { roomId: room.id, fromUserId: socket.userId });
+			socket
+				.to(`user_${peerUserId}`)
+				.emit("chat:invite", { roomId: room.id, fromUserId: socket.userId });
 		});
 
 		// Leave a chat room
@@ -191,25 +189,38 @@ export function registerChatNamespace(io: Server) {
 			// Membership cache check (no DB call): user must have joined the room first
 			const roomKey = `chat:${chat_room_id}`;
 			if (!socket.rooms.has(roomKey)) {
-				socket.emit("error", { code: "FORBIDDEN", message: "Join the room before sending messages" });
+				socket.emit("error", {
+					code: "FORBIDDEN",
+					message: "Join the room before sending messages",
+				});
 				return;
 			}
 
 			// Validate per message type
 			if (p.message_type === "text") {
 				if (!p.content || p.content.trim().length === 0) {
-					socket.emit("error", { code: "BAD_REQUEST", message: "content is required for text messages" });
+					socket.emit("error", {
+						code: "BAD_REQUEST",
+						message: "content is required for text messages",
+					});
 					return;
 				}
 			} else {
 				// image / video / audio
 				if (!p.media_file_path || !p.media_mime_type) {
-					socket.emit("error", { code: "BAD_REQUEST", message: "media_file_path and media_mime_type are required for media messages" });
+					socket.emit("error", {
+						code: "BAD_REQUEST",
+						message: "media_file_path and media_mime_type are required for media messages",
+					});
 					return;
 				}
-				const expectedPrefix = p.message_type === "image" ? "image/" : p.message_type === "video" ? "video/" : "audio/";
+				const expectedPrefix =
+					p.message_type === "image" ? "image/" : p.message_type === "video" ? "video/" : "audio/";
 				if (!p.media_mime_type.startsWith(expectedPrefix)) {
-					socket.emit("error", { code: "BAD_REQUEST", message: `media_mime_type must start with ${expectedPrefix}` });
+					socket.emit("error", {
+						code: "BAD_REQUEST",
+						message: `media_mime_type must start with ${expectedPrefix}`,
+					});
 					return;
 				}
 			}
@@ -220,12 +231,12 @@ export function registerChatNamespace(io: Server) {
 				sender_id: socket.userId,
 				message_type: p.message_type,
 				content: p.content,
-				media_filename: 'media_filename' in p ? p.media_filename : undefined,
-				media_file_path: 'media_file_path' in p ? p.media_file_path : undefined,
-				media_file_size: 'media_file_size' in p ? p.media_file_size : undefined,
-				media_mime_type: 'media_mime_type' in p ? p.media_mime_type : undefined,
-				media_duration: 'media_duration' in p ? p.media_duration : undefined,
-				thumbnail_path: 'thumbnail_path' in p ? p.thumbnail_path : undefined,
+				media_filename: "media_filename" in p ? p.media_filename : undefined,
+				media_file_path: "media_file_path" in p ? p.media_file_path : undefined,
+				media_file_size: "media_file_size" in p ? p.media_file_size : undefined,
+				media_mime_type: "media_mime_type" in p ? p.media_mime_type : undefined,
+				media_duration: "media_duration" in p ? p.media_duration : undefined,
+				thumbnail_path: "thumbnail_path" in p ? p.thumbnail_path : undefined,
 			};
 
 			const created = await chatMessageRepo.create(toCreate as Partial<ChatMessage>);
@@ -243,8 +254,9 @@ export function registerChatNamespace(io: Server) {
 			const { roomId, isTyping } = payload ?? { roomId: "", isTyping: false };
 			if (!roomId) return;
 			if (!socket.rooms.has(`chat:${roomId}`)) return;
-			socket.to(`chat:${roomId}`).emit("userTyping", { userId: socket.userId, isTyping: !!isTyping });
+			socket
+				.to(`chat:${roomId}`)
+				.emit("userTyping", { userId: socket.userId, isTyping: !!isTyping });
 		});
 	});
 }
-

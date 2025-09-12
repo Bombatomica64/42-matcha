@@ -4,9 +4,9 @@
  */
 
 // Re-export the generated types
-export * from "@generated/typescript/api-nonextended";
+export * from "./api-nonextended";
 
-import type { components } from "@generated/typescript/api";
+import type { components } from "./api-nonextended";
 
 // Generic pagination response type
 export interface PaginatedResponse<T> {

@@ -76,9 +76,9 @@ export const jwtMiddleware = async (req: Request, res: Response, next: NextFunct
 			res.setHeader("X-New-Access-Token", newAccessToken);
 			res.cookie("access_token", newAccessToken, {
 				httpOnly: false, // kept readable by client to mirror state if needed
-				secure: process.env.NODE_ENV === 'production',
-				sameSite: 'lax',
-				maxAge: 15 * 60 * 1000
+				secure: process.env.NODE_ENV === "production",
+				sameSite: "lax",
+				maxAge: 15 * 60 * 1000,
 			});
 		}
 

@@ -3,7 +3,6 @@ import type { CreateUserData, UpdateUserData, User } from "@models/user.entity";
 import { BaseRepository } from "@orm/base-repository";
 import { createPaginatedResponse } from "@utils/pagination";
 import type { Pool } from "pg";
-import { logger } from "../server";
 
 export class UserRepository extends BaseRepository<User> {
 	constructor(pool: Pool) {

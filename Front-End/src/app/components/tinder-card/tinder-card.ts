@@ -6,7 +6,6 @@ import {
 import {
 	Component,
 	ElementRef,
-	effect,
 	inject,
 	input,
 	signal,
@@ -14,7 +13,7 @@ import {
 } from "@angular/core";
 import { ButtonModule } from "primeng/button";
 import { CardModule } from "primeng/card";
-import { components, type operations } from "../../../types/api";
+import type { operations } from "../../../types/api";
 import {
 	type HttpEndpoint,
 	type HttpMethod,
@@ -96,7 +95,7 @@ export class TinderCard {
 	private cachedHostWidth = 0;
 	private cachedHostHeight = 0;
 	private cachedHostLeft = 0;
-	private cachedHostTop = 0;
+	// private cachedHostTop = 0;
 	private ro?: ResizeObserver;
 
 	private line1?: HTMLDivElement;
@@ -114,11 +113,15 @@ export class TinderCard {
 	ngOnInit(): void {
 		// Inizializza la posizione di trascinamento qui se necessario
 		this.auth
-			.requestParams(this.params, this.httpEndpoint, this.httpMethod)
+			.requestParams<
+				typeof this.httpEndpoint,
+				typeof this.httpMethod,
+				typeof this.params,
+				DiscoverUsersResponse
+			>(this.params, this.httpEndpoint, this.httpMethod)
 			.subscribe({
-				next: (response: DiscoverUsersResponse) => {
+				next: (response) => {
 					console.log(response);
-					console.log(response.data);
 					this.users.set(response.data || []);
 				},
 				error: (error) => {
@@ -160,7 +163,7 @@ export class TinderCard {
 		this.cachedHostWidth = Math.round(r.width);
 		this.cachedHostHeight = Math.round(r.height);
 		this.cachedHostLeft = Math.round(r.left);
-		this.cachedHostTop = Math.round(r.top);
+		// this.cachedHostTop = Math.round(r.top);
 
 		// calcola qui la posizione iniziale della card ogni volta che cambia la host size
 		const xInitial = this.cachedHostWidth / 2 - this.cardWidth / 2;
@@ -182,7 +185,7 @@ export class TinderCard {
 
 		const firstBoundary = Math.round(this.cachedHostWidth / 3);
 		const secondBoundary = Math.round((this.cachedHostWidth / 3) * 2);
-		const centerBoundary = Math.round(this.cachedHostWidth / 2);
+		// const centerBoundary = Math.round(this.cachedHostWidth / 2);
 
 		//draw 2 red line intangibili
 		if (!this.line1) {
@@ -236,9 +239,9 @@ export class TinderCard {
 		}
 	}
 
-	onDragEnded(event: CdkDragEnd) {
+	onDragEnded(_event: CdkDragEnd) {
 		console.log("Drag ended, releasePosition:", this.releasePosition);
-		if (this.content && this.releasePosition() == "left") {
+		if (this.content && this.releasePosition() === "left") {
 			//animazione di caduta a sinistra
 			// this.content.nativeElement.style.transition = 'transform 0.5s ease';
 			this.content.nativeElement.style.transform =
@@ -252,7 +255,7 @@ export class TinderCard {
 				},
 				{ once: true },
 			);
-		} else if (this.content && this.releasePosition() == "right") {
+		} else if (this.content && this.releasePosition() === "right") {
 			//animazione di caduta a destra
 			// this.content.nativeElement.style.transition = 'transform 0.5s ease';
 			this.content.nativeElement.style.transform =

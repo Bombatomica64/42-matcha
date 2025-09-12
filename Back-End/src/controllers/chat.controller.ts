@@ -4,7 +4,6 @@ import type { Request, Response } from "express";
 import { logger } from "../server";
 import { buildBaseUrl, extractPaginationQuery } from "../utils/pagination";
 
-
 type ErrorResponse = components["schemas"]["ErrorResponse"];
 type SuccessResponse = components["schemas"]["SuccessResponse"];
 type ChatRoom = components["schemas"]["ChatRoom"];

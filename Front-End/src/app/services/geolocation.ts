@@ -5,44 +5,39 @@ import axios from "axios";
 	providedIn: "root",
 })
 export class Geolocation {
-	async getLocation(
-		options?: PositionOptions,
-	): Promise<{
+	async getLocation(options?: PositionOptions): Promise<{
 		ip: string;
 		location: { latitude: number; longitude: number };
 	}> {
-		return new Promise(async (resolve, reject) => {
-			if (!navigator.geolocation) {
-				try {
-					const ipLocation = await this.getIpLocation();
-					return resolve(ipLocation);
-				} catch (error) {
-					return reject(new Error("Geolocation and IP-based location failed."));
-				}
+		// Fallback immediately if navigator or geolocation not available (SSR or unsupported browser)
+		if (typeof navigator === "undefined" || !navigator.geolocation) {
+			try {
+				return await this.getIpLocation();
+			} catch {
+				throw new Error("Geolocation and IP-based location failed.");
 			}
+		}
 
-			navigator.geolocation.getCurrentPosition(
-				(position) =>
-					resolve({
-						ip: "unknown",
-						location: {
-							latitude: position.coords.latitude,
-							longitude: position.coords.longitude,
-						},
-					}),
-				async (error) => {
-					try {
-						const ipLocation = await this.getIpLocation();
-						return resolve(ipLocation);
-					} catch (ipError) {
-						return reject(
-							new Error("Geolocation and IP-based location failed."),
-						);
-					}
-				},
-				options,
+		// Try browser geolocation first
+		try {
+			const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
+				navigator.geolocation.getCurrentPosition(resolve, reject, options),
 			);
-		});
+			return {
+				ip: "unknown",
+				location: {
+					latitude: pos.coords.latitude,
+					longitude: pos.coords.longitude,
+				},
+			};
+		} catch {
+			// Fallback to IP-based lookup
+			try {
+				return await this.getIpLocation();
+			} catch {
+				throw new Error("Geolocation and IP-based location failed.");
+			}
+		}
 	}
 
 	private async getIpLocation(): Promise<{

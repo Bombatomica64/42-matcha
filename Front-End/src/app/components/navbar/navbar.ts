@@ -60,7 +60,7 @@ import { ToolbarModule } from "primeng/toolbar";
   `,
 })
 export class Navbar {
-  private router = inject(Router);
+	private router = inject(Router);
 
 	private get isRegister() {
 		return this.router.url === "/register";

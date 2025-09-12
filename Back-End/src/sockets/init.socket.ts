@@ -7,7 +7,7 @@ const server = createServer(app);
 
 const io = new Server(server, {
 	// Enable webtransport with fallbacks
-	transports: [ 'websocket', 'polling'],
+	transports: ["websocket", "polling"],
 
 	allowUpgrades: true,
 	cors: {
@@ -15,7 +15,7 @@ const io = new Server(server, {
 			"https://matcha.bombatomica64.dev",
 			"http://localhost:4200",
 			"http://172.18.0.3:4200", // Docker network address
-			process.env.CORS_ORIGIN || "http://localhost:3000"
+			process.env.CORS_ORIGIN || "http://localhost:3000",
 		],
 		methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
 		credentials: true, // Required for HTTP-only cookies

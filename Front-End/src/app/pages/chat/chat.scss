@@ -65,7 +65,42 @@
  .composer-send[disabled] { opacity: 0.4; cursor: not-allowed; }
 
 /* New float label based layout */
-.composer-inner { display: flex; gap: .5rem; align-items: flex-end; }
-.composer-field { flex: 1 1 auto; }
-.composer-field :is(input) { width: 100%; }
+.composer-inner {
+	display: flex;
+	gap: .5rem;
+	align-items: flex-end;
+}
+.composer-field {
+	flex: 1 1 auto;
+}
+.composer-input {
+	width: 100%;
+	min-height: 3.2rem;
+	font-size: 1.1rem;
+	padding: 0.75rem 1rem;
+	border-radius: 1.5rem;
+	background: var(--surface-a, #23272f);
+	color: var(--text-color, #fff);
+	border: 1.5px solid var(--surface-border, #444);
+	box-sizing: border-box;
+	outline: none;
+	transition: border-color 0.2s;
+}
+.composer-input:focus {
+	border-color: var(--primary-color, #16c784);
+}
+
+/* Make float label background match chat, not black */
+.p-float-label > label {
+	background: var(--surface-a, #23272f) !important;
+	color: var(--text-color, #aaa);
+	padding: 0 0.25em;
+	font-size: 1rem;
+	border-radius: 0.5em;
+	transition: background 0.2s, color 0.2s;
+}
+.p-float-label > input:focus + label,
+.p-float-label > input:not(:placeholder-shown) + label {
+	color: var(--primary-color, #16c784);
+}
 

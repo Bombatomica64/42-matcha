@@ -7,6 +7,7 @@
       </div>
       } @else {
       <p-virtual-scroller
+        #chatScroller
         [items]="messages()"
         [itemSize]="50"
         styleClass="chat-scroller"
@@ -28,7 +29,7 @@
       autocomplete="off"
     >
       <div class="composer-inner">
-        <span class="p-float-label composer-field">
+        <p-float-label variant="on">
           <input
             #messageInput
             id="chatMessageInput"
@@ -38,7 +39,7 @@
             class="composer-input"
           />
           <label for="chatMessageInput">Type a message...</label>
-        </span>
+        </p-float-label>
         <button
           type="submit"
           class="p-button p-component p-button-icon-only composer-send"

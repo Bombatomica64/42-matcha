@@ -1,5 +1,5 @@
-import { ChangeDetectorRef, Component, inject, signal } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { Component, inject, signal } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
 import { ButtonModule } from "primeng/button";
 import { HttpRequestService } from "../../services/http-request";
 
@@ -20,14 +20,13 @@ import { HttpRequestService } from "../../services/http-request";
 })
 export class VerifyEmail {
 	private route = inject(ActivatedRoute);
-	private router = inject(Router);
-	private cdr = inject(ChangeDetectorRef);
 	responded = signal(false);
 	message = signal("");
 
 	verifyEmail() {
 		console.log("Verifying email...");
 		this.route.queryParams.subscribe((params) => {
+			// biome-ignore lint/complexity/useLiteralKeys: route params
 			const token = params["token"];
 			if (token) {
 				this.auth

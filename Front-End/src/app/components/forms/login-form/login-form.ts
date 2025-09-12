@@ -18,7 +18,7 @@ import { HttpRequestService } from "../../../services/http-request";
 
 type LoginRequest = components["schemas"]["LoginRequest"];
 type LoginResponse = components["schemas"]["LoginResponse"];
-
+type ErrorResponse = components["schemas"]["ErrorResponse"];
 @Component({
 	selector: "app-login-form",
 	imports: [
@@ -117,30 +117,39 @@ export class LoginForm implements AfterViewInit {
 	});
 
 	loginSuccess = output<LoginResponse>();
-	loginError = output<unknown>();
+	loginError = output<ErrorResponse>();
 
 	private autoSubmitAttempted = false;
 
 	onSubmit() {
-		if (this.loginForm.valid) {
-			const credentials = this.loginForm.value as LoginRequest;
-			console.log("Form submitted with:", credentials);
-
-			this.auth
-				.request(credentials, this.httpEndpoint, this.httpMethod)
-				.subscribe({
-					next: (response: LoginResponse) => {
-						console.log("Login success:", response);
-						this.loginSuccess.emit(response);
-					},
-					error: (error) => {
-						console.error("Login error:", error);
-						this.loginError.emit(error);
-					},
-				});
-		} else {
+		if (!this.loginForm.valid) {
 			console.error("Form is invalid");
+			return;
 		}
+		// getRawValue gives us a fully non-nullable object per control config
+		const raw = this.loginForm.getRawValue();
+		const credentials: LoginRequest = {
+			email_or_username: raw.email_or_username,
+			password: raw.password,
+		};
+		console.log("Form submitted with:", credentials);
+		this.auth
+			.request<
+				typeof this.httpEndpoint,
+				typeof this.httpMethod,
+				LoginResponse,
+				LoginRequest
+			>(credentials, this.httpEndpoint, this.httpMethod)
+			.subscribe({
+				next: (response) => {
+					console.log("Login success:", response);
+					this.loginSuccess.emit(response);
+				},
+				error: (error: ErrorResponse) => {
+					console.error("Login error:", error);
+					this.loginError.emit(error);
+				},
+			});
 	}
 
 	auth = inject(HttpRequestService);

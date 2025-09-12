@@ -1,5 +1,5 @@
-import process from "node:process";
 import path from "node:path";
+import process from "node:process";
 import { env } from "@config/env";
 import type { components } from "@generated/typescript/api-nonextended";
 import { jwtMiddleware } from "@middleware/jwt.middleware";
@@ -19,11 +19,11 @@ import { pool } from "./database";
 const logger = pino({
 	name: "matcha-server",
 	transport: {
-		target: 'pino-pretty',
+		target: "pino-pretty",
 		options: {
-			colorize: true
-		}
-	}
+			colorize: true,
+		},
+	},
 });
 
 const app: Express = express();

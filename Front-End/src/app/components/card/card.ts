@@ -1,14 +1,7 @@
-import {
-	Component,
-	ElementRef,
-	input,
-	output,
-	signal,
-	ViewChild,
-} from "@angular/core";
+import { Component, input } from "@angular/core";
 import { ButtonModule } from "primeng/button";
 import { CardModule } from "primeng/card";
-import type { components, operations } from "../../../types/api";
+import type { components } from "../../../types/api";
 
 type User = components["schemas"]["User"];
 

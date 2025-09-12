@@ -116,7 +116,9 @@ export class ChatRoomRepository extends BaseRepository<ChatRoom> {
 	}
 
 	async findByUserIds(user1Id: string, user2Id: string): Promise<ChatRoom | null> {
-		const sql = this.baseSelect("WHERE (cr.user1_id = $1 AND cr.user2_id = $2) OR (cr.user1_id = $2 AND cr.user2_id = $1) LIMIT 1");
+		const sql = this.baseSelect(
+			"WHERE (cr.user1_id = $1 AND cr.user2_id = $2) OR (cr.user1_id = $2 AND cr.user2_id = $1) LIMIT 1",
+		);
 		const res = await this.pool.query(sql, [user1Id, user2Id]);
 		return res.rows[0] ?? null;
 	}

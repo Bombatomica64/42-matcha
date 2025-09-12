@@ -1,8 +1,11 @@
 import { Component, inject } from "@angular/core";
 import { Router } from "@angular/router";
+import type { components } from "../../../types/api"; // Adjust the path as necessary
 import { LoginForm } from "../../components/forms/login-form/login-form";
 import { TokenStore } from "../../services/token-store";
 
+type LoginResponse = components["schemas"]["LoginResponse"];
+type ErrorResponse = components["schemas"]["ErrorResponse"];
 @Component({
 	selector: "app-login",
 	imports: [LoginForm],
@@ -40,12 +43,13 @@ export class Login {
 	private router = inject(Router);
 	private tkn = inject(TokenStore);
 
-	onLoginSuccess(response: any) {
+	onLoginSuccess(response: LoginResponse) {
 		console.log("Login successful:", response);
 		this.tkn.setTokens(response.token);
 		this.router.navigate(["/home"]);
 	}
-	onLoginError(error: any) {
+	onLoginError(error: ErrorResponse) {
 		console.error("Login failed:", error);
+		throw new Error(`Login failed MARCO METTI UN POP UP QUI: ${error.message}`);
 	}
 }

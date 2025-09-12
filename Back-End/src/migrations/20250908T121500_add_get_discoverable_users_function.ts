@@ -1,10 +1,10 @@
-import type { Pool } from 'pg';
+import type { Pool } from "pg";
 
 /**
  * Migration: add get_discoverable_users stored procedure used by discovery endpoint.
  */
 export async function up(pool: Pool): Promise<void> {
-  await pool.query(`
+	await pool.query(`
 CREATE OR REPLACE FUNCTION get_discoverable_users(
   p_user_id UUID,
   p_max_distance INTEGER DEFAULT 50,
@@ -151,5 +151,7 @@ $$;`);
 }
 
 export async function down(pool: Pool): Promise<void> {
-  await pool.query('DROP FUNCTION IF EXISTS get_discoverable_users(UUID, INTEGER, INTEGER, INTEGER, DECIMAL, INTEGER, INTEGER);');
+	await pool.query(
+		"DROP FUNCTION IF EXISTS get_discoverable_users(UUID, INTEGER, INTEGER, INTEGER, DECIMAL, INTEGER, INTEGER);",
+	);
 }

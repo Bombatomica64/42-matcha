@@ -1,8 +1,8 @@
 import crypto from "node:crypto";
 import process from "node:process";
+import { env } from "@config/env";
 import nodemailer from "nodemailer";
 import { logger } from "../server";
-import { env } from "@config/env";
 
 /**
  * Email service for sending various types of emails

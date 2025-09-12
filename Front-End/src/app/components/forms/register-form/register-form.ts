@@ -2,13 +2,7 @@
 //import { IconField } from 'primeng/iconfield';
 //import { InputIcon } from 'primeng/inputicon';
 import { CommonModule } from "@angular/common";
-import {
-	AfterViewInit,
-	ChangeDetectorRef,
-	Component,
-	inject,
-	OnDestroy,
-} from "@angular/core";
+import { ChangeDetectorRef, Component, inject } from "@angular/core";
 import {
 	type AbstractControl,
 	FormControl,
@@ -47,7 +41,7 @@ export function adultValidator(minAge: number): ValidatorFn {
 		const v = control?.value;
 		if (!v) return { required: true };
 		const date = v instanceof Date ? v : new Date(v);
-		if (isNaN(date.getTime())) return { invalidDate: true };
+		if (Number.isNaN(date.getTime())) return { invalidDate: true };
 
 		const today = new Date();
 		let age = today.getFullYear() - date.getFullYear();
@@ -142,7 +136,8 @@ export class RegisterForm {
 	httpEndpoint: HttpEndpoint = "/auth/register";
 	httpMethod: HttpMethod = "POST";
 
-	registerForm = new FormGroup({
+	// Typed form controls interface (avoid using component class name as generic)
+	private readonly form = new FormGroup({
 		username: new FormControl("", {
 			nonNullable: true,
 			validators: [Validators.required],
@@ -163,18 +158,16 @@ export class RegisterForm {
 			nonNullable: true,
 			validators: [Validators.required],
 		}),
-		birth_date: new FormControl<Date | null>(null, {
+		birth_date: new FormControl(new Date(), {
 			nonNullable: true,
 			validators: [Validators.required, adultValidator(18)],
 		}),
 		bio: new FormControl("", { nonNullable: true }),
-
 		location: new FormGroup({
 			lat: new FormControl<number | null>(null),
 			lng: new FormControl<number | null>(null),
 		}),
-
-		location_manual: new FormControl<boolean>(false, { nonNullable: true }),
+		location_manual: new FormControl(false, { nonNullable: true }),
 		sexual_orientation: new FormControl<
 			"heterosexual" | "homosexual" | "bisexual" | ""
 		>("", { nonNullable: true, validators: [Validators.required] }),
@@ -183,6 +176,11 @@ export class RegisterForm {
 			validators: [Validators.required],
 		}),
 	});
+
+	// Backwards compatibility alias (if template references registerForm)
+	get registerForm() {
+		return this.form;
+	}
 
 	// inject ChangeDetectorRef to stabilize change detection after async updates
 	cdr = inject(ChangeDetectorRef);
@@ -212,38 +210,42 @@ export class RegisterForm {
 	}
 
 	onSubmit() {
-		if (this.registerForm.valid) {
-			const raw = this.registerForm.value;
-			const birth_date: string = raw.birth_date
-				? this.formatDate(raw.birth_date)
-				: "";
-
-			const payload: RegisterRequest = {
-				username: raw.username!,
-				email: raw.email!,
-				password: raw.password!,
-				first_name: raw.first_name!,
-				last_name: raw.last_name!,
-				birth_date,
-				bio: raw.bio || undefined,
-				location: { lat: raw.location!.lat!, lng: raw.location!.lng! },
-				location_manual: raw.location_manual!,
-				sexual_orientation:
-					raw.sexual_orientation as RegisterRequest["sexual_orientation"],
-				gender: raw.gender as RegisterRequest["gender"],
-			};
-
-			this.auth.request(payload, this.httpEndpoint, this.httpMethod).subscribe({
-				next: (response: RegisterResponse) => {
-					console.log("Register success:", response);
-				},
-				error: (error) => {
-					console.error("Register error:", error);
-				},
-			});
-		} else {
+		if (!this.registerForm.valid) {
 			console.error("Form is invalid");
+			return;
 		}
+		const raw = this.registerForm.getRawValue();
+		// Guard critical nullable fields
+		if (raw.location.lat == null || raw.location.lng == null) {
+			console.error("Location missing");
+			return;
+		}
+		const birth_date = this.formatDate(raw.birth_date);
+		const payload: RegisterRequest = {
+			username: raw.username,
+			email: raw.email,
+			password: raw.password,
+			first_name: raw.first_name,
+			last_name: raw.last_name,
+			birth_date,
+			bio: raw.bio || undefined,
+			location: { lat: raw.location.lat, lng: raw.location.lng },
+			location_manual: raw.location_manual,
+			sexual_orientation:
+				raw.sexual_orientation as RegisterRequest["sexual_orientation"],
+			gender: raw.gender as RegisterRequest["gender"],
+		};
+		this.auth
+			.request<
+				typeof this.httpEndpoint,
+				typeof this.httpMethod,
+				RegisterResponse,
+				RegisterRequest
+			>(payload, this.httpEndpoint, this.httpMethod)
+			.subscribe({
+				next: (response) => console.log("Register success:", response),
+				error: (error) => console.error("Register error:", error),
+			});
 	}
 
 	// Patch location when Map component emits a new position

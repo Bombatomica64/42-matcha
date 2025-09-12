@@ -5,8 +5,8 @@ import { verifyJwt } from "@utils/jwt";
 import type { Socket } from "socket.io";
 import { pool } from "../database";
 import { logger } from "../server";
-import { io } from "./init.socket";
 import { registerChatNamespace } from "./chat.sockets";
+import { io } from "./init.socket";
 
 declare module "socket.io" {
 	interface Socket {
@@ -82,8 +82,6 @@ io.on("connection", (socket: Socket) => {
 		userId: "system",
 	});
 
-
-
 	// Ping/Pong handler
 	socket.on("ping", (data) => {
 		logger.info(`Ping received from user ${socket.userId}:`, data);
@@ -95,7 +93,6 @@ io.on("connection", (socket: Socket) => {
 			userId: socket.userId,
 		});
 	});
-
 
 	// // Typing indicator
 	// socket.on("typing", (data) => {

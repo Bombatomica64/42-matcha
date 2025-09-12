@@ -1,11 +1,11 @@
-import type { Pool } from 'pg';
+import type { Pool } from "pg";
 
 /**
  * Migration: add chat_rooms and chat_messages tables (plus trigger + function)
  * Generated from Db/init.sql snippet. Idempotent using IF NOT EXISTS and DROP safeguards in down.
  */
 export async function up(pool: Pool): Promise<void> {
-  await pool.query(`
+	await pool.query(`
   CREATE TABLE IF NOT EXISTS chat_rooms (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user1_id UUID REFERENCES users(id) ON DELETE CASCADE,
@@ -65,7 +65,7 @@ export async function up(pool: Pool): Promise<void> {
 }
 
 export async function down(pool: Pool): Promise<void> {
-  await pool.query(`
+	await pool.query(`
   DROP TRIGGER IF EXISTS validate_media_trigger ON chat_messages;
   DROP FUNCTION IF EXISTS validate_media_mime_type();
   DROP TABLE IF EXISTS chat_messages;

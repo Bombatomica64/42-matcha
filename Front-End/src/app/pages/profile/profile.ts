@@ -8,19 +8,19 @@ import { OverlayBadgeModule } from "primeng/overlaybadge";
 import { RatingModule } from "primeng/rating";
 // import { adultValidator } from '../../components/forms/register-form/register-form';
 import { SelectModule } from "primeng/select";
-import type { components } from "../../../types/api";
+// import type { components } from "../../../types/api";
 import { Card } from "../../components/card/card";
 import { ProfileForm } from "../../components/forms/profile-form/profile-form";
 import { GetUserProfile } from "../../services/user/get-user-profile";
 
 // import { UserImages } from "../../components/user-images/user-images";
 
-type User = components["schemas"]["User"];
+// type User = components["schemas"]["User"];
 // type SexualOrientation = User['sexual_orientation'];
 // type Gender = User['gender'];
-type PhotoResponse = components["schemas"]["PhotoResponse"]; //post
-type GetPhotoResponse = components["schemas"]["PhotoListResponse"]; //get
-type ErrorResponse = components["schemas"]["ErrorResponse"];
+// type PhotoResponse = components["schemas"]["PhotoResponse"]; //post
+// type GetPhotoResponse = components["schemas"]["PhotoListResponse"]; //get
+// type ErrorResponse = components["schemas"]["ErrorResponse"];
 
 // type ErrorResponse = components['schemas']['ErrorResponse'];
 

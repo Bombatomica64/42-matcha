@@ -1,7 +1,6 @@
 import type { components, PaginatedResponse } from "@generated/typescript/api";
 import { calculatePagination, createPaginatedResponse } from "@utils/pagination";
 import type { Pool, QueryResult } from "pg";
-import { logger } from "../server";
 
 type PaginationRequest = components["schemas"]["PaginationQuery"];
 

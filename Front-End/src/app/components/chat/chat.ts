@@ -83,6 +83,7 @@ export class Chat implements OnInit, OnDestroy {
 
 	ngOnInit(): void {
 		// Seed from resolver if present (SSR prefetch)
+		// biome-ignore lint/complexity/useLiteralKeys: route params
 		const pre = this.route.snapshot.data["chatPrefetch"] as {
 			roomId: string;
 			messagesAsc: HttpChatMessage[];
@@ -140,9 +141,9 @@ export class Chat implements OnInit, OnDestroy {
 			this.loadingInitial.set(true);
 			const query = `?page=1&limit=${this.pageSize}&sort=created_at&order=desc`;
 			const data = await firstValueFrom(
-				this.http.request(
-					null,
-					`/chat/${roomId}/messages${query}` as HttpEndpoint,
+				this.http.requestParams(
+					query,
+					`/chat/${roomId}/messages` as HttpEndpoint,
 					"GET" as HttpMethod,
 				),
 			);
@@ -197,9 +198,9 @@ export class Chat implements OnInit, OnDestroy {
 			try {
 				const query = `?page=${next}&limit=${this.pageSize}&sort=created_at&order=desc`;
 				const pageData = await firstValueFrom(
-					this.http.request(
-						null,
-						`/chat/${roomId}/messages${query}` as HttpEndpoint,
+					this.http.requestParams(
+						query,
+						`/chat/${roomId}/messages` as HttpEndpoint,
 						"GET" as HttpMethod,
 					),
 				);
@@ -231,9 +232,9 @@ export class Chat implements OnInit, OnDestroy {
 			this.loadingOlder.set(true);
 			const query = `?page=${nextPage}&limit=${this.pageSize}&sort=created_at&order=desc`;
 			const pageData = await firstValueFrom(
-				this.http.request(
-					null,
-					`/chat/${roomId}/messages${query}` as HttpEndpoint,
+				this.http.requestParams(
+					query,
+					`/chat/${roomId}/messages` as HttpEndpoint,
 					"GET" as HttpMethod,
 				),
 			);

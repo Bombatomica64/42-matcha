@@ -1,12 +1,12 @@
 import {
 	Component,
-	ElementRef,
+	// ElementRef,
 	effect,
 	inject,
-	input,
-	output,
+	// input,
+	// output,
 	signal,
-	ViewChild,
+	// ViewChild,
 } from "@angular/core";
 import {
 	FormControl,
@@ -22,7 +22,7 @@ import { InputGroupModule } from "primeng/inputgroup";
 import { InputGroupAddonModule } from "primeng/inputgroupaddon";
 import { InputTextModule } from "primeng/inputtext";
 import { SelectModule } from "primeng/select";
-import type { components, operations } from "../../../../types/api";
+import type { components } from "../../../../types/api";
 import {
 	type HttpEndpoint,
 	type HttpMethod,
@@ -196,8 +196,8 @@ export class ProfileForm {
 			nonNullable: true,
 			validators: [Validators.email],
 		}),
+		// Allow null while editing before user picks a date; remove nonNullable to avoid null type conflict
 		birth_date: new FormControl<Date | null>(null, {
-			nonNullable: true,
 			validators: [adultValidator(18)],
 		}),
 		bio: new FormControl("", { nonNullable: true }),
@@ -209,7 +209,10 @@ export class ProfileForm {
 		sexual_orientation: new FormControl<
 			"heterosexual" | "homosexual" | "bisexual" | ""
 		>("", { nonNullable: true }),
-		location: new FormGroup({
+		location: new FormGroup<{
+			lat: FormControl<number | null>;
+			lng: FormControl<number | null>;
+		}>({
 			lat: new FormControl<number | null>(null),
 			lng: new FormControl<number | null>(null),
 		}),
@@ -317,67 +320,75 @@ export class ProfileForm {
 	}
 
 	onSubmit() {
-		if (this.profileForm.valid) {
-			const raw = this.profileForm.value;
-			const profile = this.profileService.profile();
-			if (!profile) return;
+		if (!this.profileForm.valid) {
+			console.error("Form is invalid");
+			return;
+		}
+		const raw = this.profileForm.getRawValue(); // ensures location object always present
+		const profile = this.profileService.profile();
+		if (!profile) return;
 
-			const payload: Partial<User> = {};
+		const payload: Partial<User> = {};
 
-			// Only send email if it's not empty and different
-			if (raw.email && raw.email.trim() !== "" && raw.email !== profile.email) {
-				payload.email = raw.email;
-			}
-			// Only send first_name if it's not empty and different
-			if (
-				raw.first_name &&
-				raw.first_name.trim() !== "" &&
-				raw.first_name !== profile.first_name
-			) {
-				payload.first_name = raw.first_name;
-			}
-			// Only send last_name if it's not empty and different
-			if (
-				raw.last_name &&
-				raw.last_name.trim() !== "" &&
-				raw.last_name !== profile.last_name
-			) {
-				payload.last_name = raw.last_name;
-			}
-			// Bio can be empty, so we handle it differently
-			if (raw.bio !== profile.bio) {
-				payload.bio = raw.bio || undefined;
-			}
-			if (raw.gender !== profile.gender) {
-				payload.gender = raw.gender as User["gender"];
-			}
-			if (raw.sexual_orientation !== profile.sexual_orientation) {
-				payload.sexual_orientation =
-					raw.sexual_orientation as User["sexual_orientation"];
-			}
-			if (
-				raw.birth_date &&
-				this.formatDate(raw.birth_date) !== profile.birth_date
-			) {
-				payload.birth_date = this.formatDate(raw.birth_date);
-			}
-			if (
-				raw.location?.lat !== profile.location?.latitude ||
-				raw.location?.lng !== profile.location?.longitude
-			) {
-				payload.location = {
-					latitude: raw.location!.lat!,
-					longitude: raw.location!.lng!,
-				};
-			}
+		// Only send email if it's not empty and different
+		if (raw.email && raw.email.trim() !== "" && raw.email !== profile.email) {
+			payload.email = raw.email;
+		}
+		if (
+			raw.first_name &&
+			raw.first_name.trim() !== "" &&
+			raw.first_name !== profile.first_name
+		) {
+			payload.first_name = raw.first_name;
+		}
+		if (
+			raw.last_name &&
+			raw.last_name.trim() !== "" &&
+			raw.last_name !== profile.last_name
+		) {
+			payload.last_name = raw.last_name;
+		}
+		if (raw.bio !== profile.bio) {
+			payload.bio = raw.bio || undefined;
+		}
+		if (raw.gender !== profile.gender) {
+			payload.gender = raw.gender as User["gender"];
+		}
+		if (raw.sexual_orientation !== profile.sexual_orientation) {
+			payload.sexual_orientation =
+				raw.sexual_orientation as User["sexual_orientation"];
+		}
+		if (
+			raw.birth_date &&
+			this.formatDate(raw.birth_date) !== profile.birth_date
+		) {
+			payload.birth_date = this.formatDate(raw.birth_date);
+		}
+		const loc = raw.location;
+		if (
+			loc &&
+			loc.lat != null &&
+			loc.lng != null &&
+			(loc.lat !== profile.location?.latitude ||
+				loc.lng !== profile.location?.longitude)
+		) {
+			payload.location = { latitude: loc.lat, longitude: loc.lng };
+		}
 
-			if (Object.keys(payload).length === 0) {
-				console.log("Nessun cambiamento rilevato.");
-				return;
-			}
+		if (Object.keys(payload).length === 0) {
+			console.log("Nessun cambiamento rilevato.");
+			return;
+		}
 
-			this.auth.request(payload, this.httpEndpoint, this.httpMethod).subscribe({
-				next: (response: ProfileData) => {
+		this.auth
+			.request<
+				typeof this.httpEndpoint,
+				typeof this.httpMethod,
+				ProfileData,
+				Partial<User>
+			>(payload, this.httpEndpoint, this.httpMethod)
+			.subscribe({
+				next: (response) => {
 					console.log("Update success:", response);
 					this.profileService.reloadProfile();
 					this.isEditable.set(false);
@@ -386,8 +397,5 @@ export class ProfileForm {
 					console.error("Update error:", error);
 				},
 			});
-		} else {
-			console.error("Form is invalid");
-		}
 	}
 }

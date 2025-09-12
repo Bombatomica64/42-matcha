@@ -232,6 +232,10 @@ components:
         user_id:
           type: string
           example: "1234567890abcdef"
+      required:
+        - message
+        - token
+        - user_id
 
     LogoutResponse:
       type: object

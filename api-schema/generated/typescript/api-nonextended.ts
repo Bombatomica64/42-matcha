@@ -618,11 +618,11 @@ export interface components {
         };
         LoginResponse: {
             /** @example Login successful */
-            message?: string;
+            message: string;
             /** @example eyJhbGciOi */
-            token?: string;
+            token: string;
             /** @example 1234567890abcdef */
-            user_id?: string;
+            user_id: string;
         };
         LogoutResponse: {
             /** @example User logged out successfully */

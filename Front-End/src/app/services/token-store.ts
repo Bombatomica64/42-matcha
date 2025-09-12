@@ -184,16 +184,16 @@ export class TokenStore {
 			window.location.href = "/login";
 		}
 	}
-  get userId(): string | null {
-    const token = this.getAccessToken();
-    if (token) {
-      try {
-        const decoded = jwtDecode<TokenPayload>(token);
-        return decoded.userId;
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  }
+	get userId(): string | null {
+		const token = this.getAccessToken();
+		if (token) {
+			try {
+				const decoded = jwtDecode<TokenPayload>(token);
+				return decoded.userId;
+			} catch {
+				return null;
+			}
+		}
+		return null;
+	}
 }

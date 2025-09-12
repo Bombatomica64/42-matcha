@@ -30,9 +30,9 @@ export const chatMessagesResolver: ResolveFn<ChatPrefetchData | null> = async (
 		if (isPlatformServer(platformId)) {
 			const query = `?page=1&limit=30&sort=created_at&order=desc`;
 			const data = await firstValueFrom(
-				http.request(
-					null,
-					`/chat/${roomId}/messages${query}` as HttpEndpoint,
+				http.requestParams(
+					query,
+					`/chat/${roomId}/messages` as HttpEndpoint,
 					"GET" as HttpMethod,
 				),
 			);

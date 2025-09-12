@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from "@angular/core";
-import { type components, operations } from "../../../types/api";
+import type { components } from "../../../types/api";
 import {
 	type HttpEndpoint,
 	type HttpMethod,
@@ -47,12 +47,19 @@ export class GetUserProfile {
 	}
 
 	private loadProfile() {
+		// If params string is empty, pass an empty object to preserve endpoint typing
+		const qp = this.params ? this.params : {};
 		this.auth
-			.requestParams(this.params, this.httpEndpoint, this.httpMethod)
+			.requestParams<
+				typeof this.httpEndpoint,
+				typeof this.httpMethod,
+				typeof qp,
+				{ user: ProfileData }
+			>(qp, this.httpEndpoint, this.httpMethod)
 			.subscribe({
-				next: (response: { user: ProfileData }) => {
+				next: (response) => {
 					console.log(response);
-					this.profile.set(response.user); // Salva la response nel signal
+					if (response?.user) this.profile.set(response.user);
 				},
 				error: (error: ErrorResponse) => {
 					console.error(error);
