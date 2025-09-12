@@ -3,14 +3,15 @@ import {
 	computed,
 	effect,
 	inject,
-	ViewChild,
 	type OnDestroy,
 	type OnInit,
 	signal,
+	ViewChild,
 } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { InputGroupModule } from "primeng/inputgroup";
 import { InputGroupAddonModule } from "primeng/inputgroupaddon";
+import type { Scroller } from "primeng/scroller";
 import {
 	ScrollerModule,
 	type ScrollerScrollIndexChangeEvent,
@@ -26,8 +27,7 @@ import {
 } from "../../services/http-request";
 import { SocketService } from "../../services/socketio";
 import { TokenStore } from "../../services/token-store";
-import { FloatLabel } from 'primeng/floatlabel';
-import type { Scroller } from 'primeng/scroller';
+
 // Types
 type HttpChatMessage = components["schemas"]["ChatMessage"];
 type PaginationQuery = components["schemas"]["PaginationQuery"];
@@ -39,7 +39,6 @@ type PaginationQuery = components["schemas"]["PaginationQuery"];
 		ChatMessage,
 		InputGroupModule,
 		InputGroupAddonModule,
-    FloatLabel,
 	],
 	templateUrl: "./chat.html",
 	styleUrl: "./chat.scss",
@@ -86,7 +85,7 @@ export class Chat implements OnInit, OnDestroy {
 			);
 	});
 
-	@ViewChild('chatScroller') private scroller?: Scroller;
+	@ViewChild("chatScroller") private scroller?: Scroller;
 
 	// Room-scoped message handler with debug logging
 	private onNewMessage = (raw: unknown) => {
@@ -292,29 +291,27 @@ export class Chat implements OnInit, OnDestroy {
 		return [];
 	}
 
-	//Send message (accepts input element or event for robustness)
-	sendMessage(ref: HTMLInputElement | Event): void {
-		let input: HTMLInputElement | null = null;
+	//Send message (now accepts textarea as well)
+	sendMessage(ref: HTMLInputElement | HTMLTextAreaElement | Event): void {
+		let el: HTMLInputElement | HTMLTextAreaElement | null = null;
 		if (ref instanceof Event) {
-			const target = ref.target as HTMLInputElement | null;
-			if (target && target.tagName === "INPUT") input = target;
+			const target = ref.target as (HTMLInputElement | HTMLTextAreaElement) | null;
+			if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) el = target;
 		} else {
-			input = ref;
+			el = ref;
 		}
-		if (!input) {
-			input = document.getElementById(
-				"chatMessageInput",
-			) as HTMLInputElement | null;
+		if (!el) {
+			el = document.getElementById("chatMessageInput") as
+				| HTMLInputElement
+				| HTMLTextAreaElement
+				| null;
 		}
-		if (!input) return;
+		if (!el) return;
 
 		const rid = this.chatRoomIdSig();
-		if (!rid) {
-			console.warn("No room id yet; postponing send");
-			return;
-		}
+		if (!rid) return;
 		const roomId = String(rid);
-		const raw = input.value;
+		const raw = el.value;
 		const content = raw.trim();
 		if (!content) return;
 
@@ -324,9 +321,22 @@ export class Chat implements OnInit, OnDestroy {
 			content,
 		} as HttpChatMessage);
 
-		input.value = "";
-		queueMicrotask(() => input?.focus());
+		el.value = "";
+		this.autoGrow(el as HTMLTextAreaElement); // reset height if textarea
+		queueMicrotask(() => el?.focus());
 		this.scrollToBottomSoon();
+	}
+
+	autoGrow(el: HTMLTextAreaElement): void {
+		if (!el) return;
+		el.style.height = "auto";
+		el.style.height = `${Math.min(el.scrollHeight, 220)}px`;
+	}
+
+	onEnter(ev: KeyboardEvent, textarea: HTMLTextAreaElement) {
+		if (ev.shiftKey) return; // allow Shift+Enter for newline
+		ev.preventDefault();
+		this.sendMessage(textarea);
 	}
 
 	onIndexChange(ev: ScrollerScrollIndexChangeEvent) {
@@ -353,7 +363,9 @@ export class Chat implements OnInit, OnDestroy {
 			if (!this.scroller) return;
 			const total = this.messages().length;
 			if (total > 0) {
-				try { this.scroller.scrollToIndex(total - 1, 'smooth'); } catch {}
+				try {
+					this.scroller.scrollToIndex(total, "smooth");
+				} catch {}
 			}
 		});
 	}

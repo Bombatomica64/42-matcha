@@ -23,31 +23,27 @@
       }
     </div>
     <!-- <om-border-beam class="chat-beam-full"> -->
-    <form
-      class="composer"
-      (submit)="sendMessage(messageInput); $event.preventDefault()"
-      autocomplete="off"
-    >
-      <div class="composer-inner">
-        <p-float-label variant="on">
-          <input
-            #messageInput
-            id="chatMessageInput"
-            type="text"
-            pInputText
-            (keydown.enter)="sendMessage(messageInput)"
-            class="composer-input"
-          />
-          <label for="chatMessageInput">Type a message...</label>
-        </p-float-label>
+    <form class="composer" (submit)="sendMessage(messageInput); $event.preventDefault()" autocomplete="off">
+      <div class="composer-pill">
+        <textarea
+          #messageInput
+          id="chatMessageInput"
+          placeholder="Type a message..."
+          class="composer-textarea"
+          rows="1"
+          (input)="autoGrow(messageInput)"
+          (keydown.enter)="onEnter($any($event), messageInput)"
+        ></textarea>
         <button
           type="submit"
-          class="p-button p-component p-button-icon-only composer-send"
+          pButton
+          icon="pi pi-send"
           [disabled]="!messageInput.value.trim()"
-        >
-          <i class="pi pi-send"></i>
-          <span class="p-button-label p-c">Send</span>
-        </button>
+          class="composer-send"
+          severity="primary"
+          variant="text"
+          aria-label="Send message"
+        ></button>
       </div>
     </form>
     <!-- </om-border-beam> -->
