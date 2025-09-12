@@ -148,8 +148,11 @@ export class AuthController {
 				loginData.email_or_username,
 				loginData.password,
 			);
+			const id = result?.user.id;
 
-			if (!result) {
+			// If login failed
+
+			if (!result || !id) {
 				const errorResponse: ErrorResponse = {
 					error: "Unauthorized",
 					message: "Invalid credentials",
@@ -162,7 +165,7 @@ export class AuthController {
 			const successResponse: LoginResponse = {
 				message: "Login successful",
 				token: result.accessToken,
-				user_id: result.user.id,
+				user_id: id,
 			};
 
 			// HttpOnly refresh token (long-lived)

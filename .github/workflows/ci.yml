@@ -1,4 +1,4 @@
-name: CI/CD
+name: CI
 
 on:
   push:
@@ -12,18 +12,18 @@ jobs:
 
     services:
       postgres:
-        image: postgis:latest
+        image: postgis/postgis:latest
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
           POSTGRES_DB: matcha_test
+        ports:
+          - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd pg_isready -U postgres
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        ports:
-          - 5432:5432
 
     steps:
     - name: Checkout code
@@ -40,17 +40,20 @@ jobs:
       working-directory: ./Back-End
       run: npm ci
 
-    - name: Setup test database
+    - name: Wait for Postgres
+      run: |
+        for i in {1..30}; do
+          pg_isready -h localhost -U postgres && break
+          sleep 2
+        done
+
+    - name: Setup test database schema
       working-directory: ./Back-End
       env:
-        DB_HOST: localhost
-        DB_PORT: 5432
-        DB_NAME: matcha_test
-        DB_USER: postgres
-        DB_PASSWORD: postgres
+        PGPASSWORD: postgres
       run: |
-        # Create tables and extensions (you may need to adapt this)
-        PGPASSWORD=postgres psql -h localhost -U postgres -d matcha_test -f ../Db/init.sql || true
+        psql -h localhost -U postgres -d matcha_test -f ../../Db/init.sql
+        # Add more .sql files if needed, e.g. notification.sql
 
     - name: Run linting
       working-directory: ./Back-End

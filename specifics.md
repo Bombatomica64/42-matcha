@@ -4,35 +4,35 @@
 
 ### IV.1 Registration and Signing-in
 
-- [ ] Add registration AND signing-in functionality
-  - [ ] email
-  - [ ] password
-  - [ ] first name
-  - [ ] last name
-  - [ ] username
-- [ ] Send confirmation email
-  - [ ] unique url to verify email
+- [x] Add registration AND signing-in functionality
+  - [x] email
+  - [x] password
+  - [x] first name
+  - [x] last name
+  - [x] username
+- [x] Send confirmation email
+  - [x] unique url to verify email
 - [ ] Reset password email
 - [ ] Easy logout
 
 ### IV.2 User Profile
 
-- [ ] Full profile
-  - [ ] Gender
-  - [ ] Sexual orientation
-  - [ ] Bio
+- [x] Full profile
+  - [x] Gender
+  - [x] Sexual orientation
+  - [x] Bio
   - [ ] Hashtags
   - [ ] Max 5 pictures one of which is the main profile picture
-  - [ ] Age
-- [ ] Modify profile
+  - [x] Age
+- [x] Modify profile
 - [ ] Profile viewers viewer
 - [ ] View like on profile
-- [ ] Public fame rating (1-5 stars or the mmr)
-- [ ] GPS LOCATIONS AT ALL TIMES
-  - [ ] Manually set location
-  - [ ] Automatically set location
-  - [ ] Show location on profile
-  - [ ] If user removes location, get it somewhere else
+- [x] Public fame rating (1-5 stars or the mmr)
+- [x] GPS LOCATIONS AT ALL TIMES
+  - [x] Manually set location
+  - [x] Automatically set location
+  - [x] Show location on profile
+  - [x] If user removes location, get it somewhere else
 
 ### IV.3 Browsing
 
@@ -65,7 +65,7 @@
 
 ### IV.5 Profile view
 
-- [ ] Email is not visible
+- [x] Email is not visible
 - [ ] On profile view
   - [ ] Like propic
   - [ ] On like see if they are connected
@@ -79,10 +79,10 @@
 
 ### IV.6 Chat
 
-- [ ] If 2 users like each other, they can chat
-- [ ] Chat functionality
-  - [ ] Text
-  - [ ] Live
+- [x] If 2 users like each other, they can chat
+- [x] Chat functionality
+  - [x] Text
+  - [x] Live
   - [ ] See from everywhere if you had a message
 
 ### IV.7 Notifications
@@ -100,3 +100,4 @@
 - [ ] Photo gallery with drag n drop and image editing
 - [ ] Sexchats with minors (improvements after) , video or audio
 - [ ] Calendar dates
+- [ ] Map of users around you

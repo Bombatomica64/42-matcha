@@ -74,6 +74,17 @@ paths:
     $ref: './schemas/chat.yaml#/paths/chatById'
   /chat/{id}/messages:
     $ref: './schemas/chat.yaml#/paths/chatMessages'
+  # Notifications endpoints
+  /notifications:
+    $ref: './schemas/notifications.yaml#/paths/~1notifications'
+  /notifications/unread:
+    $ref: './schemas/notifications.yaml#/paths/~1notifications~1unread'
+  /notifications/unread-count:
+    $ref: './schemas/notifications.yaml#/paths/~1notifications~1unread-count'
+  /notifications/{id}/read:
+    $ref: './schemas/notifications.yaml#/paths/~1notifications~1{id}~1read'
+  /notifications/mark-all-read:
+    $ref: './schemas/notifications.yaml#/paths/~1notifications~1mark-all-read'
 
 components:
   schemas:
@@ -129,6 +140,17 @@ components:
     #hashtag components
     hashtag:
       $ref: './schemas/hashtags.yaml#/components/schemas/Hashtag'
+    # notification schemas
+    notification:
+      $ref: './schemas/notifications.yaml#/components/schemas/Notification'
+    notificationListResponse:
+      $ref: './schemas/notifications.yaml#/components/schemas/NotificationListResponse'
+    unreadCountResponse:
+      $ref: './schemas/notifications.yaml#/components/schemas/UnreadCountResponse'
+    markReadResponse:
+      $ref: './schemas/notifications.yaml#/components/schemas/MarkReadResponse'
+    markAllReadResponse:
+      $ref: './schemas/notifications.yaml#/components/schemas/MarkAllReadResponse'
 
 
   parameters:

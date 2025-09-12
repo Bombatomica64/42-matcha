@@ -29,4 +29,4 @@
 -- LIMIT 100;
 -- INSERT INTO public.chat_rooms (user1_id, user2_id)
 -- VALUES ('30adebfa-4688-4411-99a0-e73b61ce589a', '782ece6c-0104-48e5-8a01-010b9916deea');
-SELECT * FROM public.chat_rooms;
+-- SELECT * FROM public.chat_rooms;

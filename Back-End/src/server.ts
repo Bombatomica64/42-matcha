@@ -6,6 +6,7 @@ import { jwtMiddleware } from "@middleware/jwt.middleware";
 import authRoutes from "@routes/auth.routes";
 import chatRoutes from "@routes/chat.routes";
 import hashtagRoutes from "@routes/hashtag.routes";
+import notificationRoutes from "@routes/notification.routes";
 import photoRoutes from "@routes/photo.routes";
 import userRoutes from "@routes/user.routes";
 import cors from "cors";
@@ -142,5 +143,6 @@ app.use("/users", userRoutes());
 app.use("/photos", photoRoutes());
 app.use("/hashtags", hashtagRoutes());
 app.use("/chat", chatRoutes());
+app.use("/notifications", notificationRoutes());
 
 export { app, logger };

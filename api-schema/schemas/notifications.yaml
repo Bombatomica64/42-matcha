@@ -1,0 +1,186 @@
+openapi: 3.1.1
+info:
+  title: Notifications schema
+  version: 1.0.0
+  description: Schema and paths for user notifications
+
+
+components:
+  schemas:
+    NotificationType:
+      type: string
+      enum: [LIKE, PROFILE_VIEW, MATCH, UNLIKE]
+      description: Type of notification
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+          description: Recipient user id
+        actor_id:
+          type: string
+          format: uuid
+          description: User who triggered the notification
+        type:
+          $ref: '#/components/schemas/NotificationType'
+        message:
+          type: string
+          description: Readable message generated server or client side
+        read_at:
+          type: string
+          format: date-time
+        delivered_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [pending, sent, failed]
+        metadata:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+      required: [id, user_id, type, status, created_at]
+
+    NotificationListResponse:
+      type: object
+      description: Paginated list of notifications
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notification'
+        meta:
+          $ref: './pagination.yaml#/components/schemas/PaginationMeta'
+        links:
+          $ref: './pagination.yaml#/components/schemas/PaginationLinks'
+      required: [data, meta, links]
+
+    UnreadCountResponse:
+      type: object
+      properties:
+        unread:
+          type: integer
+          example: 3
+      required: [unread]
+
+    MarkReadResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        read_at:
+          type: string
+          format: date-time
+      required: [id, read_at]
+
+    MarkAllReadResponse:
+      type: object
+      properties:
+        updated:
+          type: integer
+          description: Number of notifications marked as read
+      required: [updated]
+
+paths:
+  /notifications:
+    get:
+      summary: List notifications (paginated)
+      description: Returns paginated notifications for the current user ordered by creation date descending.
+      operationId: listNotifications
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: './pagination.yaml#/components/parameters/PageParam'
+        - $ref: './pagination.yaml#/components/parameters/LimitParam'
+        - $ref: './pagination.yaml#/components/parameters/SortParam'
+        - $ref: './pagination.yaml#/components/parameters/OrderParam'
+      responses:
+        '200':
+          description: Notifications retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationListResponse'
+        '401':
+          description: Unauthorized
+  /notifications/unread:
+    get:
+      summary: Get unread notifications (first page)
+      description: Returns unread notifications (page based). Same pagination parameters apply.
+      operationId: listUnreadNotifications
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: './pagination.yaml#/components/parameters/PageParam'
+        - $ref: './pagination.yaml#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Unread notifications retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationListResponse'
+        '401':
+          description: Unauthorized
+  /notifications/unread-count:
+    get:
+      summary: Get unread notifications count
+      operationId: getUnreadNotificationsCount
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Unread count
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnreadCountResponse'
+        '401':
+          description: Unauthorized
+  /notifications/{id}/read:
+    patch:
+      summary: Mark a notification as read
+      operationId: markNotificationRead
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Notification marked as read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarkReadResponse'
+        '404':
+          description: Notification not found
+        '401':
+          description: Unauthorized
+  /notifications/mark-all-read:
+    post:
+      summary: Mark all notifications as read
+      operationId: markAllNotificationsRead
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: All notifications marked read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarkAllReadResponse'
+        '401':
+          description: Unauthorized
