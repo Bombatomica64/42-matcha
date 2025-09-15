@@ -63,6 +63,21 @@ services:
     ports:
       - "5432:5432"
 
+  redis:
+    image: redis:8.2-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    networks:
+      - traefik
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
 networks:
   traefik:
     driver: bridge
@@ -71,4 +86,6 @@ volumes:
   db_data:
     driver: local
   uploads:
+    driver: local
+  redis_data:
     driver: local

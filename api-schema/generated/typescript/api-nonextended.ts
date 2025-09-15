@@ -474,6 +474,97 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List notifications (paginated)
+         * @description Returns paginated notifications for the current user ordered by creation date descending.
+         */
+        get: operations["listNotifications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications/unread": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get unread notifications (first page)
+         * @description Returns unread notifications (page based). Same pagination parameters apply.
+         */
+        get: operations["listUnreadNotifications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications/unread-count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get unread notifications count */
+        get: operations["getUnreadNotificationsCount"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications/{id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Mark a notification as read */
+        patch: operations["markNotificationRead"];
+        trace?: never;
+    };
+    "/notifications/mark-all-read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark all notifications as read */
+        post: operations["markAllNotificationsRead"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -524,6 +615,11 @@ export interface components {
         chatRoom: components["schemas"]["ChatRoom"];
         chatMessagesPaginatedResponse: components["schemas"]["ChatMessagesPaginatedResponse"];
         hashtag: components["schemas"]["Hashtag"];
+        notification: components["schemas"]["Notification"];
+        notificationListResponse: components["schemas"]["NotificationListResponse"];
+        unreadCountResponse: components["schemas"]["UnreadCountResponse"];
+        markReadResponse: components["schemas"]["MarkReadResponse"];
+        markAllReadResponse: components["schemas"]["MarkAllReadResponse"];
         RegisterRequest: {
             /** @example lollo */
             username: string;
@@ -878,6 +974,59 @@ export interface components {
             small_user2: components["schemas"]["smallUser"];
             /** Format: date-time */
             created_at: string;
+        };
+        /**
+         * @description Type of notification
+         * @enum {string}
+         */
+        NotificationType: "LIKE" | "PROFILE_VIEW" | "MATCH" | "UNLIKE";
+        Notification: {
+            /** Format: uuid */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Recipient user id
+             */
+            user_id: string;
+            /**
+             * Format: uuid
+             * @description User who triggered the notification
+             */
+            actor_id?: string;
+            type: components["schemas"]["NotificationType"];
+            /** @description Readable message generated server or client side */
+            message?: string;
+            /** Format: date-time */
+            read_at?: string;
+            /** Format: date-time */
+            delivered_at?: string;
+            /** @enum {string} */
+            status: "pending" | "sent" | "failed";
+            metadata?: {
+                [key: string]: unknown;
+            };
+            /** Format: date-time */
+            created_at: string;
+        };
+        /** @description Paginated list of notifications */
+        NotificationListResponse: {
+            data: components["schemas"]["Notification"][];
+            meta: components["schemas"]["PaginationMeta"];
+            links: components["schemas"]["PaginationLinks"];
+        };
+        UnreadCountResponse: {
+            /** @example 3 */
+            unread: number;
+        };
+        MarkReadResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            read_at: string;
+        };
+        MarkAllReadResponse: {
+            /** @description Number of notifications marked as read */
+            updated: number;
         };
         PaginationQuery: {
             /**
@@ -2647,6 +2796,182 @@ export interface operations {
                      *     } */
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
+            };
+        };
+    };
+    listNotifications: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Page number (1-based)
+                 * @example 1
+                 */
+                page?: components["parameters"]["PageParam"];
+                /**
+                 * @description Number of items per page
+                 * @example 10
+                 */
+                limit?: components["parameters"]["LimitParam"];
+                /**
+                 * @description Field to sort by
+                 * @example created_at
+                 */
+                sort?: components["parameters"]["SortParam"];
+                /**
+                 * @description Sort direction
+                 * @example desc
+                 */
+                order?: components["parameters"]["OrderParam"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Notifications retrieved */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationListResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listUnreadNotifications: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Page number (1-based)
+                 * @example 1
+                 */
+                page?: components["parameters"]["PageParam"];
+                /**
+                 * @description Number of items per page
+                 * @example 10
+                 */
+                limit?: components["parameters"]["LimitParam"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Unread notifications retrieved */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationListResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getUnreadNotificationsCount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Unread count */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnreadCountResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    markNotificationRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Notification marked as read */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarkReadResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Notification not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    markAllNotificationsRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description All notifications marked read */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarkAllReadResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

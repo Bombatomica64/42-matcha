@@ -1,9 +1,16 @@
 import process from "node:process";
 import { setTimeout } from "node:timers";
 import { env } from "@config/env";
-import { logger } from "./server";
-import { server } from "./sockets/init.socket";
-import "./sockets/connection.socket";
+import { logger, server } from "./server";
+import { registerConnectionHandlers } from "./sockets/connection.socket";
+import { initSocket } from "./sockets/init.socket";
+
+// Initialize Socket.IO with the HTTP server
+initSocket(server);
+registerConnectionHandlers();
+
+// Start background workers (BullMQ) after sockets are initialized
+await import("./queues/notification.queue");
 
 server.listen(env.PORT, () => {
 	const { NODE_ENV, HOST, PORT } = env;

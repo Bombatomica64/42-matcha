@@ -1,6 +1,7 @@
 import type { PaginatedResponse } from "@generated/typescript/api";
 import type { User } from "@models/user.entity";
 import { UserRepository } from "@repositories/user.repository";
+import { NotificationEmitter } from "@utils/notification-emitter";
 import { createPaginatedResponse } from "@utils/pagination";
 import { pool } from "../database";
 import { BlockService } from "./block.service";
@@ -58,8 +59,11 @@ export class UserService {
 	/**
 	 * Get selected user by ID (with sensitive fields filtered)
 	 */
-	public async getUserById(id: string): Promise<User | null> {
+	public async getUserById(id: string, selfUserId: string = ""): Promise<User | null> {
 		const user = await this.userRepository.findById(id);
+		if (selfUserId && user) {
+			await NotificationEmitter.profileView(id, selfUserId);
+		}
 		return user;
 	}
 

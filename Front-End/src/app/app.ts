@@ -1,23 +1,26 @@
 import { NgOptimizedImage } from "@angular/common";
-import { Component, computed, inject, signal } from "@angular/core";
+import { Component, computed, inject, signal, effect } from "@angular/core";
 import { Router, RouterLink, RouterOutlet } from "@angular/router";
 import { ButtonModule } from "primeng/button";
 import { ToolbarModule } from "primeng/toolbar";
 import { ChatList } from "./components/chat-list/chat-list";
 import { MainSidebar } from "./components/sidebars/mainsidebar/main-sidebar";
 import { TokenStore } from "./services/token-store";
+import { NotificationService } from "./services/notification";
+import { NotificationDisplay } from "./components/notification-display/notification-display";
 
 @Component({
 	selector: "app-root",
 	imports: [
-		RouterOutlet,
-		MainSidebar,
-		ButtonModule,
-		RouterLink,
-		ToolbarModule,
-		NgOptimizedImage,
-		ChatList,
-	],
+    RouterOutlet,
+    MainSidebar,
+    ButtonModule,
+    RouterLink,
+    ToolbarModule,
+    NgOptimizedImage,
+    ChatList,
+    NotificationDisplay
+],
 	template: `
   <div class="app-sidebar">
       @if (!isLoggedIn()) {
@@ -42,6 +45,7 @@ import { TokenStore } from "./services/token-store";
     </div>
     @if (isLoggedIn()) {
       <app-chat-list />
+      <app-notification-display />
     } @else {
 		<div class="right-sidebar">
 		<p-toolbar [style]="{ 'border-radius': '3rem', 'padding': '0rem', }">
@@ -106,13 +110,21 @@ import { TokenStore } from "./services/token-store";
 export class App {
 	private router = inject(Router);
 	private tokenStore = inject(TokenStore);
+	private notificationService = inject(NotificationService);
 	protected readonly title = signal("Front-End");
-
-	isLoggedIn = computed(() => {
-		//TODO implement proper auth check through router
-		// getAccessToken() already returns null for expired/invalid tokens
-		return !!this.tokenStore.getAccessToken();
-	});
+  isLoggedIn = computed(() => !!this.tokenStore.userId);
+	constructor() {
+		// Auto-subscribe to notifications when user logs in
+		effect(() => {
+			if (this.tokenStore.userId) {
+				console.log('[App] User logged in, subscribing to notifications');
+				this.notificationService.subscribe();
+			} else {
+				console.log('[App] User logged out, unsubscribing from notifications');
+				this.notificationService.unsubscribe();
+			}
+		});
+	}
 
 	private get isRegister() {
 		return this.router.url === "/register" || this.router.url === "/landing";

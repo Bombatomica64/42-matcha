@@ -59,9 +59,10 @@ export class UserController {
 	 */
 	public async getUserById(req: Request, res: Response): Promise<void> {
 		const { id } = req.params;
+		const selfUserId = res.locals?.user?.id;
 
 		try {
-			const user = await this.userService.getUserById(id);
+			const user = await this.userService.getUserById(id, selfUserId);
 
 			if (!user) {
 				const errorResponse: ErrorResponse = {

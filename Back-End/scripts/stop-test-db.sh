@@ -1,16 +1,15 @@
 #!/bin/bash
 
-# Stop and remove test database
-echo "🛑 Stopping test database..."
+# Stop and remove test services (DB + Redis)
+echo "🛑 Stopping test services (Postgres + Redis)..."
 docker compose -f docker-compose.test.yml down
 
 # Remove volumes if --clean flag is provided
 if [ "$1" = "--clean" ]; then
-    echo "🧹 Cleaning up test database volumes..."
+    echo "🧹 Cleaning up test services volumes..."
     docker compose -f docker-compose.test.yml down -v
-    docker volume rm back-end_test_db_data 2>/dev/null || true
-    echo "✅ Test database cleaned up"
+    echo "✅ Test services cleaned up"
 else
-    echo "✅ Test database stopped (data preserved)"
+    echo "✅ Test services stopped (data preserved)"
     echo "💡 Use --clean flag to remove all test data"
 fi
