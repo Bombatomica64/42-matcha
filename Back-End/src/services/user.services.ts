@@ -74,8 +74,16 @@ export class UserService {
 		id: string,
 		data: Partial<User>,
 	): Promise<Omit<User, "password" | "email_verification_token" | "password_reset_token"> | null> {
-		const updatedUser = await this.userRepository.update(id, data);
-		return updatedUser ? this.filterSensitiveFields(updatedUser) : null;
+		// Update the user using base repository
+		const updateResult = await this.userRepository.update(id, data);
+		
+		// If update was successful, fetch the complete user data with proper transformations
+		if (updateResult) {
+			const updatedUser = await this.userRepository.findById(id);
+			return updatedUser ? this.filterSensitiveFields(updatedUser) : null;
+		}
+		
+		return null;
 	}
 
 	/**

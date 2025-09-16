@@ -1,78 +1,161 @@
-asyncapi: 2.6.0
+asyncapi: 3.0.0
 info:
   title: Matcha Real-Time Chat API
   version: '1.0.0'
   description: |
     AsyncAPI specification for the Matcha real-time chat system using Socket.IO namespaces.
     This document describes the /chat namespace and its events for room-based messaging.
+defaultContentType: application/json
 servers:
   production:
-    url: wss://matcha.bombatomica64.dev/chat
+    host: matcha.bombatomica64.dev
+    pathname: /chat
     protocol: socket.io
     description: Production chat namespace
   development:
-    url: ws://localhost:3000/chat
+    host: localhost:3000
+    pathname: /chat
     protocol: socket.io
     description: Local development chat namespace
+  notificationsProd:
+    host: matcha.bombatomica64.dev
+    pathname: /notifications
+    protocol: socket.io
+    description: Production notifications namespace
+  notificationsDev:
+    host: localhost:3000
+    pathname: /notifications
+    protocol: socket.io
+    description: Local development notifications namespace
+
+# Channels define addresses and available messages; operations define directionality
 channels:
   join:
+    address: join
     description: Join a chat room (server validates membership)
-    subscribe:
-      operationId: joinRoom
-      message:
-        name: JoinRoom
-        payload:
-          type: object
-          properties:
-            roomId:
-              type: string
-              description: Chat room ID to join
-          required:
-            - roomId
+    messages:
+      JoinRoom:
+        $ref: '#/components/messages/JoinRoom'
   leave:
+    address: leave
     description: Leave a chat room
-    subscribe:
-      operationId: leaveRoom
-      message:
-        name: LeaveRoom
-        payload:
-          type: object
-          properties:
-            roomId:
-              type: string
-              description: Chat room ID to leave
-          required:
-            - roomId
+    messages:
+      LeaveRoom:
+        $ref: '#/components/messages/LeaveRoom'
   message:
-    description: Send a message to a chat room
-    subscribe:
-      operationId: sendMessage
-      message:
-        name: ChatMessage
-        payload:
-          $ref: '#/components/schemas/NewChatMessagePayload'
-    publish:
-      operationId: receiveMessage
-      message:
-        name: NewMessage
-        payload:
-          $ref: '#/components/schemas/ChatMessage'
+    address: message
+    description: Chat room message events
+    messages:
+      NewChatMessage:
+        $ref: '#/components/messages/NewChatMessage'
+      ChatMessage:
+        $ref: '#/components/messages/ChatMessage'
   typing:
+    address: typing
     description: Typing indicator for a chat room
-    subscribe:
-      operationId: sendTyping
-      message:
-        name: Typing
-        payload:
-          $ref: '#/components/schemas/TypingPayload'
-    publish:
-      operationId: receiveTyping
-      message:
-        name: UserTyping
-        payload:
-          $ref: '#/components/schemas/UserTypingPayload'
+    messages:
+      Typing:
+        $ref: '#/components/messages/Typing'
+      UserTyping:
+        $ref: '#/components/messages/UserTyping'
+  notifications_new:
+    address: notifications/new
+    description: Server pushes a new notification to the user
+    messages:
+      Notification:
+        $ref: '#/components/messages/Notification'
+  notifications_read:
+    address: notifications/read
+    description: Client marks a notification as read
+    messages:
+      MarkNotificationRead:
+        $ref: '#/components/messages/MarkNotificationRead'
+
+# Operations define action (send/receive), target channel, and messages
+operations:
+  joinRoom:
+    action: send
+    channel:
+      $ref: '#/channels/join'
+    messages:
+      - $ref: '#/components/messages/JoinRoom'
+  leaveRoom:
+    action: send
+    channel:
+      $ref: '#/channels/leave'
+    messages:
+      - $ref: '#/components/messages/LeaveRoom'
+  sendMessage:
+    action: send
+    channel:
+      $ref: '#/channels/message'
+    messages:
+      - $ref: '#/components/messages/NewChatMessage'
+  receiveMessage:
+    action: receive
+    channel:
+      $ref: '#/channels/message'
+    messages:
+      - $ref: '#/components/messages/ChatMessage'
+  sendTyping:
+    action: send
+    channel:
+      $ref: '#/channels/typing'
+    messages:
+      - $ref: '#/components/messages/Typing'
+  receiveTyping:
+    action: receive
+    channel:
+      $ref: '#/channels/typing'
+    messages:
+      - $ref: '#/components/messages/UserTyping'
+  newNotification:
+    action: receive
+    channel:
+      $ref: '#/channels/notifications_new'
+    messages:
+      - $ref: '#/components/messages/Notification'
+  markNotificationRead:
+    action: send
+    channel:
+      $ref: '#/channels/notifications_read'
+    messages:
+      - $ref: '#/components/messages/MarkNotificationRead'
+
 components:
   schemas:
+    JoinRoomPayload:
+      type: object
+      properties:
+        roomId:
+          type: string
+          description: Chat room ID to join
+      required: [roomId]
+    LeaveRoomPayload:
+      type: object
+      properties:
+        roomId:
+          type: string
+          description: Chat room ID to leave
+      required: [roomId]
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          description: Notification kind (like, match, message, system)
+        title:
+          type: string
+        body:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        read:
+          type: boolean
+      required: [id, type, title, body, created_at, read]
     NewChatMessagePayload:
       oneOf:
         - type: object
@@ -177,3 +260,45 @@ components:
       required:
         - userId
         - isTyping
+    MarkNotificationReadPayload:
+      type: object
+      properties:
+        id:
+          type: string
+      required: [id]
+
+  messages:
+    JoinRoom:
+      name: JoinRoom
+      payload:
+        $ref: '#/components/schemas/JoinRoomPayload'
+    LeaveRoom:
+      name: LeaveRoom
+      payload:
+        $ref: '#/components/schemas/LeaveRoomPayload'
+    NewChatMessage:
+      name: NewChatMessage
+      payload:
+        $ref: '#/components/schemas/NewChatMessagePayload'
+    ChatMessage:
+      name: ChatMessage
+      payload:
+        $ref: '#/components/schemas/ChatMessage'
+    Typing:
+      name: Typing
+      payload:
+        $ref: '#/components/schemas/TypingPayload'
+    UserTyping:
+      name: UserTyping
+      payload:
+        $ref: '#/components/schemas/UserTypingPayload'
+    Notification:
+      name: Notification
+      payload:
+        $ref: '#/components/schemas/Notification'
+    MarkNotificationRead:
+      name: MarkNotificationRead
+      payload:
+        $ref: '#/components/schemas/MarkNotificationReadPayload'
+
+  

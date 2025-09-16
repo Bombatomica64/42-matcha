@@ -1,0 +1,5 @@
+apis:
+  rest:
+    root: ./openapi.yaml
+  realtime:
+    root: ./asyncapi.yaml

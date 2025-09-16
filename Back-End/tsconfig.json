@@ -16,8 +16,9 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "baseUrl": ".",
-  "paths": {
-  "types": ["jest", "node"],
+    "types": ["jest", "node"],
+    "paths": {
+      "@/*": ["./src/*"],
       "@generated/*": ["./src/generated/*"],
       "@generated/types": ["./src/generated/backend/types"],
       "@generated/validators": ["./src/generated/backend/validators"],

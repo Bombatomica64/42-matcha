@@ -1,0 +1,668 @@
+{
+	"summary": {
+		"failedSuites": 8,
+		"totalSuites": 13,
+		"failedTests": 60,
+		"totalTests": 103,
+		"startTime": 1758012693441,
+		"success": false
+	},
+	"failedSuites": [
+		{
+			"suiteName": "/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/photo.test.ts",
+			"path": "/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/photo.test.ts",
+			"failedAssertions": [
+				{
+					"title": "should upload a photo successfully",
+					"fullName": "Photo Routes POST /photos should upload a photo successfully",
+					"status": "failed",
+					"messages": [
+						"Error: expect(received).toHaveProperty(path)\nExpected path: \"url\"\nReceived path: []\nReceived value: {\"display_order\": 0, \"file_size\": 347, \"filename\": \"photo_1758012698956.jpg\", \"id\": \"96c46d77-7961-4a9a-a403-8753937376f2\", \"image_url\": \"/uploads/users/2df92a4f-9991-4f00-9adf-46a673c7c9e3/photo_1758012698956.jpg\", \"is_main\": false, \"mime_type\": \"image/jpeg\", \"original_filename\": \"test-image.jpg\", \"uploaded_at\": \"2025-09-16T06:51:38.968Z\", \"user_id\": \"2df92a4f-9991-4f00-9adf-46a673c7c9e3\"}\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/photo.test.ts:94:32)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Photo Routes", "POST /photos"]
+				},
+				{
+					"title": "should reject upload without authentication",
+					"fullName": "Photo Routes POST /photos should reject upload without authentication",
+					"status": "failed",
+					"messages": [
+						"Error: expect(received).toHaveProperty(path)\nExpected path: \"error\"\nReceived path: []\nReceived value: {\"message\": \"Unauthorized\"}\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/photo.test.ts:104:26)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Photo Routes", "POST /photos"]
+				},
+				{
+					"title": "should reject non-image files",
+					"fullName": "Photo Routes POST /photos should reject non-image files",
+					"status": "failed",
+					"messages": [
+						"Error: expected 400 \"Bad Request\", got 500 \"Internal Server Error\"\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/photo.test.ts:125:6)\n    at Promise.finally.completed (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)\n    at _callCircusTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:946:3)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:839:13)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at run (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:757:3)\n    at runAndTransformResultsToJestFormat (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)\n    at jestAdapter (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/runner.js:101:19)\n    at runTestInternal (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:275:16)\n    at runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:343:7)\n----\n    at Test._assertStatus (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:309:14)\n    at /home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:365:13\n    at Test._assertFunction (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:342:13)\n    at Test.assert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:195:23)\n    at localAssert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:138:14)\n    at Server.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:152:11)\n    at Object.onceWrapper (node:events:632:28)\n    at Server.emit (node:events:518:28)\n    at emitCloseNT (node:net:2418:8)\n    at processTicksAndRejections (node:internal/process/task_queues:89:21)"
+					],
+					"location": null,
+					"ancestorTitles": ["Photo Routes", "POST /photos"]
+				},
+				{
+					"title": "should set first photo as main photo automatically",
+					"fullName": "Photo Routes POST /photos should set first photo as main photo automatically",
+					"status": "failed",
+					"messages": [
+						"Error: expect(received).toBe(expected) // Object.is equality\nExpected: true\nReceived: false\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/photo.test.ts:140:40)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Photo Routes", "POST /photos"]
+				},
+				{
+					"title": "should reject request without authentication",
+					"fullName": "Photo Routes GET /photos should reject request without authentication",
+					"status": "failed",
+					"messages": [
+						"Error: expect(received).toHaveProperty(path)\nExpected path: \"error\"\nReceived path: []\nReceived value: {\"message\": \"Unauthorized\"}\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/photo.test.ts:166:26)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Photo Routes", "GET /photos"]
+				},
+				{
+					"title": "should reject setting non-existent photo as main",
+					"fullName": "Photo Routes POST /photos/:photoId/main should reject setting non-existent photo as main",
+					"status": "failed",
+					"messages": [
+						"Error: expected 404 \"Not Found\", got 500 \"Internal Server Error\"\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/photo.test.ts:198:6)\n    at Promise.finally.completed (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)\n    at _callCircusTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:946:3)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:839:13)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at run (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:757:3)\n    at runAndTransformResultsToJestFormat (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)\n    at jestAdapter (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/runner.js:101:19)\n    at runTestInternal (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:275:16)\n    at runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:343:7)\n----\n    at Test._assertStatus (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:309:14)\n    at /home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:365:13\n    at Test._assertFunction (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:342:13)\n    at Test.assert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:195:23)\n    at localAssert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:138:14)\n    at Server.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:152:11)\n    at Object.onceWrapper (node:events:632:28)\n    at Server.emit (node:events:518:28)\n    at emitCloseNT (node:net:2418:8)\n    at processTicksAndRejections (node:internal/process/task_queues:89:21)"
+					],
+					"location": null,
+					"ancestorTitles": ["Photo Routes", "POST /photos/:photoId/main"]
+				},
+				{
+					"title": "should reject request without authentication",
+					"fullName": "Photo Routes POST /photos/:photoId/main should reject request without authentication",
+					"status": "failed",
+					"messages": [
+						"Error: expect(received).toHaveProperty(path)\nExpected path: \"error\"\nReceived path: []\nReceived value: {\"message\": \"Unauthorized\"}\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/photo.test.ts:206:26)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Photo Routes", "POST /photos/:photoId/main"]
+				},
+				{
+					"title": "should delete photo successfully",
+					"fullName": "Photo Routes DELETE /photos/:photoId should delete photo successfully",
+					"status": "failed",
+					"messages": [
+						"Error: expected 200 \"OK\", got 204 \"No Content\"\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/photo.test.ts:227:6)\n    at Promise.finally.completed (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)\n    at _callCircusTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:946:3)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:839:13)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at run (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:757:3)\n    at runAndTransformResultsToJestFormat (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)\n    at jestAdapter (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/runner.js:101:19)\n    at runTestInternal (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:275:16)\n    at runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:343:7)\n----\n    at Test._assertStatus (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:309:14)\n    at /home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:365:13\n    at Test._assertFunction (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:342:13)\n    at Test.assert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:195:23)\n    at localAssert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:138:14)\n    at Server.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:152:11)\n    at Object.onceWrapper (node:events:632:28)\n    at Server.emit (node:events:518:28)\n    at emitCloseNT (node:net:2418:8)\n    at processTicksAndRejections (node:internal/process/task_queues:89:21)"
+					],
+					"location": null,
+					"ancestorTitles": ["Photo Routes", "DELETE /photos/:photoId"]
+				},
+				{
+					"title": "should return 404 for non-existent photo",
+					"fullName": "Photo Routes DELETE /photos/:photoId should return 404 for non-existent photo",
+					"status": "failed",
+					"messages": [
+						"Error: expected 404 \"Not Found\", got 500 \"Internal Server Error\"\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/photo.test.ts:236:6)\n    at Promise.finally.completed (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)\n    at _callCircusTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:946:3)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:839:13)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at run (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:757:3)\n    at runAndTransformResultsToJestFormat (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)\n    at jestAdapter (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/runner.js:101:19)\n    at runTestInternal (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:275:16)\n    at runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:343:7)\n----\n    at Test._assertStatus (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:309:14)\n    at /home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:365:13\n    at Test._assertFunction (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:342:13)\n    at Test.assert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:195:23)\n    at localAssert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:138:14)\n    at Server.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:152:11)\n    at Object.onceWrapper (node:events:632:28)\n    at Server.emit (node:events:518:28)\n    at emitCloseNT (node:net:2418:8)\n    at processTicksAndRejections (node:internal/process/task_queues:89:21)"
+					],
+					"location": null,
+					"ancestorTitles": ["Photo Routes", "DELETE /photos/:photoId"]
+				},
+				{
+					"title": "should reject request without authentication",
+					"fullName": "Photo Routes DELETE /photos/:photoId should reject request without authentication",
+					"status": "failed",
+					"messages": [
+						"Error: expect(received).toHaveProperty(path)\nExpected path: \"error\"\nReceived path: []\nReceived value: {\"message\": \"Unauthorized\"}\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/photo.test.ts:244:26)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Photo Routes", "DELETE /photos/:photoId"]
+				},
+				{
+					"title": "should get photo details",
+					"fullName": "Photo Routes GET /photos/:photoId should get photo details",
+					"status": "failed",
+					"messages": [
+						"Error: expect(received).toHaveProperty(path)\nExpected path: \"photo\"\nReceived path: []\nReceived value: {\"display_order\": 0, \"file_size\": 347, \"filename\": \"photo_1758012706284.jpg\", \"id\": \"88ed0f69-808d-41aa-9130-9977efa54716\", \"image_url\": \"/uploads/users/7a5f9881-b905-48f4-84fb-f3a7d0f53ed2/photo_1758012706284.jpg\", \"is_main\": false, \"mime_type\": \"image/jpeg\", \"original_filename\": \"test-image.jpg\", \"uploaded_at\": \"2025-09-16T06:51:46.292Z\", \"user_id\": \"7a5f9881-b905-48f4-84fb-f3a7d0f53ed2\"}\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/photo.test.ts:267:26)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Photo Routes", "GET /photos/:photoId"]
+				},
+				{
+					"title": "should return 404 for non-existent photo",
+					"fullName": "Photo Routes GET /photos/:photoId should return 404 for non-existent photo",
+					"status": "failed",
+					"messages": [
+						"Error: expected 404 \"Not Found\", got 500 \"Internal Server Error\"\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/photo.test.ts:277:6)\n    at Promise.finally.completed (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)\n    at _callCircusTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:946:3)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:839:13)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at run (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:757:3)\n    at runAndTransformResultsToJestFormat (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)\n    at jestAdapter (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/runner.js:101:19)\n    at runTestInternal (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:275:16)\n    at runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:343:7)\n----\n    at Test._assertStatus (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:309:14)\n    at /home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:365:13\n    at Test._assertFunction (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:342:13)\n    at Test.assert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:195:23)\n    at localAssert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:138:14)\n    at Server.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:152:11)\n    at Object.onceWrapper (node:events:632:28)\n    at Server.emit (node:events:518:28)\n    at emitCloseNT (node:net:2418:8)\n    at processTicksAndRejections (node:internal/process/task_queues:89:21)"
+					],
+					"location": null,
+					"ancestorTitles": ["Photo Routes", "GET /photos/:photoId"]
+				},
+				{
+					"title": "should reject request without authentication",
+					"fullName": "Photo Routes GET /photos/:photoId should reject request without authentication",
+					"status": "failed",
+					"messages": [
+						"Error: expect(received).toHaveProperty(path)\nExpected path: \"error\"\nReceived path: []\nReceived value: {\"message\": \"Unauthorized\"}\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/photo.test.ts:285:26)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Photo Routes", "GET /photos/:photoId"]
+				},
+				{
+					"title": "should enforce maximum photos per user",
+					"fullName": "Photo Routes Photo upload limits should enforce maximum photos per user",
+					"status": "failed",
+					"messages": [
+						"Error: expected 400 \"Bad Request\", got 500 \"Internal Server Error\"\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/photo.test.ts:307:6)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n----\n    at Test._assertStatus (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:309:14)\n    at /home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:365:13\n    at Test._assertFunction (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:342:13)\n    at Test.assert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:195:23)\n    at localAssert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:138:14)\n    at Server.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:152:11)\n    at Object.onceWrapper (node:events:632:28)\n    at Server.emit (node:events:518:28)\n    at emitCloseNT (node:net:2418:8)\n    at processTicksAndRejections (node:internal/process/task_queues:89:21)"
+					],
+					"location": null,
+					"ancestorTitles": ["Photo Routes", "Photo upload limits"]
+				},
+				{
+					"title": "should enforce file size limits",
+					"fullName": "Photo Routes Photo file validation should enforce file size limits",
+					"status": "failed",
+					"messages": [
+						"Error: expected 400 \"Bad Request\", got 500 \"Internal Server Error\"\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/photo.test.ts:325:6)\n    at Promise.finally.completed (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)\n    at _callCircusTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:946:3)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:839:13)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at run (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:757:3)\n    at runAndTransformResultsToJestFormat (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)\n    at jestAdapter (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/runner.js:101:19)\n    at runTestInternal (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:275:16)\n    at runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:343:7)\n----\n    at Test._assertStatus (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:309:14)\n    at /home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:365:13\n    at Test._assertFunction (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:342:13)\n    at Test.assert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:195:23)\n    at localAssert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:138:14)\n    at Server.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:152:11)\n    at Object.onceWrapper (node:events:632:28)\n    at Server.emit (node:events:518:28)\n    at emitCloseNT (node:net:2418:8)\n    at processTicksAndRejections (node:internal/process/task_queues:89:21)"
+					],
+					"location": null,
+					"ancestorTitles": ["Photo Routes", "Photo file validation"]
+				},
+				{
+					"title": "should only accept image file types",
+					"fullName": "Photo Routes Photo file validation should only accept image file types",
+					"status": "failed",
+					"messages": [
+						"Error: expected 400 \"Bad Request\", got 500 \"Internal Server Error\"\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/photo.test.ts:344:7)\n    at Promise.finally.completed (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)\n    at _callCircusTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:946:3)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:839:13)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at run (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:757:3)\n    at runAndTransformResultsToJestFormat (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)\n    at jestAdapter (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/runner.js:101:19)\n    at runTestInternal (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:275:16)\n    at runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:343:7)\n----\n    at Test._assertStatus (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:309:14)\n    at /home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:365:13\n    at Test._assertFunction (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:342:13)\n    at Test.assert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:195:23)\n    at localAssert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:138:14)\n    at Server.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:152:11)\n    at Object.onceWrapper (node:events:632:28)\n    at Server.emit (node:events:518:28)\n    at emitCloseNT (node:net:2418:8)\n    at processTicksAndRejections (node:internal/process/task_queues:89:21)"
+					],
+					"location": null,
+					"ancestorTitles": ["Photo Routes", "Photo file validation"]
+				}
+			],
+			"suiteLevelError": "  ● Photo Routes › POST /photos › should upload a photo successfully\n    expect(received).toHaveProperty(path)\n    Expected path: \"url\"\n    Received path: []\n    Received value: {\"display_order\": 0, \"file_size\": 347, \"filename\": \"photo_1758012698956.jpg\", \"id\": \"96c46d77-7961-4a9a-a403-8753937376f2\", \"image_url\": \"/uploads/users/2df92a4f-9991-4f00-9adf-46a673c7c9e3/photo_1758012698956.jpg\", \"is_main\": false, \"mime_type\": \"image/jpeg\", \"original_filename\": \"test-image.jpg\", \"uploaded_at\": \"2025-09-16T06:51:38.968Z\", \"user_id\": \"2df92a4f-9991-4f00-9adf-46a673c7c9e3\"}\n      92 | \t\t\texpect(response.body).toHaveProperty(\"photo\");\n      93 | \t\t\texpect(response.body.photo).toHaveProperty(\"id\");\n    > 94 | \t\t\texpect(response.body.photo).toHaveProperty(\"url\");\n         | \t\t\t                            ^\n      95 | \t\t\texpect(response.body.photo).toHaveProperty(\"is_main\");\n      96 | \t\t});\n      97 |\n      at Object.<anonymous> (tests/routes/photo.test.ts:94:32)\n  ● Photo Routes › POST /photos › should reject upload without authentication\n    expect(received).toHaveProperty(path)\n    Expected path: \"error\"\n    Received path: []\n    Received value: {\"message\": \"Unauthorized\"}\n      102 | \t\t\t\t.expect(401);\n      103 |\n    > 104 | \t\t\texpect(response.body).toHaveProperty(\"error\");\n          | \t\t\t                      ^\n      105 | \t\t});\n      106 |\n      107 | \t\tit(\"should reject upload without file\", async () => {\n      at Object.<anonymous> (tests/routes/photo.test.ts:104:26)\n  ● Photo Routes › POST /photos › should reject non-image files\n    expected 400 \"Bad Request\", got 500 \"Internal Server Error\"\n      123 | \t\t\t\t.set(\"Authorization\", `Bearer ${authToken}`)\n      124 | \t\t\t\t.attach(\"photo\", textFilePath)\n    > 125 | \t\t\t\t.expect(400);\n          | \t\t\t\t ^\n      126 |\n      127 | \t\t\texpect(response.body).toHaveProperty(\"error\");\n      128 |\n      at Object.<anonymous> (tests/routes/photo.test.ts:125:6)\n      ----\n      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)\n      at node_modules/supertest/lib/test.js:365:13\n      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)\n      at Test.assert (node_modules/supertest/lib/test.js:195:23)\n      at localAssert (node_modules/supertest/lib/test.js:138:14)\n      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)\n  ● Photo Routes › POST /photos › should set first photo as main photo automatically\n    expect(received).toBe(expected) // Object.is equality\n    Expected: true\n    Received: false\n      138 | \t\t\t\t.expect(201);\n      139 |\n    > 140 | \t\t\texpect(response.body.photo.is_main).toBe(true);\n          | \t\t\t                                    ^\n      141 | \t\t});\n      142 | \t});\n      143 |\n      at Object.<anonymous> (tests/routes/photo.test.ts:140:40)\n  ● Photo Routes › GET /photos › should reject request without authentication\n    expect(received).toHaveProperty(path)\n    Expected path: \"error\"\n    Received path: []\n    Received value: {\"message\": \"Unauthorized\"}\n      164 | \t\t\tconst response = await request(app).get(\"/photos\").expect(401);\n      165 |\n    > 166 | \t\t\texpect(response.body).toHaveProperty(\"error\");\n          | \t\t\t                      ^\n      167 | \t\t});\n      168 | \t});\n      169 |\n      at Object.<anonymous> (tests/routes/photo.test.ts:166:26)\n  ● Photo Routes › POST /photos/:photoId/main › should reject setting non-existent photo as main\n    expected 404 \"Not Found\", got 500 \"Internal Server Error\"\n      196 | \t\t\t\t.post(\"/photos/non-existent-id/main\")\n      197 | \t\t\t\t.set(\"Authorization\", `Bearer ${authToken}`)\n    > 198 | \t\t\t\t.expect(404);\n          | \t\t\t\t ^\n      199 |\n      200 | \t\t\texpect(response.body).toHaveProperty(\"error\");\n      201 | \t\t});\n      at Object.<anonymous> (tests/routes/photo.test.ts:198:6)\n      ----\n      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)\n      at node_modules/supertest/lib/test.js:365:13\n      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)\n      at Test.assert (node_modules/supertest/lib/test.js:195:23)\n      at localAssert (node_modules/supertest/lib/test.js:138:14)\n      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)\n  ● Photo Routes › POST /photos/:photoId/main › should reject request without authentication\n    expect(received).toHaveProperty(path)\n    Expected path: \"error\"\n    Received path: []\n    Received value: {\"message\": \"Unauthorized\"}\n      204 | \t\t\tconst response = await request(app).post(`/photos/${photoId}/main`).expect(401);\n      205 |\n    > 206 | \t\t\texpect(response.body).toHaveProperty(\"error\");\n          | \t\t\t                      ^\n      207 | \t\t});\n      208 | \t});\n      209 |\n      at Object.<anonymous> (tests/routes/photo.test.ts:206:26)\n  ● Photo Routes › DELETE /photos/:photoId › should delete photo successfully\n    expected 200 \"OK\", got 204 \"No Content\"\n      225 | \t\t\t\t.delete(`/photos/${photoId}`)\n      226 | \t\t\t\t.set(\"Authorization\", `Bearer ${authToken}`)\n    > 227 | \t\t\t\t.expect(200);\n          | \t\t\t\t ^\n      228 |\n      229 | \t\t\texpect(response.body).toHaveProperty(\"message\");\n      230 | \t\t});\n      at Object.<anonymous> (tests/routes/photo.test.ts:227:6)\n      ----\n      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)\n      at node_modules/supertest/lib/test.js:365:13\n      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)\n      at Test.assert (node_modules/supertest/lib/test.js:195:23)\n      at localAssert (node_modules/supertest/lib/test.js:138:14)\n      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)\n  ● Photo Routes › DELETE /photos/:photoId › should return 404 for non-existent photo\n    expected 404 \"Not Found\", got 500 \"Internal Server Error\"\n      234 | \t\t\t\t.delete(\"/photos/non-existent-id\")\n      235 | \t\t\t\t.set(\"Authorization\", `Bearer ${authToken}`)\n    > 236 | \t\t\t\t.expect(404);\n          | \t\t\t\t ^\n      237 |\n      238 | \t\t\texpect(response.body).toHaveProperty(\"error\");\n      239 | \t\t});\n      at Object.<anonymous> (tests/routes/photo.test.ts:236:6)\n      ----\n      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)\n      at node_modules/supertest/lib/test.js:365:13\n      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)\n      at Test.assert (node_modules/supertest/lib/test.js:195:23)\n      at localAssert (node_modules/supertest/lib/test.js:138:14)\n      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)\n  ● Photo Routes › DELETE /photos/:photoId › should reject request without authentication\n    expect(received).toHaveProperty(path)\n    Expected path: \"error\"\n    Received path: []\n    Received value: {\"message\": \"Unauthorized\"}\n      242 | \t\t\tconst response = await request(app).delete(`/photos/${photoId}`).expect(401);\n      243 |\n    > 244 | \t\t\texpect(response.body).toHaveProperty(\"error\");\n          | \t\t\t                      ^\n      245 | \t\t});\n      246 | \t});\n      247 |\n      at Object.<anonymous> (tests/routes/photo.test.ts:244:26)\n  ● Photo Routes › GET /photos/:photoId › should get photo details\n    expect(received).toHaveProperty(path)\n    Expected path: \"photo\"\n    Received path: []\n    Received value: {\"display_order\": 0, \"file_size\": 347, \"filename\": \"photo_1758012706284.jpg\", \"id\": \"88ed0f69-808d-41aa-9130-9977efa54716\", \"image_url\": \"/uploads/users/7a5f9881-b905-48f4-84fb-f3a7d0f53ed2/photo_1758012706284.jpg\", \"is_main\": false, \"mime_type\": \"image/jpeg\", \"original_filename\": \"test-image.jpg\", \"uploaded_at\": \"2025-09-16T06:51:46.292Z\", \"user_id\": \"7a5f9881-b905-48f4-84fb-f3a7d0f53ed2\"}\n      265 | \t\t\t\t.expect(200);\n      266 |\n    > 267 | \t\t\texpect(response.body).toHaveProperty(\"photo\");\n          | \t\t\t                      ^\n      268 | \t\t\texpect(response.body.photo).toHaveProperty(\"id\", photoId);\n      269 | \t\t\texpect(response.body.photo).toHaveProperty(\"url\");\n      270 | \t\t\texpect(response.body.photo).toHaveProperty(\"is_main\");\n      at Object.<anonymous> (tests/routes/photo.test.ts:267:26)\n  ● Photo Routes › GET /photos/:photoId › should return 404 for non-existent photo\n    expected 404 \"Not Found\", got 500 \"Internal Server Error\"\n      275 | \t\t\t\t.get(\"/photos/non-existent-id\")\n      276 | \t\t\t\t.set(\"Authorization\", `Bearer ${authToken}`)\n    > 277 | \t\t\t\t.expect(404);\n          | \t\t\t\t ^\n      278 |\n      279 | \t\t\texpect(response.body).toHaveProperty(\"error\");\n      280 | \t\t});\n      at Object.<anonymous> (tests/routes/photo.test.ts:277:6)\n      ----\n      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)\n      at node_modules/supertest/lib/test.js:365:13\n      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)\n      at Test.assert (node_modules/supertest/lib/test.js:195:23)\n      at localAssert (node_modules/supertest/lib/test.js:138:14)\n      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)\n  ● Photo Routes › GET /photos/:photoId › should reject request without authentication\n    expect(received).toHaveProperty(path)\n    Expected path: \"error\"\n    Received path: []\n    Received value: {\"message\": \"Unauthorized\"}\n      283 | \t\t\tconst response = await request(app).get(`/photos/${photoId}`).expect(401);\n      284 |\n    > 285 | \t\t\texpect(response.body).toHaveProperty(\"error\");\n          | \t\t\t                      ^\n      286 | \t\t});\n      287 | \t});\n      288 |\n      at Object.<anonymous> (tests/routes/photo.test.ts:285:26)\n  ● Photo Routes › Photo upload limits › should enforce maximum photos per user\n    expected 400 \"Bad Request\", got 500 \"Internal Server Error\"\n      305 | \t\t\t\t.set(\"Authorization\", `Bearer ${authToken}`)\n      306 | \t\t\t\t.attach(\"photo\", testImagePath)\n    > 307 | \t\t\t\t.expect(400);\n          | \t\t\t\t ^\n      308 |\n      309 | \t\t\texpect(response.body).toHaveProperty(\"error\");\n      310 | \t\t\texpect(response.body.error).toContain(\"maximum\");\n      at Object.<anonymous> (tests/routes/photo.test.ts:307:6)\n      ----\n      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)\n      at node_modules/supertest/lib/test.js:365:13\n      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)\n      at Test.assert (node_modules/supertest/lib/test.js:195:23)\n      at localAssert (node_modules/supertest/lib/test.js:138:14)\n      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)\n  ● Photo Routes › Photo file validation › should enforce file size limits\n    expected 400 \"Bad Request\", got 500 \"Internal Server Error\"\n      323 | \t\t\t\t.set(\"Authorization\", `Bearer ${authToken}`)\n      324 | \t\t\t\t.attach(\"photo\", largeFilePath)\n    > 325 | \t\t\t\t.expect(400);\n          | \t\t\t\t ^\n      326 |\n      327 | \t\t\texpect(response.body).toHaveProperty(\"error\");\n      328 |\n      at Object.<anonymous> (tests/routes/photo.test.ts:325:6)\n      ----\n      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)\n      at node_modules/supertest/lib/test.js:365:13\n      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)\n      at Test.assert (node_modules/supertest/lib/test.js:195:23)\n      at localAssert (node_modules/supertest/lib/test.js:138:14)\n      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)\n  ● Photo Routes › Photo file validation › should only accept image file types\n    expected 400 \"Bad Request\", got 500 \"Internal Server Error\"\n      342 | \t\t\t\t\t.set(\"Authorization\", `Bearer ${authToken}`)\n      343 | \t\t\t\t\t.attach(\"photo\", filePath)\n    > 344 | \t\t\t\t\t.expect(400);\n          | \t\t\t\t\t ^\n      345 |\n      346 | \t\t\t\texpect(response.body).toHaveProperty(\"error\");\n      347 |\n      at Object.<anonymous> (tests/routes/photo.test.ts:344:7)\n      ----\n      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)\n      at node_modules/supertest/lib/test.js:365:13\n      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)\n      at Test.assert (node_modules/supertest/lib/test.js:195:23)\n      at localAssert (node_modules/supertest/lib/test.js:138:14)\n      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)\n"
+		},
+		{
+			"suiteName": "/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/chat.test.ts",
+			"path": "/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/chat.test.ts",
+			"failedAssertions": [
+				{
+					"title": "should return specific chat room",
+					"fullName": "Chat Routes GET /chat/:id should return specific chat room",
+					"status": "failed",
+					"messages": [
+						"Error: expect(received).toHaveProperty(path)\nExpected path: \"user1_id\"\nReceived path: []\nReceived value: {\"created_at\": \"2025-09-16T06:51:51.595Z\", \"id\": \"fcf1ac8a-859a-48f1-8e41-ad2ceda0cb0c\", \"small_user1\": {\"first_name\": \"John\", \"id\": \"129dd774-3c72-4397-a15a-26b5959c5db8\", \"last_name\": \"Doe\", \"main_photo\": {\"display_order\": null, \"file_size\": null, \"filename\": null, \"id\": null, \"image_url\": null, \"is_main\": null, \"mime_type\": null, \"original_filename\": null, \"uploaded_at\": null, \"user_id\": null}, \"online_status\": true}, \"small_user2\": {\"first_name\": \"Jane\", \"id\": \"546b54fc-002c-499b-8d78-1b102fb60088\", \"last_name\": \"Smith\", \"main_photo\": {\"display_order\": null, \"file_size\": null, \"filename\": null, \"id\": null, \"image_url\": null, \"is_main\": null, \"mime_type\": null, \"original_filename\": null, \"uploaded_at\": null, \"user_id\": null}, \"online_status\": true}}\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/chat.test.ts:100:26)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Chat Routes", "GET /chat/:id"]
+				},
+				{
+					"title": "should return 404 for non-existent chat room",
+					"fullName": "Chat Routes DELETE /chat/:id should return 404 for non-existent chat room",
+					"status": "failed",
+					"messages": [
+						"Error: Login failed with status 429: {\"error\":\"TOO_MANY_REQUESTS\",\"message\":\"Too many auth attempts, please try again later.\"}\n    at authenticateUser (/home/lorenzo/Documents/42-matcha/Back-End/tests/helpers/app.helper.ts:24:9)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at createAndAuthenticateUser (/home/lorenzo/Documents/42-matcha/Back-End/tests/helpers/app.helper.ts:79:16)\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/chat.test.ts:43:15)"
+					],
+					"location": null,
+					"ancestorTitles": ["Chat Routes", "DELETE /chat/:id"]
+				}
+			],
+			"suiteLevelError": "  ● Chat Routes › GET /chat/:id › should return specific chat room\n    expect(received).toHaveProperty(path)\n    Expected path: \"user1_id\"\n    Received path: []\n    Received value: {\"created_at\": \"2025-09-16T06:51:51.595Z\", \"id\": \"fcf1ac8a-859a-48f1-8e41-ad2ceda0cb0c\", \"small_user1\": {\"first_name\": \"John\", \"id\": \"129dd774-3c72-4397-a15a-26b5959c5db8\", \"last_name\": \"Doe\", \"main_photo\": {\"display_order\": null, \"file_size\": null, \"filename\": null, \"id\": null, \"image_url\": null, \"is_main\": null, \"mime_type\": null, \"original_filename\": null, \"uploaded_at\": null, \"user_id\": null}, \"online_status\": true}, \"small_user2\": {\"first_name\": \"Jane\", \"id\": \"546b54fc-002c-499b-8d78-1b102fb60088\", \"last_name\": \"Smith\", \"main_photo\": {\"display_order\": null, \"file_size\": null, \"filename\": null, \"id\": null, \"image_url\": null, \"is_main\": null, \"mime_type\": null, \"original_filename\": null, \"uploaded_at\": null, \"user_id\": null}, \"online_status\": true}}\n       98 |\n       99 | \t\t\texpect(response.body).toHaveProperty(\"id\", chatRoomId);\n    > 100 | \t\t\texpect(response.body).toHaveProperty(\"user1_id\");\n          | \t\t\t                      ^\n      101 | \t\t\texpect(response.body).toHaveProperty(\"user2_id\");\n      102 | \t\t});\n      103 |\n      at Object.<anonymous> (tests/routes/chat.test.ts:100:26)\n  ● Chat Routes › DELETE /chat/:id › should return 404 for non-existent chat room\n    Login failed with status 429: {\"error\":\"TOO_MANY_REQUESTS\",\"message\":\"Too many auth attempts, please try again later.\"}\n      22 | \t\tconsole.log(\"Response body:\", response.body);\n      23 | \t\tconsole.log(\"Credentials used:\", credentials);\n    > 24 | \t\tthrow new Error(\n         | \t\t      ^\n      25 | \t\t\t`Login failed with status ${response.status}: ${JSON.stringify(response.body)}`,\n      26 | \t\t);\n      27 | \t}\n      at authenticateUser (tests/helpers/app.helper.ts:24:9)\n      at createAndAuthenticateUser (tests/helpers/app.helper.ts:79:16)\n      at Object.<anonymous> (tests/routes/chat.test.ts:43:15)\n"
+		},
+		{
+			"suiteName": "/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/user.test.ts",
+			"path": "/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/user.test.ts",
+			"failedAssertions": [
+				{
+					"title": "should get current user profile with valid token",
+					"fullName": "User Routes GET /users/profile should get current user profile with valid token",
+					"status": "failed",
+					"messages": [
+						"Error: expect(received).toHaveProperty(path, value)\nExpected path: \"username\"\nReceived path: []\nExpected value: \"testuser\"\nReceived value: {\"bio\": \"Test user for authentication\", \"birth_date\": \"1989-12-31T23:00:00.000Z\", \"email\": \"test@example.com\", \"fame_rating\": \"1.0\", \"first_name\": \"Test\", \"gender\": \"male\", \"hashtags\": [], \"id\": \"ee7d309b-1c4b-43ac-aa29-b5655b65603f\", \"last_name\": \"User\", \"likes_received\": 0, \"matches\": 0, \"name\": \"testuser\", \"online_status\": true, \"photos\": [], \"sexual_orientation\": \"bisexual\", \"views\": 0}\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/user.test.ts:47:31)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["User Routes", "GET /users/profile"]
+				},
+				{
+					"title": "should reject request without token",
+					"fullName": "User Routes GET /users/profile should reject request without token",
+					"status": "failed",
+					"messages": [
+						"Error: expect(received).toHaveProperty(path)\nExpected path: \"error\"\nReceived path: []\nReceived value: {\"message\": \"Unauthorized\"}\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/user.test.ts:54:26)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["User Routes", "GET /users/profile"]
+				},
+				{
+					"title": "should reject request with invalid token",
+					"fullName": "User Routes GET /users/profile should reject request with invalid token",
+					"status": "failed",
+					"messages": [
+						"Error: expect(received).toHaveProperty(path)\nExpected path: \"error\"\nReceived path: []\nReceived value: {\"message\": \"Invalid token type\"}\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/user.test.ts:63:26)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["User Routes", "GET /users/profile"]
+				},
+				{
+					"title": "should update user profile successfully",
+					"fullName": "User Routes PUT /users/profile should update user profile successfully",
+					"status": "failed",
+					"messages": [
+						"Error: expected 200 \"OK\", got 400 \"Bad Request\"\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/user.test.ts:79:6)\n    at Promise.finally.completed (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)\n    at _callCircusTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:946:3)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:839:13)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at run (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:757:3)\n    at runAndTransformResultsToJestFormat (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)\n    at jestAdapter (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/runner.js:101:19)\n    at runTestInternal (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:275:16)\n    at runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:343:7)\n----\n    at Test._assertStatus (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:309:14)\n    at /home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:365:13\n    at Test._assertFunction (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:342:13)\n    at Test.assert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:195:23)\n    at localAssert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:138:14)\n    at Server.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:152:11)\n    at Object.onceWrapper (node:events:632:28)\n    at Server.emit (node:events:518:28)\n    at emitCloseNT (node:net:2418:8)\n    at processTicksAndRejections (node:internal/process/task_queues:89:21)"
+					],
+					"location": null,
+					"ancestorTitles": ["User Routes", "PUT /users/profile"]
+				},
+				{
+					"title": "should return potential matches",
+					"fullName": "User Routes GET /users/discover should return potential matches",
+					"status": "failed",
+					"messages": [
+						"Error: expected 200 \"OK\", got 500 \"Internal Server Error\"\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/user.test.ts:109:6)\n    at Promise.finally.completed (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)\n    at _callCircusTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:946:3)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:839:13)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at run (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:757:3)\n    at runAndTransformResultsToJestFormat (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)\n    at jestAdapter (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/runner.js:101:19)\n    at runTestInternal (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:275:16)\n    at runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:343:7)\n----\n    at Test._assertStatus (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:309:14)\n    at /home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:365:13\n    at Test._assertFunction (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:342:13)\n    at Test.assert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:195:23)\n    at localAssert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:138:14)\n    at Server.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:152:11)\n    at Object.onceWrapper (node:events:632:28)\n    at Server.emit (node:events:518:28)\n    at emitCloseNT (node:net:2418:8)\n    at processTicksAndRejections (node:internal/process/task_queues:89:21)"
+					],
+					"location": null,
+					"ancestorTitles": ["User Routes", "GET /users/discover"]
+				},
+				{
+					"title": "should support pagination parameters",
+					"fullName": "User Routes GET /users/discover should support pagination parameters",
+					"status": "failed",
+					"messages": [
+						"Error: expected 200 \"OK\", got 500 \"Internal Server Error\"\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/user.test.ts:121:6)\n    at Promise.finally.completed (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)\n    at _callCircusTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:946:3)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:839:13)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at run (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:757:3)\n    at runAndTransformResultsToJestFormat (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)\n    at jestAdapter (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/runner.js:101:19)\n    at runTestInternal (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:275:16)\n    at runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:343:7)\n----\n    at Test._assertStatus (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:309:14)\n    at /home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:365:13\n    at Test._assertFunction (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:342:13)\n    at Test.assert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:195:23)\n    at localAssert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:138:14)\n    at Server.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:152:11)\n    at Object.onceWrapper (node:events:632:28)\n    at Server.emit (node:events:518:28)\n    at emitCloseNT (node:net:2418:8)\n    at processTicksAndRejections (node:internal/process/task_queues:89:21)"
+					],
+					"location": null,
+					"ancestorTitles": ["User Routes", "GET /users/discover"]
+				},
+				{
+					"title": "should support filtering parameters",
+					"fullName": "User Routes GET /users/discover should support filtering parameters",
+					"status": "failed",
+					"messages": [
+						"Error: expected 200 \"OK\", got 500 \"Internal Server Error\"\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/user.test.ts:137:6)\n    at Promise.finally.completed (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)\n    at _callCircusTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:946:3)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:839:13)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at run (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:757:3)\n    at runAndTransformResultsToJestFormat (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)\n    at jestAdapter (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/runner.js:101:19)\n    at runTestInternal (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:275:16)\n    at runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:343:7)\n----\n    at Test._assertStatus (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:309:14)\n    at /home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:365:13\n    at Test._assertFunction (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:342:13)\n    at Test.assert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:195:23)\n    at localAssert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:138:14)\n    at Server.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:152:11)\n    at Object.onceWrapper (node:events:632:28)\n    at Server.emit (node:events:518:28)\n    at emitCloseNT (node:net:2418:8)\n    at processTicksAndRejections (node:internal/process/task_queues:89:21)"
+					],
+					"location": null,
+					"ancestorTitles": ["User Routes", "GET /users/discover"]
+				}
+			],
+			"suiteLevelError": "  ● User Routes › GET /users/profile › should get current user profile with valid token\n    expect(received).toHaveProperty(path, value)\n    Expected path: \"username\"\n    Received path: []\n    Expected value: \"testuser\"\n    Received value: {\"bio\": \"Test user for authentication\", \"birth_date\": \"1989-12-31T23:00:00.000Z\", \"email\": \"test@example.com\", \"fame_rating\": \"1.0\", \"first_name\": \"Test\", \"gender\": \"male\", \"hashtags\": [], \"id\": \"ee7d309b-1c4b-43ac-aa29-b5655b65603f\", \"last_name\": \"User\", \"likes_received\": 0, \"matches\": 0, \"name\": \"testuser\", \"online_status\": true, \"photos\": [], \"sexual_orientation\": \"bisexual\", \"views\": 0}\n      45 | \t\t\texpect(response.body).toHaveProperty(\"user\");\n      46 | \t\t\texpect(response.body.user).toHaveProperty(\"email\", \"test@example.com\");\n    > 47 | \t\t\texpect(response.body.user).toHaveProperty(\"username\", \"testuser\");\n         | \t\t\t                           ^\n      48 | \t\t\texpect(response.body.user).not.toHaveProperty(\"password\");\n      49 | \t\t});\n      50 |\n      at Object.<anonymous> (tests/routes/user.test.ts:47:31)\n  ● User Routes › GET /users/profile › should reject request without token\n    expect(received).toHaveProperty(path)\n    Expected path: \"error\"\n    Received path: []\n    Received value: {\"message\": \"Unauthorized\"}\n      52 | \t\t\tconst response = await request(app).get(\"/users/profile\").expect(401);\n      53 |\n    > 54 | \t\t\texpect(response.body).toHaveProperty(\"error\");\n         | \t\t\t                      ^\n      55 | \t\t});\n      56 |\n      57 | \t\tit(\"should reject request with invalid token\", async () => {\n      at Object.<anonymous> (tests/routes/user.test.ts:54:26)\n  ● User Routes › GET /users/profile › should reject request with invalid token\n    expect(received).toHaveProperty(path)\n    Expected path: \"error\"\n    Received path: []\n    Received value: {\"message\": \"Invalid token type\"}\n      61 | \t\t\t\t.expect(401);\n      62 |\n    > 63 | \t\t\texpect(response.body).toHaveProperty(\"error\");\n         | \t\t\t                      ^\n      64 | \t\t});\n      65 | \t});\n      66 |\n      at Object.<anonymous> (tests/routes/user.test.ts:63:26)\n  ● User Routes › PUT /users/profile › should update user profile successfully\n    expected 200 \"OK\", got 400 \"Bad Request\"\n      77 | \t\t\t\t.set(\"Authorization\", `Bearer ${authToken}`)\n      78 | \t\t\t\t.send(updateData)\n    > 79 | \t\t\t\t.expect(200);\n         | \t\t\t\t ^\n      80 |\n      81 | \t\t\texpect(response.body).toHaveProperty(\"message\");\n      82 | \t\t\texpect(response.body).toHaveProperty(\"user\");\n      at Object.<anonymous> (tests/routes/user.test.ts:79:6)\n      ----\n      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)\n      at node_modules/supertest/lib/test.js:365:13\n      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)\n      at Test.assert (node_modules/supertest/lib/test.js:195:23)\n      at localAssert (node_modules/supertest/lib/test.js:138:14)\n      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)\n  ● User Routes › GET /users/discover › should return potential matches\n    expected 200 \"OK\", got 500 \"Internal Server Error\"\n      107 | \t\t\t\t.set(\"Authorization\", `Bearer ${authToken}`)\n      108 | \t\t\t\t.query({ page: 1, limit: 10 })\n    > 109 | \t\t\t\t.expect(200);\n          | \t\t\t\t ^\n      110 |\n      111 | \t\t\texpect(response.body).toHaveProperty(\"users\");\n      112 | \t\t\texpect(response.body).toHaveProperty(\"pagination\");\n      at Object.<anonymous> (tests/routes/user.test.ts:109:6)\n      ----\n      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)\n      at node_modules/supertest/lib/test.js:365:13\n      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)\n      at Test.assert (node_modules/supertest/lib/test.js:195:23)\n      at localAssert (node_modules/supertest/lib/test.js:138:14)\n      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)\n  ● User Routes › GET /users/discover › should support pagination parameters\n    expected 200 \"OK\", got 500 \"Internal Server Error\"\n      119 | \t\t\t\t.set(\"Authorization\", `Bearer ${authToken}`)\n      120 | \t\t\t\t.query({ page: 2, limit: 5 })\n    > 121 | \t\t\t\t.expect(200);\n          | \t\t\t\t ^\n      122 |\n      123 | \t\t\texpect(response.body.pagination).toHaveProperty(\"page\", 2);\n      124 | \t\t\texpect(response.body.pagination).toHaveProperty(\"limit\", 5);\n      at Object.<anonymous> (tests/routes/user.test.ts:121:6)\n      ----\n      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)\n      at node_modules/supertest/lib/test.js:365:13\n      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)\n      at Test.assert (node_modules/supertest/lib/test.js:195:23)\n      at localAssert (node_modules/supertest/lib/test.js:138:14)\n      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)\n  ● User Routes › GET /users/discover › should support filtering parameters\n    expected 200 \"OK\", got 500 \"Internal Server Error\"\n      135 | \t\t\t\t\tgender: \"female\",\n      136 | \t\t\t\t})\n    > 137 | \t\t\t\t.expect(200);\n          | \t\t\t\t ^\n      138 |\n      139 | \t\t\texpect(response.body).toHaveProperty(\"users\");\n      140 | \t\t\texpect(Array.isArray(response.body.users)).toBe(true);\n      at Object.<anonymous> (tests/routes/user.test.ts:137:6)\n      ----\n      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)\n      at node_modules/supertest/lib/test.js:365:13\n      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)\n      at Test.assert (node_modules/supertest/lib/test.js:195:23)\n      at localAssert (node_modules/supertest/lib/test.js:138:14)\n      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)\n"
+		},
+		{
+			"suiteName": "/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/hashtag.test.ts",
+			"path": "/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/hashtag.test.ts",
+			"failedAssertions": [
+				{
+					"title": "should search hashtags by keyword",
+					"fullName": "Hashtag Routes GET /hashtags/search should search hashtags by keyword",
+					"status": "failed",
+					"messages": [
+						"Error: expect(received).toHaveProperty(path)\nExpected path: \"hashtags\"\nReceived path: []\nReceived value: {\"data\": [{\"created_at\": \"2025-09-16T06:52:00.811Z\", \"id\": 1, \"name\": \"travel\"}], \"links\": {\"first\": \"http://127.0.0.1:35537/hashtags?page=1&limit=10&order=desc&name=travel\", \"last\": \"http://127.0.0.1:35537/hashtags?page=1&limit=10&order=desc&name=travel\", \"self\": \"http://127.0.0.1:35537/hashtags?page=1&limit=10&order=desc&name=travel\"}, \"meta\": {\"current_page\": 1, \"has_next\": false, \"has_previous\": false, \"per_page\": 10, \"total_items\": 1, \"total_pages\": 1}}\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/hashtag.test.ts:44:26)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Hashtag Routes", "GET /hashtags/search"]
+				},
+				{
+					"title": "should return empty array for non-existent hashtag",
+					"fullName": "Hashtag Routes GET /hashtags/search should return empty array for non-existent hashtag",
+					"status": "failed",
+					"messages": [
+						"Error: expect(received).toHaveProperty(path)\nExpected path: \"hashtags\"\nReceived path: []\nReceived value: {\"data\": [], \"links\": {\"first\": \"http://127.0.0.1:37505/hashtags?page=1&limit=10&order=desc&name=nonexistenthashtag\", \"last\": \"http://127.0.0.1:37505/hashtags?page=0&limit=10&order=desc&name=nonexistenthashtag\", \"self\": \"http://127.0.0.1:37505/hashtags?page=1&limit=10&order=desc&name=nonexistenthashtag\"}, \"meta\": {\"current_page\": 1, \"has_next\": false, \"has_previous\": false, \"per_page\": 10, \"total_items\": 0, \"total_pages\": 0}}\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/hashtag.test.ts:60:26)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Hashtag Routes", "GET /hashtags/search"]
+				},
+				{
+					"title": "should require search query parameter",
+					"fullName": "Hashtag Routes GET /hashtags/search should require search query parameter",
+					"status": "failed",
+					"messages": [
+						"Error: expected 400 \"Bad Request\", got 200 \"OK\"\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/hashtag.test.ts:68:6)\n    at Promise.finally.completed (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)\n    at _callCircusTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:946:3)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:839:13)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at run (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:757:3)\n    at runAndTransformResultsToJestFormat (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)\n    at jestAdapter (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/runner.js:101:19)\n    at runTestInternal (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:275:16)\n    at runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:343:7)\n----\n    at Test._assertStatus (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:309:14)\n    at /home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:365:13\n    at Test._assertFunction (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:342:13)\n    at Test.assert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:195:23)\n    at localAssert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:138:14)\n    at Server.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:152:11)\n    at Object.onceWrapper (node:events:632:28)\n    at Server.emit (node:events:518:28)\n    at emitCloseNT (node:net:2418:8)\n    at processTicksAndRejections (node:internal/process/task_queues:89:21)"
+					],
+					"location": null,
+					"ancestorTitles": ["Hashtag Routes", "GET /hashtags/search"]
+				},
+				{
+					"title": "should reject request without authentication",
+					"fullName": "Hashtag Routes GET /hashtags/search should reject request without authentication",
+					"status": "failed",
+					"messages": [
+						"Error: expect(received).toHaveProperty(path)\nExpected path: \"error\"\nReceived path: []\nReceived value: {\"message\": \"Unauthorized\"}\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/hashtag.test.ts:79:26)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Hashtag Routes", "GET /hashtags/search"]
+				},
+				{
+					"title": "should add hashtag to user",
+					"fullName": "Hashtag Routes POST /hashtags/:id should add hashtag to user",
+					"status": "failed",
+					"messages": [
+						"TypeError: Cannot read properties of undefined (reading 'length')\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/hashtag.test.ts:91:40)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Hashtag Routes", "POST /hashtags/:id"]
+				},
+				{
+					"title": "should reject request without authentication",
+					"fullName": "Hashtag Routes POST /hashtags/:id should reject request without authentication",
+					"status": "failed",
+					"messages": [
+						"Error: expect(received).toHaveProperty(path)\nExpected path: \"error\"\nReceived path: []\nReceived value: {\"message\": \"Unauthorized\"}\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/hashtag.test.ts:115:26)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Hashtag Routes", "POST /hashtags/:id"]
+				},
+				{
+					"title": "should remove hashtag from user",
+					"fullName": "Hashtag Routes DELETE /hashtags/:id should remove hashtag from user",
+					"status": "failed",
+					"messages": [
+						"TypeError: Cannot read properties of undefined (reading '0')\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/hashtag.test.ts:127:50)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Hashtag Routes", "DELETE /hashtags/:id"]
+				},
+				{
+					"title": "should reject request without authentication",
+					"fullName": "Hashtag Routes DELETE /hashtags/:id should reject request without authentication",
+					"status": "failed",
+					"messages": [
+						"Error: expect(received).toHaveProperty(path)\nExpected path: \"error\"\nReceived path: []\nReceived value: {\"message\": \"Unauthorized\"}\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/hashtag.test.ts:154:26)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Hashtag Routes", "DELETE /hashtags/:id"]
+				}
+			],
+			"suiteLevelError": "  ● Hashtag Routes › GET /hashtags/search › should search hashtags by keyword\n    expect(received).toHaveProperty(path)\n    Expected path: \"hashtags\"\n    Received path: []\n    Received value: {\"data\": [{\"created_at\": \"2025-09-16T06:52:00.811Z\", \"id\": 1, \"name\": \"travel\"}], \"links\": {\"first\": \"http://127.0.0.1:35537/hashtags?page=1&limit=10&order=desc&name=travel\", \"last\": \"http://127.0.0.1:35537/hashtags?page=1&limit=10&order=desc&name=travel\", \"self\": \"http://127.0.0.1:35537/hashtags?page=1&limit=10&order=desc&name=travel\"}, \"meta\": {\"current_page\": 1, \"has_next\": false, \"has_previous\": false, \"per_page\": 10, \"total_items\": 1, \"total_pages\": 1}}\n      42 | \t\t\t\t.expect(200);\n      43 |\n    > 44 | \t\t\texpect(response.body).toHaveProperty(\"hashtags\");\n         | \t\t\t                      ^\n      45 | \t\t\texpect(Array.isArray(response.body.hashtags)).toBe(true);\n      46 |\n      47 | \t\t\t// Check that returned hashtags contain the search term\n      at Object.<anonymous> (tests/routes/hashtag.test.ts:44:26)\n  ● Hashtag Routes › GET /hashtags/search › should return empty array for non-existent hashtag\n    expect(received).toHaveProperty(path)\n    Expected path: \"hashtags\"\n    Received path: []\n    Received value: {\"data\": [], \"links\": {\"first\": \"http://127.0.0.1:37505/hashtags?page=1&limit=10&order=desc&name=nonexistenthashtag\", \"last\": \"http://127.0.0.1:37505/hashtags?page=0&limit=10&order=desc&name=nonexistenthashtag\", \"self\": \"http://127.0.0.1:37505/hashtags?page=1&limit=10&order=desc&name=nonexistenthashtag\"}, \"meta\": {\"current_page\": 1, \"has_next\": false, \"has_previous\": false, \"per_page\": 10, \"total_items\": 0, \"total_pages\": 0}}\n      58 | \t\t\t\t.expect(200);\n      59 |\n    > 60 | \t\t\texpect(response.body).toHaveProperty(\"hashtags\");\n         | \t\t\t                      ^\n      61 | \t\t\texpect(response.body.hashtags).toHaveLength(0);\n      62 | \t\t});\n      63 |\n      at Object.<anonymous> (tests/routes/hashtag.test.ts:60:26)\n  ● Hashtag Routes › GET /hashtags/search › should require search query parameter\n    expected 400 \"Bad Request\", got 200 \"OK\"\n      66 | \t\t\t\t.get(\"/hashtags/search\")\n      67 | \t\t\t\t.set(\"Authorization\", `Bearer ${authToken}`)\n    > 68 | \t\t\t\t.expect(400);\n         | \t\t\t\t ^\n      69 |\n      70 | \t\t\texpect(response.body).toHaveProperty(\"error\");\n      71 | \t\t});\n      at Object.<anonymous> (tests/routes/hashtag.test.ts:68:6)\n      ----\n      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)\n      at node_modules/supertest/lib/test.js:365:13\n      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)\n      at Test.assert (node_modules/supertest/lib/test.js:195:23)\n      at localAssert (node_modules/supertest/lib/test.js:138:14)\n      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)\n  ● Hashtag Routes › GET /hashtags/search › should reject request without authentication\n    expect(received).toHaveProperty(path)\n    Expected path: \"error\"\n    Received path: []\n    Received value: {\"message\": \"Unauthorized\"}\n      77 | \t\t\t\t.expect(401);\n      78 |\n    > 79 | \t\t\texpect(response.body).toHaveProperty(\"error\");\n         | \t\t\t                      ^\n      80 | \t\t});\n      81 | \t});\n      82 |\n      at Object.<anonymous> (tests/routes/hashtag.test.ts:79:26)\n  ● Hashtag Routes › POST /hashtags/:id › should add hashtag to user\n    TypeError: Cannot read properties of undefined (reading 'length')\n      89 | \t\t\t\t.query({ q: \"travel\" });\n      90 |\n    > 91 | \t\t\texpect(searchResponse.body.hashtags.length).toBeGreaterThan(0);\n         | \t\t\t                                    ^\n      92 | \t\t\tconst hashtagId = searchResponse.body.hashtags[0].id;\n      93 |\n      94 | \t\t\tconst response = await request(app)\n      at Object.<anonymous> (tests/routes/hashtag.test.ts:91:40)\n  ● Hashtag Routes › POST /hashtags/:id › should reject request without authentication\n    expect(received).toHaveProperty(path)\n    Expected path: \"error\"\n    Received path: []\n    Received value: {\"message\": \"Unauthorized\"}\n      113 | \t\t\tconst response = await request(app).post(\"/hashtags/1\").expect(401);\n      114 |\n    > 115 | \t\t\texpect(response.body).toHaveProperty(\"error\");\n          | \t\t\t                      ^\n      116 | \t\t});\n      117 | \t});\n      118 |\n      at Object.<anonymous> (tests/routes/hashtag.test.ts:115:26)\n  ● Hashtag Routes › DELETE /hashtags/:id › should remove hashtag from user\n    TypeError: Cannot read properties of undefined (reading '0')\n      125 | \t\t\t\t.query({ q: \"travel\" });\n      126 |\n    > 127 | \t\t\tconst hashtagId = searchResponse.body.hashtags[0].id;\n          | \t\t\t                                              ^\n      128 |\n      129 | \t\t\t// Add it first\n      130 | \t\t\tawait request(app).post(`/hashtags/${hashtagId}`).set(\"Authorization\", `Bearer ${authToken}`);\n      at Object.<anonymous> (tests/routes/hashtag.test.ts:127:50)\n  ● Hashtag Routes › DELETE /hashtags/:id › should reject request without authentication\n    expect(received).toHaveProperty(path)\n    Expected path: \"error\"\n    Received path: []\n    Received value: {\"message\": \"Unauthorized\"}\n      152 | \t\t\tconst response = await request(app).delete(\"/hashtags/1\").expect(401);\n      153 |\n    > 154 | \t\t\texpect(response.body).toHaveProperty(\"error\");\n          | \t\t\t                      ^\n      155 | \t\t});\n      156 | \t});\n      157 | });\n      at Object.<anonymous> (tests/routes/hashtag.test.ts:154:26)\n"
+		},
+		{
+			"suiteName": "/home/lorenzo/Documents/42-matcha/Back-End/tests/integration/app.integration.test.ts",
+			"path": "/home/lorenzo/Documents/42-matcha/Back-End/tests/integration/app.integration.test.ts",
+			"failedAssertions": [
+				{
+					"title": "should discover users and handle interactions",
+					"fullName": "Integration Tests User Discovery Flow should discover users and handle interactions",
+					"status": "failed",
+					"messages": [
+						"TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/integration/app.integration.test.ts:58:37)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Integration Tests", "User Discovery Flow"]
+				},
+				{
+					"title": "should filter discovery results based on preferences",
+					"fullName": "Integration Tests User Discovery Flow should filter discovery results based on preferences",
+					"status": "failed",
+					"messages": [
+						"TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/integration/app.integration.test.ts:58:37)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Integration Tests", "User Discovery Flow"]
+				},
+				{
+					"title": "should handle like interactions",
+					"fullName": "Integration Tests Like/Match System should handle like interactions",
+					"status": "failed",
+					"messages": [
+						"TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/integration/app.integration.test.ts:58:37)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Integration Tests", "Like/Match System"]
+				},
+				{
+					"title": "should create match when both users like each other",
+					"fullName": "Integration Tests Like/Match System should create match when both users like each other",
+					"status": "failed",
+					"messages": [
+						"TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/integration/app.integration.test.ts:58:37)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Integration Tests", "Like/Match System"]
+				},
+				{
+					"title": "should handle dislike interactions",
+					"fullName": "Integration Tests Like/Match System should handle dislike interactions",
+					"status": "failed",
+					"messages": [
+						"TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/integration/app.integration.test.ts:58:37)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Integration Tests", "Like/Match System"]
+				},
+				{
+					"title": "should not show liked/disliked users in discovery",
+					"fullName": "Integration Tests Like/Match System should not show liked/disliked users in discovery",
+					"status": "failed",
+					"messages": [
+						"TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/integration/app.integration.test.ts:58:37)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Integration Tests", "Like/Match System"]
+				},
+				{
+					"title": "should block users successfully",
+					"fullName": "Integration Tests Block System should block users successfully",
+					"status": "failed",
+					"messages": [
+						"TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/integration/app.integration.test.ts:58:37)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Integration Tests", "Block System"]
+				},
+				{
+					"title": "should not show blocked users in discovery",
+					"fullName": "Integration Tests Block System should not show blocked users in discovery",
+					"status": "failed",
+					"messages": [
+						"TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/integration/app.integration.test.ts:58:37)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Integration Tests", "Block System"]
+				},
+				{
+					"title": "should prevent blocked user from seeing blocker",
+					"fullName": "Integration Tests Block System should prevent blocked user from seeing blocker",
+					"status": "failed",
+					"messages": [
+						"TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/integration/app.integration.test.ts:58:37)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Integration Tests", "Block System"]
+				},
+				{
+					"title": "should unblock users successfully",
+					"fullName": "Integration Tests Block System should unblock users successfully",
+					"status": "failed",
+					"messages": [
+						"TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/integration/app.integration.test.ts:58:37)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Integration Tests", "Block System"]
+				},
+				{
+					"title": "should require complete profile for discovery",
+					"fullName": "Integration Tests Profile Completeness should require complete profile for discovery",
+					"status": "failed",
+					"messages": [
+						"TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/integration/app.integration.test.ts:58:37)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Integration Tests", "Profile Completeness"]
+				},
+				{
+					"title": "should filter users by distance",
+					"fullName": "Integration Tests Location-based Discovery should filter users by distance",
+					"status": "failed",
+					"messages": [
+						"TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/integration/app.integration.test.ts:58:37)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Integration Tests", "Location-based Discovery"]
+				},
+				{
+					"title": "should maintain data consistency across operations",
+					"fullName": "Integration Tests Database Consistency should maintain data consistency across operations",
+					"status": "failed",
+					"messages": [
+						"TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/integration/app.integration.test.ts:58:37)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Integration Tests", "Database Consistency"]
+				},
+				{
+					"title": "should handle non-existent user operations gracefully",
+					"fullName": "Integration Tests Error Handling should handle non-existent user operations gracefully",
+					"status": "failed",
+					"messages": [
+						"TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/integration/app.integration.test.ts:58:37)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Integration Tests", "Error Handling"]
+				},
+				{
+					"title": "should prevent self-interactions",
+					"fullName": "Integration Tests Error Handling should prevent self-interactions",
+					"status": "failed",
+					"messages": [
+						"TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/integration/app.integration.test.ts:58:37)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Integration Tests", "Error Handling"]
+				}
+			],
+			"suiteLevelError": "  ● Integration Tests › User Discovery Flow › should discover users and handle interactions\n    TypeError: Cannot read properties of undefined (reading 'id')\n      56 |\n      57 | \t\t// Extract user IDs from registration response\n    > 58 | \t\tuser1Id = user1Response.body.user.id;\n         | \t\t                                  ^\n      59 | \t\tuser2Id = user2Response.body.user.id;\n      60 |\n      61 | \t\t// Authenticate users\n      at Object.<anonymous> (tests/integration/app.integration.test.ts:58:37)\n  ● Integration Tests › User Discovery Flow › should filter discovery results based on preferences\n    TypeError: Cannot read properties of undefined (reading 'id')\n      56 |\n      57 | \t\t// Extract user IDs from registration response\n    > 58 | \t\tuser1Id = user1Response.body.user.id;\n         | \t\t                                  ^\n      59 | \t\tuser2Id = user2Response.body.user.id;\n      60 |\n      61 | \t\t// Authenticate users\n      at Object.<anonymous> (tests/integration/app.integration.test.ts:58:37)\n  ● Integration Tests › Like/Match System › should handle like interactions\n    TypeError: Cannot read properties of undefined (reading 'id')\n      56 |\n      57 | \t\t// Extract user IDs from registration response\n    > 58 | \t\tuser1Id = user1Response.body.user.id;\n         | \t\t                                  ^\n      59 | \t\tuser2Id = user2Response.body.user.id;\n      60 |\n      61 | \t\t// Authenticate users\n      at Object.<anonymous> (tests/integration/app.integration.test.ts:58:37)\n  ● Integration Tests › Like/Match System › should create match when both users like each other\n    TypeError: Cannot read properties of undefined (reading 'id')\n      56 |\n      57 | \t\t// Extract user IDs from registration response\n    > 58 | \t\tuser1Id = user1Response.body.user.id;\n         | \t\t                                  ^\n      59 | \t\tuser2Id = user2Response.body.user.id;\n      60 |\n      61 | \t\t// Authenticate users\n      at Object.<anonymous> (tests/integration/app.integration.test.ts:58:37)\n  ● Integration Tests › Like/Match System › should handle dislike interactions\n    TypeError: Cannot read properties of undefined (reading 'id')\n      56 |\n      57 | \t\t// Extract user IDs from registration response\n    > 58 | \t\tuser1Id = user1Response.body.user.id;\n         | \t\t                                  ^\n      59 | \t\tuser2Id = user2Response.body.user.id;\n      60 |\n      61 | \t\t// Authenticate users\n      at Object.<anonymous> (tests/integration/app.integration.test.ts:58:37)\n  ● Integration Tests › Like/Match System › should not show liked/disliked users in discovery\n    TypeError: Cannot read properties of undefined (reading 'id')\n      56 |\n      57 | \t\t// Extract user IDs from registration response\n    > 58 | \t\tuser1Id = user1Response.body.user.id;\n         | \t\t                                  ^\n      59 | \t\tuser2Id = user2Response.body.user.id;\n      60 |\n      61 | \t\t// Authenticate users\n      at Object.<anonymous> (tests/integration/app.integration.test.ts:58:37)\n  ● Integration Tests › Block System › should block users successfully\n    TypeError: Cannot read properties of undefined (reading 'id')\n      56 |\n      57 | \t\t// Extract user IDs from registration response\n    > 58 | \t\tuser1Id = user1Response.body.user.id;\n         | \t\t                                  ^\n      59 | \t\tuser2Id = user2Response.body.user.id;\n      60 |\n      61 | \t\t// Authenticate users\n      at Object.<anonymous> (tests/integration/app.integration.test.ts:58:37)\n  ● Integration Tests › Block System › should not show blocked users in discovery\n    TypeError: Cannot read properties of undefined (reading 'id')\n      56 |\n      57 | \t\t// Extract user IDs from registration response\n    > 58 | \t\tuser1Id = user1Response.body.user.id;\n         | \t\t                                  ^\n      59 | \t\tuser2Id = user2Response.body.user.id;\n      60 |\n      61 | \t\t// Authenticate users\n      at Object.<anonymous> (tests/integration/app.integration.test.ts:58:37)\n  ● Integration Tests › Block System › should prevent blocked user from seeing blocker\n    TypeError: Cannot read properties of undefined (reading 'id')\n      56 |\n      57 | \t\t// Extract user IDs from registration response\n    > 58 | \t\tuser1Id = user1Response.body.user.id;\n         | \t\t                                  ^\n      59 | \t\tuser2Id = user2Response.body.user.id;\n      60 |\n      61 | \t\t// Authenticate users\n      at Object.<anonymous> (tests/integration/app.integration.test.ts:58:37)\n  ● Integration Tests › Block System › should unblock users successfully\n    TypeError: Cannot read properties of undefined (reading 'id')\n      56 |\n      57 | \t\t// Extract user IDs from registration response\n    > 58 | \t\tuser1Id = user1Response.body.user.id;\n         | \t\t                                  ^\n      59 | \t\tuser2Id = user2Response.body.user.id;\n      60 |\n      61 | \t\t// Authenticate users\n      at Object.<anonymous> (tests/integration/app.integration.test.ts:58:37)\n  ● Integration Tests › Profile Completeness › should require complete profile for discovery\n    TypeError: Cannot read properties of undefined (reading 'id')\n      56 |\n      57 | \t\t// Extract user IDs from registration response\n    > 58 | \t\tuser1Id = user1Response.body.user.id;\n         | \t\t                                  ^\n      59 | \t\tuser2Id = user2Response.body.user.id;\n      60 |\n      61 | \t\t// Authenticate users\n      at Object.<anonymous> (tests/integration/app.integration.test.ts:58:37)\n  ● Integration Tests › Location-based Discovery › should filter users by distance\n    TypeError: Cannot read properties of undefined (reading 'id')\n      56 |\n      57 | \t\t// Extract user IDs from registration response\n    > 58 | \t\tuser1Id = user1Response.body.user.id;\n         | \t\t                                  ^\n      59 | \t\tuser2Id = user2Response.body.user.id;\n      60 |\n      61 | \t\t// Authenticate users\n      at Object.<anonymous> (tests/integration/app.integration.test.ts:58:37)\n  ● Integration Tests › Database Consistency › should maintain data consistency across operations\n    TypeError: Cannot read properties of undefined (reading 'id')\n      56 |\n      57 | \t\t// Extract user IDs from registration response\n    > 58 | \t\tuser1Id = user1Response.body.user.id;\n         | \t\t                                  ^\n      59 | \t\tuser2Id = user2Response.body.user.id;\n      60 |\n      61 | \t\t// Authenticate users\n      at Object.<anonymous> (tests/integration/app.integration.test.ts:58:37)\n  ● Integration Tests › Error Handling › should handle non-existent user operations gracefully\n    TypeError: Cannot read properties of undefined (reading 'id')\n      56 |\n      57 | \t\t// Extract user IDs from registration response\n    > 58 | \t\tuser1Id = user1Response.body.user.id;\n         | \t\t                                  ^\n      59 | \t\tuser2Id = user2Response.body.user.id;\n      60 |\n      61 | \t\t// Authenticate users\n      at Object.<anonymous> (tests/integration/app.integration.test.ts:58:37)\n  ● Integration Tests › Error Handling › should prevent self-interactions\n    TypeError: Cannot read properties of undefined (reading 'id')\n      56 |\n      57 | \t\t// Extract user IDs from registration response\n    > 58 | \t\tuser1Id = user1Response.body.user.id;\n         | \t\t                                  ^\n      59 | \t\tuser2Id = user2Response.body.user.id;\n      60 |\n      61 | \t\t// Authenticate users\n      at Object.<anonymous> (tests/integration/app.integration.test.ts:58:37)\n"
+		},
+		{
+			"suiteName": "/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/auth.test.ts",
+			"path": "/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/auth.test.ts",
+			"failedAssertions": [
+				{
+					"title": "should register a new user successfully",
+					"fullName": "Authentication Routes POST /auth/register should register a new user successfully",
+					"status": "failed",
+					"messages": [
+						"Error: expect(received).toBe(expected) // Object.is equality\nExpected: 201\nReceived: 400\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/auth.test.ts:35:28)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Authentication Routes", "POST /auth/register"]
+				},
+				{
+					"title": "should reject duplicate email",
+					"fullName": "Authentication Routes POST /auth/register should reject duplicate email",
+					"status": "failed",
+					"messages": [
+						"Error: expect(received).toBe(expected) // Object.is equality\nExpected: 409\nReceived: 400\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/auth.test.ts:70:28)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["Authentication Routes", "POST /auth/register"]
+				},
+				{
+					"title": "should login with valid credentials",
+					"fullName": "Authentication Routes POST /auth/login should login with valid credentials",
+					"status": "failed",
+					"messages": [
+						"Error: expected 200 \"OK\", got 400 \"Bad Request\"\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/auth.test.ts:98:6)\n    at Promise.finally.completed (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)\n    at _callCircusTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:946:3)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:839:13)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at run (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:757:3)\n    at runAndTransformResultsToJestFormat (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)\n    at jestAdapter (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/runner.js:101:19)\n    at runTestInternal (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:275:16)\n    at runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:343:7)\n----\n    at Test._assertStatus (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:309:14)\n    at /home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:365:13\n    at Test._assertFunction (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:342:13)\n    at Test.assert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:195:23)\n    at localAssert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:138:14)\n    at Server.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:152:11)\n    at Object.onceWrapper (node:events:632:28)\n    at Server.emit (node:events:518:28)\n    at emitCloseNT (node:net:2418:8)\n    at processTicksAndRejections (node:internal/process/task_queues:89:21)"
+					],
+					"location": null,
+					"ancestorTitles": ["Authentication Routes", "POST /auth/login"]
+				},
+				{
+					"title": "should reject invalid password",
+					"fullName": "Authentication Routes POST /auth/login should reject invalid password",
+					"status": "failed",
+					"messages": [
+						"Error: expected 401 \"Unauthorized\", got 400 \"Bad Request\"\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/auth.test.ts:113:6)\n    at Promise.finally.completed (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)\n    at _callCircusTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:946:3)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:839:13)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at run (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:757:3)\n    at runAndTransformResultsToJestFormat (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)\n    at jestAdapter (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/runner.js:101:19)\n    at runTestInternal (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:275:16)\n    at runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:343:7)\n----\n    at Test._assertStatus (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:309:14)\n    at /home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:365:13\n    at Test._assertFunction (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:342:13)\n    at Test.assert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:195:23)\n    at localAssert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:138:14)\n    at Server.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:152:11)\n    at Object.onceWrapper (node:events:632:28)\n    at Server.emit (node:events:518:28)\n    at emitCloseNT (node:net:2418:8)\n    at processTicksAndRejections (node:internal/process/task_queues:89:21)"
+					],
+					"location": null,
+					"ancestorTitles": ["Authentication Routes", "POST /auth/login"]
+				},
+				{
+					"title": "should reject non-existent email",
+					"fullName": "Authentication Routes POST /auth/login should reject non-existent email",
+					"status": "failed",
+					"messages": [
+						"Error: expected 401 \"Unauthorized\", got 400 \"Bad Request\"\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/auth.test.ts:125:6)\n    at Promise.finally.completed (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)\n    at _callCircusTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:946:3)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:839:13)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at run (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:757:3)\n    at runAndTransformResultsToJestFormat (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)\n    at jestAdapter (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/runner.js:101:19)\n    at runTestInternal (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:275:16)\n    at runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:343:7)\n----\n    at Test._assertStatus (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:309:14)\n    at /home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:365:13\n    at Test._assertFunction (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:342:13)\n    at Test.assert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:195:23)\n    at localAssert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:138:14)\n    at Server.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:152:11)\n    at Object.onceWrapper (node:events:632:28)\n    at Server.emit (node:events:518:28)\n    at emitCloseNT (node:net:2418:8)\n    at processTicksAndRejections (node:internal/process/task_queues:89:21)"
+					],
+					"location": null,
+					"ancestorTitles": ["Authentication Routes", "POST /auth/login"]
+				},
+				{
+					"title": "should refresh token with valid refresh token",
+					"fullName": "Authentication Routes POST /auth/refresh should refresh token with valid refresh token",
+					"status": "failed",
+					"messages": [
+						"Error: expected 200 \"OK\", got 401 \"Unauthorized\"\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/auth.test.ts:154:85)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n----\n    at Test._assertStatus (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:309:14)\n    at /home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:365:13\n    at Test._assertFunction (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:342:13)\n    at Test.assert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:195:23)\n    at localAssert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:138:14)\n    at Server.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:152:11)\n    at Object.onceWrapper (node:events:632:28)\n    at Server.emit (node:events:518:28)\n    at emitCloseNT (node:net:2418:8)\n    at processTicksAndRejections (node:internal/process/task_queues:89:21)"
+					],
+					"location": null,
+					"ancestorTitles": ["Authentication Routes", "POST /auth/refresh"]
+				}
+			],
+			"suiteLevelError": "  ● Authentication Routes › POST /auth/register › should register a new user successfully\n    expect(received).toBe(expected) // Object.is equality\n    Expected: 201\n    Received: 400\n      33 | \t\t\tconst response = await createTestUser(app, validUserData);\n      34 |\n    > 35 | \t\t\texpect(response.status).toBe(201);\n         | \t\t\t                        ^\n      36 | \t\t\texpect(response.body).toHaveProperty(\"message\");\n      37 | \t\t\texpect(response.body).toHaveProperty(\"user\");\n      38 | \t\t\texpect(response.body.user).toHaveProperty(\"email\", validUserData.email);\n      at Object.<anonymous> (tests/routes/auth.test.ts:35:28)\n  ● Authentication Routes › POST /auth/register › should reject duplicate email\n    expect(received).toBe(expected) // Object.is equality\n    Expected: 409\n    Received: 400\n      68 | \t\t\tconst response = await createTestUser(app, validUserData);\n      69 |\n    > 70 | \t\t\texpect(response.status).toBe(409);\n         | \t\t\t                        ^\n      71 | \t\t\texpect(response.body).toHaveProperty(\"error\");\n      72 | \t\t});\n      73 | \t});\n      at Object.<anonymous> (tests/routes/auth.test.ts:70:28)\n  ● Authentication Routes › POST /auth/login › should login with valid credentials\n    expected 200 \"OK\", got 400 \"Bad Request\"\n       96 | \t\t\t\t\tpassword: userData.password,\n       97 | \t\t\t\t})\n    >  98 | \t\t\t\t.expect(200);\n          | \t\t\t\t ^\n       99 |\n      100 | \t\t\texpect(response.body).toHaveProperty(\"token\");\n      101 | \t\t\texpect(response.body).toHaveProperty(\"refreshToken\");\n      at Object.<anonymous> (tests/routes/auth.test.ts:98:6)\n      ----\n      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)\n      at node_modules/supertest/lib/test.js:365:13\n      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)\n      at Test.assert (node_modules/supertest/lib/test.js:195:23)\n      at localAssert (node_modules/supertest/lib/test.js:138:14)\n      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)\n  ● Authentication Routes › POST /auth/login › should reject invalid password\n    expected 401 \"Unauthorized\", got 400 \"Bad Request\"\n      111 | \t\t\t\t\tpassword: \"wrongpassword\",\n      112 | \t\t\t\t})\n    > 113 | \t\t\t\t.expect(401);\n          | \t\t\t\t ^\n      114 |\n      115 | \t\t\texpect(response.body).toHaveProperty(\"error\");\n      116 | \t\t});\n      at Object.<anonymous> (tests/routes/auth.test.ts:113:6)\n      ----\n      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)\n      at node_modules/supertest/lib/test.js:365:13\n      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)\n      at Test.assert (node_modules/supertest/lib/test.js:195:23)\n      at localAssert (node_modules/supertest/lib/test.js:138:14)\n      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)\n  ● Authentication Routes › POST /auth/login › should reject non-existent email\n    expected 401 \"Unauthorized\", got 400 \"Bad Request\"\n      123 | \t\t\t\t\tpassword: userData.password,\n      124 | \t\t\t\t})\n    > 125 | \t\t\t\t.expect(401);\n          | \t\t\t\t ^\n      126 |\n      127 | \t\t\texpect(response.body).toHaveProperty(\"error\");\n      128 | \t\t});\n      at Object.<anonymous> (tests/routes/auth.test.ts:125:6)\n      ----\n      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)\n      at node_modules/supertest/lib/test.js:365:13\n      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)\n      at Test.assert (node_modules/supertest/lib/test.js:195:23)\n      at localAssert (node_modules/supertest/lib/test.js:138:14)\n      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)\n  ● Authentication Routes › POST /auth/refresh › should refresh token with valid refresh token\n    expected 200 \"OK\", got 401 \"Unauthorized\"\n      152 |\n      153 | \t\t\t// Use refresh token to get new access token\n    > 154 | \t\t\tconst response = await request(app).post(\"/auth/refresh\").send({ refreshToken }).expect(200);\n          | \t\t\t                                                                                 ^\n      155 |\n      156 | \t\t\texpect(response.body).toHaveProperty(\"token\");\n      157 | \t\t\texpect(response.body).toHaveProperty(\"refreshToken\");\n      at Object.<anonymous> (tests/routes/auth.test.ts:154:85)\n      ----\n      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)\n      at node_modules/supertest/lib/test.js:365:13\n      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)\n      at Test.assert (node_modules/supertest/lib/test.js:195:23)\n      at localAssert (node_modules/supertest/lib/test.js:138:14)\n      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)\n"
+		},
+		{
+			"suiteName": "/home/lorenzo/Documents/42-matcha/Back-End/tests/debug/jwt-debug.test.ts",
+			"path": "/home/lorenzo/Documents/42-matcha/Back-End/tests/debug/jwt-debug.test.ts",
+			"failedAssertions": [
+				{
+					"title": "should handle missing authorization header",
+					"fullName": "JWT Middleware Debug should handle missing authorization header",
+					"status": "failed",
+					"messages": [
+						"Error: expect(received).toBe(expected) // Object.is equality\nExpected: \"AUTH_HEADER_MISSING\"\nReceived: undefined\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/debug/jwt-debug.test.ts:95:30)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["JWT Middleware Debug"]
+				},
+				{
+					"title": "should handle invalid token",
+					"fullName": "JWT Middleware Debug should handle invalid token",
+					"status": "failed",
+					"messages": [
+						"Error: expect(received).toBe(expected) // Object.is equality\nExpected: \"TOKEN_EXPIRED_NO_REFRESH\"\nReceived: undefined\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/debug/jwt-debug.test.ts:112:30)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+					],
+					"location": null,
+					"ancestorTitles": ["JWT Middleware Debug"]
+				}
+			],
+			"suiteLevelError": "  ● JWT Middleware Debug › should handle missing authorization header\n    expect(received).toBe(expected) // Object.is equality\n    Expected: \"AUTH_HEADER_MISSING\"\n    Received: undefined\n      93 |\n      94 | \t\texpect(response.status).toBe(401);\n    > 95 | \t\texpect(response.body.code).toBe(\"AUTH_HEADER_MISSING\");\n         | \t\t                           ^\n      96 | \t});\n      97 |\n      98 | \tit(\"should handle invalid token\", async () => {\n      at Object.<anonymous> (tests/debug/jwt-debug.test.ts:95:30)\n  ● JWT Middleware Debug › should handle invalid token\n    expect(received).toBe(expected) // Object.is equality\n    Expected: \"TOKEN_EXPIRED_NO_REFRESH\"\n    Received: undefined\n      110 |\n      111 | \t\texpect(response.status).toBe(401);\n    > 112 | \t\texpect(response.body.code).toBe(\"TOKEN_EXPIRED_NO_REFRESH\");\n          | \t\t                           ^\n      113 | \t});\n      114 |\n      115 | \tit(\"should allow access to non-protected endpoints\", async () => {\n      at Object.<anonymous> (tests/debug/jwt-debug.test.ts:112:30)\n"
+		},
+		{
+			"suiteName": "/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/notifications.routes.test.ts",
+			"path": "/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/notifications.routes.test.ts",
+			"failedAssertions": [
+				{
+					"title": "should return unread count",
+					"fullName": "Notifications Routes should return unread count",
+					"status": "failed",
+					"messages": [
+						"Error: expected 200 \"OK\", got 401 \"Unauthorized\"\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/notifications.routes.test.ts:42:5)\n    at Promise.finally.completed (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)\n    at _callCircusTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:946:3)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:839:13)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at run (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:757:3)\n    at runAndTransformResultsToJestFormat (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)\n    at jestAdapter (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/runner.js:101:19)\n    at runTestInternal (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:275:16)\n    at runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:343:7)\n----\n    at Test._assertStatus (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:309:14)\n    at /home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:365:13\n    at Test._assertFunction (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:342:13)\n    at Test.assert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:195:23)\n    at localAssert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:138:14)\n    at Server.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:152:11)\n    at Object.onceWrapper (node:events:632:28)\n    at Server.emit (node:events:518:28)\n    at emitCloseNT (node:net:2418:8)\n    at processTicksAndRejections (node:internal/process/task_queues:89:21)"
+					],
+					"location": null,
+					"ancestorTitles": ["Notifications Routes"]
+				},
+				{
+					"title": "should list notifications",
+					"fullName": "Notifications Routes should list notifications",
+					"status": "failed",
+					"messages": [
+						"Error: expected 200 \"OK\", got 401 \"Unauthorized\"\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/notifications.routes.test.ts:50:5)\n    at Promise.finally.completed (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)\n    at _callCircusTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:946:3)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:839:13)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at run (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:757:3)\n    at runAndTransformResultsToJestFormat (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)\n    at jestAdapter (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/runner.js:101:19)\n    at runTestInternal (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:275:16)\n    at runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:343:7)\n----\n    at Test._assertStatus (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:309:14)\n    at /home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:365:13\n    at Test._assertFunction (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:342:13)\n    at Test.assert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:195:23)\n    at localAssert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:138:14)\n    at Server.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:152:11)\n    at Object.onceWrapper (node:events:632:28)\n    at Server.emit (node:events:518:28)\n    at emitCloseNT (node:net:2418:8)\n    at processTicksAndRejections (node:internal/process/task_queues:89:21)"
+					],
+					"location": null,
+					"ancestorTitles": ["Notifications Routes"]
+				},
+				{
+					"title": "should mark one notification as read",
+					"fullName": "Notifications Routes should mark one notification as read",
+					"status": "failed",
+					"messages": [
+						"Error: expected 200 \"OK\", got 401 \"Unauthorized\"\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/notifications.routes.test.ts:63:5)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n----\n    at Test._assertStatus (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:309:14)\n    at /home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:365:13\n    at Test._assertFunction (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:342:13)\n    at Test.assert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:195:23)\n    at localAssert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:138:14)\n    at Server.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:152:11)\n    at Object.onceWrapper (node:events:632:28)\n    at Server.emit (node:events:518:28)\n    at emitCloseNT (node:net:2418:8)\n    at processTicksAndRejections (node:internal/process/task_queues:89:21)"
+					],
+					"location": null,
+					"ancestorTitles": ["Notifications Routes"]
+				},
+				{
+					"title": "should mark all notifications as read",
+					"fullName": "Notifications Routes should mark all notifications as read",
+					"status": "failed",
+					"messages": [
+						"Error: expected 200 \"OK\", got 401 \"Unauthorized\"\n    at Object.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/notifications.routes.test.ts:72:5)\n    at Promise.finally.completed (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)\n    at _callCircusTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:946:3)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:839:13)\n    at _runTestsForDescribeBlock (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:829:11)\n    at run (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:757:3)\n    at runAndTransformResultsToJestFormat (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)\n    at jestAdapter (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-circus/build/runner.js:101:19)\n    at runTestInternal (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:275:16)\n    at runTest (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/jest-runner/build/index.js:343:7)\n----\n    at Test._assertStatus (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:309:14)\n    at /home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:365:13\n    at Test._assertFunction (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:342:13)\n    at Test.assert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:195:23)\n    at localAssert (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:138:14)\n    at Server.<anonymous> (/home/lorenzo/Documents/42-matcha/Back-End/node_modules/supertest/lib/test.js:152:11)\n    at Object.onceWrapper (node:events:632:28)\n    at Server.emit (node:events:518:28)\n    at emitCloseNT (node:net:2418:8)\n    at processTicksAndRejections (node:internal/process/task_queues:89:21)"
+					],
+					"location": null,
+					"ancestorTitles": ["Notifications Routes"]
+				}
+			],
+			"suiteLevelError": "  ● Notifications Routes › should return unread count\n    expected 200 \"OK\", got 401 \"Unauthorized\"\n      40 | \t\t\t.get(\"/notifications/unread-count\")\n      41 | \t\t\t.set(\"Authorization\", `Bearer ${token}`)\n    > 42 | \t\t\t.expect(200);\n         | \t\t\t ^\n      43 | \t\texpect(res.body.unread).toBeGreaterThanOrEqual(0);\n      44 | \t});\n      45 |\n      at Object.<anonymous> (tests/routes/notifications.routes.test.ts:42:5)\n      ----\n      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)\n      at node_modules/supertest/lib/test.js:365:13\n      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)\n      at Test.assert (node_modules/supertest/lib/test.js:195:23)\n      at localAssert (node_modules/supertest/lib/test.js:138:14)\n      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)\n  ● Notifications Routes › should list notifications\n    expected 200 \"OK\", got 401 \"Unauthorized\"\n      48 | \t\t\t.get(\"/notifications?page=1&limit=10\")\n      49 | \t\t\t.set(\"Authorization\", `Bearer ${token}`)\n    > 50 | \t\t\t.expect(200);\n         | \t\t\t ^\n      51 | \t\texpect(Array.isArray(res.body.data)).toBe(true);\n      52 | \t});\n      53 |\n      at Object.<anonymous> (tests/routes/notifications.routes.test.ts:50:5)\n      ----\n      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)\n      at node_modules/supertest/lib/test.js:365:13\n      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)\n      at Test.assert (node_modules/supertest/lib/test.js:195:23)\n      at localAssert (node_modules/supertest/lib/test.js:138:14)\n      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)\n  ● Notifications Routes › should mark one notification as read\n    expected 200 \"OK\", got 401 \"Unauthorized\"\n      61 | \t\t\t.patch(`/notifications/${id}/read`)\n      62 | \t\t\t.set(\"Authorization\", `Bearer ${token}`)\n    > 63 | \t\t\t.expect(200);\n         | \t\t\t ^\n      64 | \t\texpect(res.body.id).toBe(id);\n      65 | \t\texpect(res.body.read_at).toBeDefined();\n      66 | \t});\n      at Object.<anonymous> (tests/routes/notifications.routes.test.ts:63:5)\n      ----\n      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)\n      at node_modules/supertest/lib/test.js:365:13\n      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)\n      at Test.assert (node_modules/supertest/lib/test.js:195:23)\n      at localAssert (node_modules/supertest/lib/test.js:138:14)\n      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)\n  ● Notifications Routes › should mark all notifications as read\n    expected 200 \"OK\", got 401 \"Unauthorized\"\n      70 | \t\t\t.post(\"/notifications/mark-all-read\")\n      71 | \t\t\t.set(\"Authorization\", `Bearer ${token}`)\n    > 72 | \t\t\t.expect(200);\n         | \t\t\t ^\n      73 | \t\texpect(typeof res.body.updated).toBe(\"number\");\n      74 | \t});\n      75 | });\n      at Object.<anonymous> (tests/routes/notifications.routes.test.ts:72:5)\n      ----\n      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)\n      at node_modules/supertest/lib/test.js:365:13\n      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)\n      at Test.assert (node_modules/supertest/lib/test.js:195:23)\n      at localAssert (node_modules/supertest/lib/test.js:138:14)\n      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)\n"
+		}
+	]
+}

@@ -12,9 +12,9 @@ services:
       - "5433:5432"  # Different port to avoid conflict with main db
     volumes:
       - test_db_data:/var/lib/postgresql/data
-      - ../Db/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ../Db/procedures.sql:/docker-entrypoint-initdb.d/procedures.sql
-      - ../Db/notification.sql:/docker-entrypoint-initdb.d/notification.sql
+      - ./tests/Db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./tests/Db/procedures.sql:/docker-entrypoint-initdb.d/procedures.sql
+      - ./tests/Db/notification.sql:/docker-entrypoint-initdb.d/notification.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U matcha -d matcha_test"]
       interval: 10s

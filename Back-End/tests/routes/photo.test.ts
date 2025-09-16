@@ -2,7 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Express } from "express";
 import request from "supertest";
-import { createAndAuthenticateUser, createTestApp } from "../helpers/app.helper";
+import { createTestApp } from "../helpers/app.helper";
+import { createUserAndAccessToken } from "../helpers/auth.helper";
 import { clearDatabase, closeTestPool, seedTestData } from "../helpers/database.helper";
 
 describe("Photo Routes", () => {
@@ -66,8 +67,8 @@ describe("Photo Routes", () => {
 		await clearDatabase();
 		await seedTestData();
 
-		// Create and authenticate a test user that can actually log in
-		const userAuth = await createAndAuthenticateUser(app, {
+		// Create a test user and generate a valid access token without hitting /auth/login
+		const userAuth = await createUserAndAccessToken({
 			email: "test@example.com",
 			username: "testuser",
 			firstName: "Test",

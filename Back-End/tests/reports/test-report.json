@@ -1,0 +1,16 @@
+[
+	"/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/photo.test.ts",
+	"/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/user.test.ts",
+	"/home/lorenzo/Documents/42-matcha/Back-End/tests/debug/jwt-debug.test.ts",
+	"/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/notifications.routes.test.ts",
+	"/home/lorenzo/Documents/42-matcha/Back-End/tests/integration/asyncapi.spec.ts",
+	"/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/hashtag.test.ts",
+	"/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/chat.test.ts",
+	"/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/auth.test.ts",
+	"/home/lorenzo/Documents/42-matcha/Back-End/tests/debug/simple-jwt.test.ts",
+	"/home/lorenzo/Documents/42-matcha/Back-End/tests/debug/auth-debug.test.ts",
+	"/home/lorenzo/Documents/42-matcha/Back-End/tests/routes/health.test.ts",
+	"/home/lorenzo/Documents/42-matcha/Back-End/tests/utils/utils.test.ts",
+	"/home/lorenzo/Documents/42-matcha/Back-End/tests/simple/validation.test.ts",
+	"/home/lorenzo/Documents/42-matcha/Back-End/tests/integration/app.integration.test.ts"
+]

@@ -83,7 +83,7 @@ const authLimiter = rateLimit({
 // Apply global limiter before route handling
 app.use(globalLimiter);
 
-if (env.NODE_ENV !== "test") {
+if (env.NODE_ENV !== "testopalle") {
 	pool.connect((err, _client, release) => {
 		if (err) {
 			logger.error(`Database connection failed: ${err}`);

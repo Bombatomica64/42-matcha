@@ -1,6 +1,8 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
 import type { Express } from "express";
 import request from "supertest";
-import { authenticateUser, createTestApp, createTestUser } from "../helpers/app.helper";
+import { createTestApp } from "../helpers/app.helper";
+import { createUserAndAccessToken } from "../helpers/auth.helper";
 import { clearDatabase, closeTestPool, seedTestData, testQuery } from "../helpers/database.helper";
 
 interface DiscoveredUser {
@@ -50,24 +52,13 @@ describe("Integration Tests", () => {
 			gender: "female",
 		};
 
-		// Register users
-		const user1Response = await createTestUser(app, user1Data);
-		const user2Response = await createTestUser(app, user2Data);
-
-		// Extract user IDs from registration response
-		user1Id = user1Response.body.user.id;
-		user2Id = user2Response.body.user.id;
-
-		// Authenticate users
-		user1Token = await authenticateUser(app, {
-			email: user1Data.email,
-			password: user1Data.password,
-		});
-
-		user2Token = await authenticateUser(app, {
-			email: user2Data.email,
-			password: user2Data.password,
-		});
+		// Create users directly in DB and generate access tokens (avoid hitting login/rate limits)
+		const u1 = await createUserAndAccessToken(user1Data);
+		const u2 = await createUserAndAccessToken(user2Data);
+		user1Id = u1.userId;
+		user2Id = u2.userId;
+		user1Token = u1.token;
+		user2Token = u2.token;
 	});
 
 	describe("User Discovery Flow", () => {
@@ -251,7 +242,7 @@ describe("Integration Tests", () => {
 				gender: "male",
 			};
 
-			const registerResponse = await createTestUser(app, incompleteUser);
+			const registerResponse = await createUserAndAccessToken(incompleteUser);
 
 			// Incomplete user should not appear in discovery
 			const discoverResponse = await request(app)
@@ -261,7 +252,7 @@ describe("Integration Tests", () => {
 				.expect(200);
 
 			const userIds = discoverResponse.body.users.map((u: DiscoveredUser) => u.id);
-			expect(userIds).not.toContain(registerResponse.body.user.id);
+			expect(userIds).not.toContain(registerResponse.userId);
 		});
 	});
 

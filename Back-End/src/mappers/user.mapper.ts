@@ -43,7 +43,7 @@ export function dbUserToApiUser(dbUser: DbUser): ApiUser {
 			display_order: photo.display_order ?? 0,
 			uploaded_at: photo.uploaded_at,
 		})) || [];
-	logger.info(`Mapped photos: ${JSON.stringify(photos)}`);
+
 	return {
 		id: dbUser.id,
 		email: dbUser.email,
@@ -62,7 +62,6 @@ export function dbUserToApiUser(dbUser: DbUser): ApiUser {
 		matches: dbUser.matches_count,
 		// Convert database photos to API photos
 		photos: photos,
-
 		// Hashtags are already strings in DB
 		hashtags: dbUser.hashtags,
 	};
@@ -105,12 +104,12 @@ export function apiUserToDbUser(apiData: Partial<ApiUser>): Partial<DbUser> {
 	if (apiData.location !== undefined) {
 		dbData.location =
 			apiData.location &&
-			apiData.location.longitude !== undefined &&
-			apiData.location.latitude !== undefined
+				apiData.location.longitude !== undefined &&
+				apiData.location.latitude !== undefined
 				? {
-						type: "Point",
-						coordinates: [apiData.location.longitude, apiData.location.latitude],
-					}
+					type: "Point",
+					coordinates: [apiData.location.longitude, apiData.location.latitude],
+				}
 				: undefined;
 	}
 

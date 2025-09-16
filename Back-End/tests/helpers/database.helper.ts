@@ -108,23 +108,31 @@ export const seedTestData = async (): Promise<void> => {
 			hashtagMap[row.name] = row.id;
 		});
 
-		// Only link hashtags if users exist
-		const userCheck = await client.query(`
-      SELECT id FROM users WHERE id IN ('550e8400-e29b-41d4-a716-446655440000', '550e8400-e29b-41d4-a716-446655440001')
-    `);
+		// Only link hashtags for user IDs that actually exist
+		const userCheck = await client.query(
+			`SELECT id FROM users WHERE id IN ('550e8400-e29b-41d4-a716-446655440000', '550e8400-e29b-41d4-a716-446655440001')`,
+		);
 
-		if (userCheck.rows.length > 0) {
-			// Link users to hashtags only if the users exist
+		const existingUserIds = new Set<string>(userCheck.rows.map((r: { id: string }) => r.id));
+		const pairs: Array<{ userId: string; tagId: number }> = [];
+		if (existingUserIds.has("550e8400-e29b-41d4-a716-446655440000")) {
+			pairs.push(
+				{ userId: "550e8400-e29b-41d4-a716-446655440000", tagId: hashtagMap.travel },
+				{ userId: "550e8400-e29b-41d4-a716-446655440000", tagId: hashtagMap.music },
+			);
+		}
+		if (existingUserIds.has("550e8400-e29b-41d4-a716-446655440001")) {
+			pairs.push(
+				{ userId: "550e8400-e29b-41d4-a716-446655440001", tagId: hashtagMap.music },
+				{ userId: "550e8400-e29b-41d4-a716-446655440001", tagId: hashtagMap.sports },
+			);
+		}
+
+		for (const p of pairs) {
 			await client.query(
-				`
-        INSERT INTO user_hashtags (user_id, hashtag_id) VALUES 
-        ('550e8400-e29b-41d4-a716-446655440000', $1),
-        ('550e8400-e29b-41d4-a716-446655440000', $2),
-        ('550e8400-e29b-41d4-a716-446655440001', $3),
-        ('550e8400-e29b-41d4-a716-446655440001', $4)
-        ON CONFLICT (user_id, hashtag_id) DO NOTHING
-      `,
-				[hashtagMap["travel"], hashtagMap["music"], hashtagMap["music"], hashtagMap["sports"]],
+				`INSERT INTO user_hashtags (user_id, hashtag_id) VALUES ($1, $2)
+				 ON CONFLICT (user_id, hashtag_id) DO NOTHING`,
+				[p.userId, p.tagId],
 			);
 		}
 	} finally {

@@ -1,20 +1,18 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
 import type { Express } from "express";
 import request from "supertest";
-import { createAndAuthenticateUser, createTestApp } from "../helpers/app.helper";
+import type { components } from "../../src/generated/typescript/api";
+import { createTestApp } from "../helpers/app.helper";
+import { createUserAndAccessToken } from "../helpers/auth.helper";
 import { clearDatabase, closeTestPool, testQuery } from "../helpers/database.helper";
+
+type ChatRoom = components["schemas"]["ChatRoom"];
+type ChatMessagesPaginatedResponse = components["schemas"]["ChatMessagesPaginatedResponse"];
 
 describe("Chat Routes", () => {
 	let app: Express;
-	let authUser1: {
-		userId: string;
-		token: string;
-		credentials: { email: string; password: string };
-	};
-	let authUser2: {
-		userId: string;
-		token: string;
-		credentials: { email: string; password: string };
-	};
+	let authUser1: { userId: string; token: string };
+	let authUser2: { userId: string; token: string };
 	let chatRoomId: string;
 
 	beforeAll(async () => {
@@ -28,8 +26,8 @@ describe("Chat Routes", () => {
 	beforeEach(async () => {
 		await clearDatabase();
 
-		// Create two authenticated test users
-		authUser1 = await createAndAuthenticateUser(app, {
+		// Create two users and generate valid access tokens without hitting /auth/login
+		const u1 = await createUserAndAccessToken({
 			email: "user1@test.com",
 			username: "user1",
 			firstName: "John",
@@ -40,7 +38,7 @@ describe("Chat Routes", () => {
 			bio: "Test user 1",
 		});
 
-		authUser2 = await createAndAuthenticateUser(app, {
+		const u2 = await createUserAndAccessToken({
 			email: "user2@test.com",
 			username: "user2",
 			firstName: "Jane",
@@ -50,6 +48,9 @@ describe("Chat Routes", () => {
 			gender: "female",
 			bio: "Test user 2",
 		});
+
+		authUser1 = { userId: u1.userId, token: u1.token };
+		authUser2 = { userId: u2.userId, token: u2.token };
 
 		// Create a chat room
 		const chatRoomResult = await testQuery(
@@ -79,9 +80,12 @@ describe("Chat Routes", () => {
 				.set("Authorization", `Bearer ${authUser1.token}`)
 				.expect(200);
 
-			expect(response.body).toBeInstanceOf(Array);
-			expect(response.body).toHaveLength(1);
-			expect(response.body[0]).toHaveProperty("id", chatRoomId);
+			const rooms = response.body as ChatRoom[];
+			expect(Array.isArray(rooms)).toBe(true);
+			expect(rooms).toHaveLength(1);
+			expect(rooms[0]).toHaveProperty("id", chatRoomId);
+			expect(rooms[0]).toHaveProperty("small_user1");
+			expect(rooms[0]).toHaveProperty("small_user2");
 		});
 
 		it("should return 401 without auth token", async () => {
@@ -96,9 +100,10 @@ describe("Chat Routes", () => {
 				.set("Authorization", `Bearer ${authUser1.token}`)
 				.expect(200);
 
-			expect(response.body).toHaveProperty("id", chatRoomId);
-			expect(response.body).toHaveProperty("user1_id");
-			expect(response.body).toHaveProperty("user2_id");
+			const room = response.body as ChatRoom;
+			expect(room).toHaveProperty("id", chatRoomId);
+			expect(room).toHaveProperty("small_user1");
+			expect(room).toHaveProperty("small_user2");
 		});
 
 		it("should return 404 for non-existent chat room", async () => {
@@ -117,14 +122,15 @@ describe("Chat Routes", () => {
 				.set("Authorization", `Bearer ${authUser1.token}`)
 				.expect(200);
 
-			expect(response.body).toHaveProperty("data");
-			expect(response.body).toHaveProperty("meta");
-			expect(response.body).toHaveProperty("links");
+			const payload = response.body as ChatMessagesPaginatedResponse;
+			expect(payload).toHaveProperty("data");
+			expect(payload).toHaveProperty("meta");
+			expect(payload).toHaveProperty("links");
 
-			expect(response.body.data).toBeInstanceOf(Array);
-			expect(response.body.data).toHaveLength(4);
+			expect(Array.isArray(payload.data)).toBe(true);
+			expect(payload.data).toHaveLength(4);
 
-			expect(response.body.meta).toMatchObject({
+			expect(payload.meta).toMatchObject({
 				total_items: 4,
 				total_pages: 1,
 				current_page: 1,
@@ -133,9 +139,9 @@ describe("Chat Routes", () => {
 				has_next: false,
 			});
 
-			expect(response.body.links).toHaveProperty("first");
-			expect(response.body.links).toHaveProperty("last");
-			expect(response.body.links).toHaveProperty("self");
+			expect(payload.links).toHaveProperty("first");
+			expect(payload.links).toHaveProperty("last");
+			expect(payload.links).toHaveProperty("self");
 		});
 
 		it("should return paginated messages with custom pagination", async () => {
@@ -145,8 +151,9 @@ describe("Chat Routes", () => {
 				.set("Authorization", `Bearer ${authUser1.token}`)
 				.expect(200);
 
-			expect(response.body.data).toHaveLength(2);
-			expect(response.body.meta).toMatchObject({
+			const payload = response.body as ChatMessagesPaginatedResponse;
+			expect(payload.data).toHaveLength(2);
+			expect(payload.meta).toMatchObject({
 				total_items: 4,
 				total_pages: 2,
 				current_page: 1,
@@ -156,7 +163,7 @@ describe("Chat Routes", () => {
 			});
 
 			// Check that messages are sorted by created_at ASC
-			const messages = response.body.data;
+			const messages = payload.data;
 			expect(messages[0].content).toBe("Hello from user 1");
 			expect(messages[1].content).toBe("Hello from user 2");
 		});
@@ -168,8 +175,9 @@ describe("Chat Routes", () => {
 				.set("Authorization", `Bearer ${authUser1.token}`)
 				.expect(200);
 
-			expect(response.body.data).toHaveLength(2);
-			expect(response.body.meta).toMatchObject({
+			const payload = response.body as ChatMessagesPaginatedResponse;
+			expect(payload.data).toHaveLength(2);
+			expect(payload.meta).toMatchObject({
 				total_items: 4,
 				total_pages: 2,
 				current_page: 2,
@@ -178,14 +186,14 @@ describe("Chat Routes", () => {
 				has_next: false,
 			});
 
-			const messages = response.body.data;
+			const messages = payload.data;
 			expect(messages[0].content).toBe("How are you?");
 			expect(messages[1].content).toBe("I am fine, thanks!");
 		});
 
 		it("should return 403 for unauthorized chat room access", async () => {
 			// Create a third user
-			const authUser3 = await createAndAuthenticateUser(app, {
+			const authUser3 = await createUserAndAccessToken({
 				email: "user3@test.com",
 				username: "user3",
 				firstName: "Bob",

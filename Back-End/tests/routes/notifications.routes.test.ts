@@ -1,75 +1,75 @@
+import type { Express } from "express";
 import request from "supertest";
-import { app } from "../../src/server";
-import { pool } from "../../src/database";
-import jwt from "jsonwebtoken";
-
-// Helper to create auth token (adjust secret/env retrieval as needed)
-function makeToken(userId: string) {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET || "secret", { expiresIn: "1h" });
-}
+import { createTestApp } from "../helpers/app.helper";
+import { createUserAndAccessToken } from "../helpers/auth.helper";
+import { clearDatabase, closeTestPool, testQuery } from "../helpers/database.helper";
 
 describe("Notifications Routes", () => {
-  const userId = "00000000-0000-0000-0000-000000000001"; // deterministic for test
-  let token: string;
+	let app: Express;
+	let userId: string;
+	let token: string;
 
-  beforeAll(async () => {
-    token = makeToken(userId);
-    // Ensure user exists minimal insert if absent
-    await pool.query(
-      `INSERT INTO users (id, username, email, birth_date, password, gender, sexual_orientation)
-       VALUES ($1, 'tester', 'tester@example.com', '1990-01-01', 'hash', 'other', 'bisexual')
-       ON CONFLICT (id) DO NOTHING`,
-      [userId],
-    );
-    // Seed few notifications (unread)
-    await pool.query(
-      `INSERT INTO notifications (user_id, type, status, metadata)
-       VALUES ($1, 'LIKE', 'pending', '{}'::jsonb),
-              ($1, 'MATCH', 'pending', '{}'::jsonb)
-       ON CONFLICT DO NOTHING`,
-      [userId],
-    );
-  });
+	beforeAll(async () => {
+		app = await createTestApp();
+	});
 
-  afterAll(async () => {
-    await pool.query("DELETE FROM notifications WHERE user_id = $1", [userId]);
-  });
+	afterAll(async () => {
+		await closeTestPool();
+	});
 
-  it("should return unread count", async () => {
-    const res = await request(app)
-      .get("/notifications/unread-count")
-      .set("Authorization", `Bearer ${token}`)
-      .expect(200);
-    expect(res.body.unread).toBeGreaterThanOrEqual(0);
-  });
+	beforeEach(async () => {
+		await clearDatabase();
+		const created = await createUserAndAccessToken({
+			username: "tester",
+			email: "tester@example.com",
+		});
+		userId = created.userId;
+		token = created.token;
+		// Seed few notifications (unread)
+		await testQuery(
+			`INSERT INTO notifications (user_id, type, status, metadata)
+	   VALUES ($1, 'LIKE', 'pending', '{}'::jsonb),
+			  ($1, 'MATCH', 'pending', '{}'::jsonb)
+	   ON CONFLICT DO NOTHING`,
+			[userId],
+		);
+	});
 
-  it("should list notifications", async () => {
-    const res = await request(app)
-      .get("/notifications?page=1&limit=10")
-      .set("Authorization", `Bearer ${token}`)
-      .expect(200);
-    expect(Array.isArray(res.body.data)).toBe(true);
-  });
+	it("should return unread count", async () => {
+		const res = await request(app)
+			.get("/notifications/unread-count")
+			.set("Authorization", `Bearer ${token}`)
+			.expect(200);
+		expect(res.body.unread).toBeGreaterThanOrEqual(0);
+	});
 
-  it("should mark one notification as read", async () => {
-    const list = await pool.query(
-      "SELECT id FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1",
-      [userId],
-    );
-    const id = list.rows[0].id as string;
-    const res = await request(app)
-      .patch(`/notifications/${id}/read`)
-      .set("Authorization", `Bearer ${token}`)
-      .expect(200);
-    expect(res.body.id).toBe(id);
-    expect(res.body.read_at).toBeDefined();
-  });
+	it("should list notifications", async () => {
+		const res = await request(app)
+			.get("/notifications?page=1&limit=10")
+			.set("Authorization", `Bearer ${token}`)
+			.expect(200);
+		expect(Array.isArray(res.body.data)).toBe(true);
+	});
 
-  it("should mark all notifications as read", async () => {
-    const res = await request(app)
-      .post("/notifications/mark-all-read")
-      .set("Authorization", `Bearer ${token}`)
-      .expect(200);
-    expect(typeof res.body.updated).toBe("number");
-  });
+	it("should mark one notification as read", async () => {
+		const list = await testQuery(
+			"SELECT id FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1",
+			[userId],
+		);
+		const id = list.rows[0].id as string;
+		const res = await request(app)
+			.patch(`/notifications/${id}/read`)
+			.set("Authorization", `Bearer ${token}`)
+			.expect(200);
+		expect(res.body.id).toBe(id);
+		expect(res.body.read_at).toBeDefined();
+	});
+
+	it("should mark all notifications as read", async () => {
+		const res = await request(app)
+			.post("/notifications/mark-all-read")
+			.set("Authorization", `Bearer ${token}`)
+			.expect(200);
+		expect(typeof res.body.updated).toBe("number");
+	});
 });
