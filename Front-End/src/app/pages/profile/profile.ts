@@ -1,47 +1,50 @@
-import { Component, inject } from "@angular/core";
-import { FormsModule } from "@angular/forms";
-import { BadgeModule } from "primeng/badge";
-import { ButtonModule } from "primeng/button";
+import { Component, inject } from '@angular/core';
+import { GetUserProfile } from '../../services/user/get-user-profile';
+import { ProfileForm } from '../../components/forms/profile-form/profile-form';
+import { FormsModule } from '@angular/forms';
 
-import { CardModule } from "primeng/card";
-import { OverlayBadgeModule } from "primeng/overlaybadge";
-import { RatingModule } from "primeng/rating";
-// import { adultValidator } from '../../components/forms/register-form/register-form';
-import { SelectModule } from "primeng/select";
-// import type { components } from "../../../types/api";
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { BadgeModule } from 'primeng/badge';
+import { OverlayBadgeModule } from 'primeng/overlaybadge';
+import { RatingModule } from 'primeng/rating';
+
+
+import { adultValidator } from '../../components/forms/register-form/register-form';
+import { SelectModule } from 'primeng/select';
+import { components } from '../../../types/api';
+import { HttpEndpoint, HttpMethod, HttpRequestService } from '../../services/http-request';
 import { Card } from "../../components/card/card";
-import { ProfileForm } from "../../components/forms/profile-form/profile-form";
-import { GetUserProfile } from "../../services/user/get-user-profile";
+import { UserImages } from "../../components/user-images/user-images";
 
-// import { UserImages } from "../../components/user-images/user-images";
 
-// type User = components["schemas"]["User"];
+type User = components['schemas']['User'];
 // type SexualOrientation = User['sexual_orientation'];
 // type Gender = User['gender'];
-// type PhotoResponse = components["schemas"]["PhotoResponse"]; //post
-// type GetPhotoResponse = components["schemas"]["PhotoListResponse"]; //get
-// type ErrorResponse = components["schemas"]["ErrorResponse"];
+type PhotoResponse = components['schemas']['PhotoResponse'];//post
+type GetPhotoResponse = components['schemas']['PhotoListResponse'];//get
+type ErrorResponse = components['schemas']['ErrorResponse'];
 
 // type ErrorResponse = components['schemas']['ErrorResponse'];
 
 @Component({
-	selector: "app-profile",
-	imports: [
-		CardModule,
-		ButtonModule,
-		SelectModule,
-		BadgeModule,
-		OverlayBadgeModule,
-		Card,
-		ProfileForm,
-		RatingModule,
-		FormsModule,
-		// UserImages,
-	],
-	template: `
+  selector: 'app-profile',
+  imports: [
+    CardModule,
+    ButtonModule,
+    SelectModule,
+    BadgeModule,
+    OverlayBadgeModule,
+    Card,
+    ProfileForm,
+    RatingModule,
+    FormsModule,
+    UserImages,
+],
+  template: `
     <div style="padding: 1rem;">
       <app-card [user]="profileService.profile()"/>
-      <!-- <app-user-images /> -->
+      <app-user-images [images]="profileService.profile().photos" />
     </div>
 
     <div style="display: flex; flex-direction: column; padding: 1rem;">
@@ -76,7 +79,7 @@ import { GetUserProfile } from "../../services/user/get-user-profile";
       <p-button label="Change Password" icon="pi pi-lock" severity="secondary"></p-button>
     </div>
   `,
-	styles: `
+  styles: `
     :host {
       display: flex;
       flex-direction: row;
@@ -93,21 +96,21 @@ import { GetUserProfile } from "../../services/user/get-user-profile";
   `,
 })
 export class Profile {
-	profileService = inject(GetUserProfile);
+  profileService = inject(GetUserProfile);
 
-	//  httpEndpoint: HttpEndpoint = "/photos"
-	//  httpMethod: HttpMethod = "POST"
-	//
-	//  constructor() {
-	//	  this.auth.requestParams("", this.httpEndpoint, this.httpMethod).subscribe({
-	//      next: (response: GetPhotoResponse) => {
-	//        console.log('photo success:', response);
-	//      },
-	//      error: (error: ErrorResponse) => {
-	//        console.error('photo error:', error);
-	//      }
-	//    });
-	//	}
-	//
-	//  auth = inject(HttpRequestService)
+//  httpEndpoint: HttpEndpoint = "/photos"
+//  httpMethod: HttpMethod = "POST"
+//
+//  constructor() {
+//	  this.auth.requestParams("", this.httpEndpoint, this.httpMethod).subscribe({
+//      next: (response: GetPhotoResponse) => {
+//        console.log('photo success:', response);
+//      },
+//      error: (error: ErrorResponse) => {
+//        console.error('photo error:', error);
+//      }
+//    });
+//	}
+//
+//  auth = inject(HttpRequestService)
 }

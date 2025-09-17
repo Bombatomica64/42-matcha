@@ -6,8 +6,9 @@ import {
 	HttpRequestService,
 } from "../http-request";
 
-type ProfileData = components["schemas"]["User"];
+export type ProfileData = components["schemas"]["User"];
 type ErrorResponse = components["schemas"]["ErrorResponse"];
+export type ProfileResponse = { user: ProfileData };
 // type DiscoverUsersResponse = operations['getUserProfile']['responses']['200']['content']['application/json'];
 
 @Injectable({
@@ -54,7 +55,7 @@ export class GetUserProfile {
 				typeof this.httpEndpoint,
 				typeof this.httpMethod,
 				typeof qp,
-				{ user: ProfileData }
+				ProfileResponse
 			>(qp, this.httpEndpoint, this.httpMethod)
 			.subscribe({
 				next: (response) => {

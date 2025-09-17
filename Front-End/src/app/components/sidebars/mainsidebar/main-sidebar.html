@@ -1,38 +1,50 @@
 <div class="card">
-    <p-menu [model]="items" class="flex justify-center">
-        <ng-template #start>
-        </ng-template>
-        <ng-template #submenuheader let-item>
-            <span class="text-primary font-bold">{{ item.label }}</span>
-        </ng-template>
-        <ng-template #item let-item>
-            @if (item.type === 'profile') {
-                <button pRipple class="relative overflow-hidden w-full border-0 bg-transparent flex items-start p-2 pl-4 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-none cursor-pointer transition-colors duration-200">
-                    <p-avatar image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" class="mr-2" shape="circle" />
-                    <span class="inline-flex flex-col">
-                        <span class="font-bold">Amy Elsner</span>
-                        <span class="text-sm">Admin</span>
-                    </span>
-                </button>
-            } @else {
-                <a pRipple class="flex items-center p-menu-item-link">
-                    <span [class]="item.icon"></span>
-                    <span class="ml-2">{{ item.label }}</span>
-                    @if (item.badge) {
-                      <p-badge class="ml-auto" [value]="item.badge" />
-                    }
-                    @if (item.shortcut) {
-                      <span class="ml-auto border border-surface rounded bg-emphasis text-muted-color text-xs p-1">{{ item.shortcut }}</span>
-                    }
-                </a>
-            }
-        </ng-template>
-        <ng-template #end>
-          <p>Footer Content</p>
-          <p>Additional Footer Information</p>
-          <p>More Footer Details</p>
-          <p>Contact Information</p>
-          <p>Social Media Links</p>
-        </ng-template>
-      </p-menu>
+  <p-menu [model]="items" class="flex justify-center">
+    <ng-template #start> </ng-template>
+    <ng-template #submenuheader let-item>
+      <span class="text-primary font-bold">{{ item.label }}</span>
+    </ng-template>
+    <ng-template #item let-item>
+      @if (item.type === 'profile') {
+      <button
+        pRipple
+        class="relative overflow-hidden w-full border-0 bg-transparent flex items-start p-2 pl-4 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-none cursor-pointer transition-colors duration-200"
+      >
+        <p-avatar
+          image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
+          class="mr-2"
+          shape="circle"
+        />
+        <span class="inline-flex flex-col">
+          <span class="font-bold">Amy Elsner</span>
+          <span class="text-sm">Admin</span>
+        </span>
+      </button>
+      } @else {
+      <a
+        pRipple
+        class="flex items-center p-menu-item-link"
+        [routerLink]="item.routerLink || null"
+      >
+        <span [class]="item.icon"></span>
+        <span class="ml-2">{{ item.label }}</span>
+        @if (item.badge) {
+        <p-badge class="ml-auto" [value]="item.badge" />
+        } @if (item.shortcut) {
+        <span
+          class="ml-auto border border-surface rounded bg-emphasis text-muted-color text-xs p-1"
+          >{{ item.shortcut }}</span
+        >
+        }
+      </a>
+      }
+    </ng-template>
+    <ng-template #end>
+      <p>Footer Content</p>
+      <p>Additional Footer Information</p>
+      <p>More Footer Details</p>
+      <p>Contact Information</p>
+      <p>Social Media Links</p>
+    </ng-template>
+  </p-menu>
 </div>

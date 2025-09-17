@@ -259,8 +259,6 @@ export class ProfileForm {
 			}
 		});
 	}
-	//hastag dopo
-	//foto dopo
 
 	toggleEditable() {
 		this.isEditable.set(!this.isEditable());
