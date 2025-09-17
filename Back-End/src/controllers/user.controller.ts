@@ -3,6 +3,7 @@ import { apiUserToDbUser, dbUserToApiUser } from "@mappers/user.mapper";
 import type { UserService } from "@services/user.services";
 import { extractPaginationQuery } from "@utils/pagination";
 import { validatePatchRequest, validatePutRequest } from "@utils/user-validation";
+// import { logWithCaller } from "@utils/logger.helper";
 import type { Request, Response } from "express";
 import { logger } from "../server";
 

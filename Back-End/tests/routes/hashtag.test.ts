@@ -53,7 +53,7 @@ describe("Hashtag Routes", () => {
 			const response = await request(app)
 				.get("/hashtags/search")
 				.set("Authorization", `Bearer ${authToken}`)
-				.query({ q: "travel" })
+				.query({ query: "travel" })
 				.expect(200);
 
 			const payload = response.body as PaginatedHashtags;

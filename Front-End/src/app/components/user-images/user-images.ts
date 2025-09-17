@@ -1,4 +1,5 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, PLATFORM_ID, computed } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { MessageService } from 'primeng/api';
 import { PrimeNG } from 'primeng/config';
 import { FileUpload } from 'primeng/fileupload';
@@ -8,9 +9,11 @@ import { BadgeModule } from 'primeng/badge';
 import { ProgressBar } from 'primeng/progressbar';
 import { ToastModule } from 'primeng/toast';
 import { GalleriaModule } from 'primeng/galleria';
+import { DialogModule } from 'primeng/dialog';
 
 import { type HttpEndpoint, type HttpMethod, HttpRequestService } from '../../services/http-request';
 import { GetUserProfile } from '../../services/user/get-user-profile';
+import { environment } from '../../../environments/environment';
 
 import type { components } from '../../../types/api';
 
@@ -27,22 +30,22 @@ type FileUploadSelectEvent = { files: File[] | FileList };
 @Component({
   selector: 'app-user-images',
   standalone: true,
-  imports: [FileUpload, ProgressBar, ButtonModule, BadgeModule, ToastModule, CommonModule, GalleriaModule],
+  imports: [FileUpload, ProgressBar, ButtonModule, BadgeModule, ToastModule, CommonModule, GalleriaModule, DialogModule],
   providers: [MessageService],
   template: `
-  div class="card flex justify-center">
+  <div class="card flex justify-center">
+      <p-button label="Upload Photo" icon="pi pi-upload" (onClick)="showUploadDialog = true" severity="primary" />
       @if (images()) {
         <div class="grid grid-cols-12 gap-4" style="max-width: 800px;">
-            @for (image of images(); track image; let index = $index) {
+            @for (image of mappedPhotos(); track image.id; let index = $index) {
               <div class="col-span-4">
-                  <img [src]="image.image_url" [alt]="image.original_filename ?? image.filename" crossorigin="use-credentials" style="cursor: pointer" (click)="imageClick(index)" />
+                  <img [src]="image.full_image_url" [alt]="image.original_filename ?? image.filename" crossorigin="use-credentials" style="cursor: pointer" (click)="imageClick(index)" />
               </div>
             }
         </div>
       }
       <p-galleria
-          [value]="images()"
-          [(visible)]="displayCustom"
+          [value]="mappedPhotos()"
           [(activeIndex)]="activeIndex"
           [responsiveOptions]="responsiveOptions"
           [containerStyle]="{ 'max-width': '850px' }"
@@ -53,72 +56,75 @@ type FileUploadSelectEvent = { files: File[] | FileList };
           [showThumbnails]="false"
       >
           <ng-template #item let-item>
-              <img [src]="item.itemImageSrc" crossorigin="use-credentials" style="width: 100%; display: block;" />
+              <img [src]="item.full_image_url" [alt]="item.original_filename ?? item.filename" crossorigin="use-credentials" style="width: 100%; display: block;" />
           </ng-template>
       </p-galleria>
-  <div class="card">
-      <p-toast />
-      <p-fileupload name="myfile[]" [customUpload]="true" [multiple]="true" accept="image/*" maxFileSize="1000000" (onSelect)="onSelectedFiles($event)">
-          <ng-template #header let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback">
-              <div class="flex flex-wrap justify-between items-center flex-1 gap-4">
-                  <div class="flex gap-2">
-                      <p-button (onClick)="choose($event, chooseCallback)" icon="pi pi-images" [rounded]="true" [outlined]="true" />
-                      <p-button (onClick)="uploadEvent()" icon="pi pi-cloud-upload" [rounded]="true" [outlined]="true" severity="success" [disabled]="!files || files.length === 0" />
-                      <p-button (onClick)="clearCallback()" icon="pi pi-times" [rounded]="true" [outlined]="true" severity="danger" [disabled]="!files || files.length === 0" />
+      <p-dialog header="Upload Photo" [(visible)]="showUploadDialog" [modal]="true" [closable]="true" [dismissableMask]="true" [style]="{width: '500px'}">
+        <div class="card">
+            <p-toast />
+            <p-fileupload name="myfile[]" [customUpload]="true" [multiple]="true" accept="image/*" maxFileSize="1000000" (onSelect)="onSelectedFiles($event)">
+                <ng-template #header let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback">
+                    <div class="flex flex-wrap justify-between items-center flex-1 gap-4">
+                        <div class="flex gap-2">
+                            <p-button (onClick)="choose($event, chooseCallback)" icon="pi pi-images" [rounded]="true" [outlined]="true" />
+                            <p-button (onClick)="uploadEvent()" icon="pi pi-cloud-upload" [rounded]="true" [outlined]="true" severity="success" [disabled]="!files || files.length === 0" />
+                            <p-button (onClick)="clearCallback()" icon="pi pi-times" [rounded]="true" [outlined]="true" severity="danger" [disabled]="!files || files.length === 0" />
+                        </div>
+                        <p-progressbar [value]="totalSizePercent" [showValue]="false" class="w-full md:w-20rem h-1 w-full md:ml-auto">
+                            <span class="whitespace-nowrap">{{ totalSize }}B / 1Mb</span>
+                        </p-progressbar>
+                    </div>
+                </ng-template>
+            <ng-template #content let-files let-uploadedFiles="uploadedFiles" let-removeFileCallback="removeFileCallback" let-removeUploadedFileCallback="removeUploadedFileCallback">
+                    <div class="flex flex-col gap-8 pt-4">
+                @if (files?.length > 0) {
+                <div>
+                  <h5>Pending</h5>
+                  <div class="flex flex-wrap gap-4">
+                    @for (file of files; track file; let i = $index) {
+                      <div class="p-8 rounded-border flex flex-col border border-surface items-center gap-4">
+                        <div>
+                          <img role="presentation" [alt]="file.name" [src]="file.objectURL" width="100" height="50" />
+                        </div>
+                        <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name }}</span>
+                        <div>{{ formatSize(file.size) }}</div>
+                        <p-badge value="Pending" severity="warn" />
+                        <p-button icon="pi pi-times" (click)="onRemoveTemplatingFile($event, file, removeFileCallback, i)" [outlined]="true" [rounded]="true" severity="danger" />
+                      </div>
+                    }
                   </div>
-                  <p-progressbar [value]="totalSizePercent" [showValue]="false" class="w-full md:w-20rem h-1 w-full md:ml-auto">
-                      <span class="whitespace-nowrap">{{ totalSize }}B / 1Mb</span>
-                  </p-progressbar>
-              </div>
-          </ng-template>
-      <ng-template #content let-files let-uploadedFiles="uploadedFiles" let-removeFileCallback="removeFileCallback" let-removeUploadedFileCallback="removeUploadedFileCallback">
-              <div class="flex flex-col gap-8 pt-4">
-          @if (files?.length > 0) {
-          <div>
-            <h5>Pending</h5>
-            <div class="flex flex-wrap gap-4">
-              @for (file of files; track file; let i = $index) {
-                <div class="p-8 rounded-border flex flex-col border border-surface items-center gap-4">
-                  <div>
-                    <img role="presentation" [alt]="file.name" [src]="file.objectURL" width="100" height="50" />
-                  </div>
-                  <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name }}</span>
-                  <div>{{ formatSize(file.size) }}</div>
-                  <p-badge value="Pending" severity="warn" />
-                  <p-button icon="pi pi-times" (click)="onRemoveTemplatingFile($event, file, removeFileCallback, i)" [outlined]="true" [rounded]="true" severity="danger" />
                 </div>
-              }
-            </div>
-          </div>
-          }
-          @if (uploadedFiles?.length > 0) {
-          <div>
-            <h5>Completed</h5>
-            <div class="flex flex-wrap gap-4">
-              @for (file of uploadedFiles; track file; let i = $index) {
-                <div class="card m-0 px-12 flex flex-col border border-surface items-center gap-4">
-                  <div>
-                    <img role="presentation" [alt]="file.name" [src]="file.objectURL" width="100" height="50" />
+                }
+                @if (uploadedFiles?.length > 0) {
+                <div>
+                  <h5>Completed</h5>
+                  <div class="flex flex-wrap gap-4">
+                    @for (file of uploadedFiles; track file; let i = $index) {
+                      <div class="card m-0 px-12 flex flex-col border border-surface items-center gap-4">
+                        <div>
+                          <img role="presentation" [alt]="file.name" [src]="file.objectURL" width="100" height="50" />
+                        </div>
+                        <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name }}</span>
+                        <div>{{ formatSize(file.size) }}</div>
+                        <p-badge value="Completed" class="mt-4" severity="success" />
+                        <p-button icon="pi pi-times" (onClick)="removeUploadedFileCallback(i)" [outlined]="true" [rounded]="true" severity="danger" />
+                      </div>
+                    }
                   </div>
-                  <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name }}</span>
-                  <div>{{ formatSize(file.size) }}</div>
-                  <p-badge value="Completed" class="mt-4" severity="success" />
-                  <p-button icon="pi pi-times" (onClick)="removeUploadedFileCallback(i)" [outlined]="true" [rounded]="true" severity="danger" />
                 </div>
-              }
-            </div>
-          </div>
-          }
-              </div>
-          </ng-template>
-          <ng-template #file></ng-template>
-          <ng-template #empty>
-              <div class="flex items-center justify-center flex-col">
-                  <i class="pi pi-cloud-upload !border-2 !rounded-full !p-8 !text-4xl !text-muted-color"></i>
-                  <p class="mt-6 mb-0">Drag and drop files to here to upload.</p>
-              </div>
-          </ng-template>
-      </p-fileupload>
+                }
+                    </div>
+                </ng-template>
+                <ng-template #file></ng-template>
+                <ng-template #empty>
+                    <div class="flex items-center justify-center flex-col">
+                        <i class="pi pi-cloud-upload !border-2 !rounded-full !p-8 !text-4xl !text-muted-color"></i>
+                        <p class="mt-6 mb-0">Drag and drop files to here to upload.</p>
+                    </div>
+                </ng-template>
+            </p-fileupload>
+        </div>
+      </p-dialog>
   </div>
   `,
   styles: ``
@@ -127,13 +133,23 @@ export class UserImages {
   private readonly messageService = inject(MessageService);
   private readonly http = inject(HttpRequestService);
   private readonly config = inject(PrimeNG);
+  private readonly platformId = inject(PLATFORM_ID);
   profileService = inject(GetUserProfile);
-  displayCustom = false;
-
+  displayCustom = true;
+  showUploadDialog = false;
 
   activeIndex: number = 0;
 
   images = input<Photo[]>();
+
+  // Computed signal to avoid calling getMappedPhotos() repeatedly in template
+  mappedPhotos = computed(() => {
+    const photos = this.images() ?? [];
+    return photos.map(photo => ({
+      ...photo,
+      full_image_url: this.buildPhotoUrl(photo.image_url || '')
+    }));
+  });
 
   responsiveOptions: ResponsiveOption[] = [
     {
@@ -152,21 +168,26 @@ export class UserImages {
 
   // Gallery is now just the input from parent; no internal effect or transformation
 
+  private getAssetBaseUrl(): string {
+    const isBrowser = isPlatformBrowser(this.platformId);
+    // Use apiUrl for uploads since Traefik routes /api/uploads to backend /uploads
+    return isBrowser ? environment.apiUrl : environment.serverApiUrl;
+  }
+
   // Costruisce l'URL dell'immagine a partire dall'id; modifica secondo la tua API
   buildPhotoUrl(pathOrUrl: string): string {
-    // assicurati che il percorso inizi con "/"
-    const path = pathOrUrl.startsWith('/') ? pathOrUrl : '/' + pathOrUrl;
-    const apiUrl = 'http://localhost:3000';
-
-    return encodeURI(`${apiUrl}${path}`);
+    // If it's already an absolute URL, return as-is
+    if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
+    // Ensure the path starts with "/"
+    const path = pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`;
+    const base = this.getAssetBaseUrl();
+    return encodeURI(`${base}${path}`);
   }
 
   imageClick(index: number) {
     this.activeIndex = index;
     this.displayCustom = true;
   }
-
-
 
   files: UploadFile[] = [];
 

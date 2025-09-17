@@ -15,18 +15,32 @@ import express, { type Express } from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import { pino } from "pino";
+import pinoHttp from "pino-http";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { pool } from "./database";
 
 const logger = pino({
 	name: "matcha-server",
-	transport: {
-		target: "pino-pretty",
-		options: {
-			colorize: true,
-		},
-	},
+	...(env.NODE_ENV === "test" 
+		? { level: "silent" } // Silent logger for tests to avoid pino-pretty issues
+		: {
+			// Add caller information for debugging
+			base: {
+				pid: false, // Remove process ID for cleaner output
+			},
+			timestamp: pino.stdTimeFunctions.isoTime,
+			transport: {
+				target: "pino-pretty",
+				options: {
+					colorize: true,
+					translateTime: "SYS:yyyy-mm-dd HH:MM:ss",
+					ignore: "hostname,pid", // Remove hostname and pid for cleaner output
+					// Show caller info when available
+					include: "level,time,caller,msg",
+				},
+			},
+		}),
 });
 
 const app: Express = express();
@@ -40,11 +54,27 @@ declare module "express-serve-static-core" {
 }
 
 // Set the application to trust the reverse proxy
-app.set("trust proxy", true);
+// Trust only the first hop (Traefik) - more secure than "true"
+app.set("trust proxy", 1);
 
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// HTTP request/response logging (skip in tests to avoid noise)
+if (env.NODE_ENV !== "test") {
+	app.use(pinoHttp({ 
+		logger,
+		// Don't log health checks and static assets
+		autoLogging: {
+			ignore: (req) => 
+				req.url === "/health" || 
+				req.url?.startsWith("/uploads") ||
+				req.url?.startsWith("/api-docs")
+		}
+	}));
+}
+
 app.use(
 	cors({
 		origin: env.CORS_ORIGIN,
@@ -168,11 +198,11 @@ app.get("/", (_req, res) => {
 	});
 });
 
-app.use(jwtMiddleware);
 
 // Protected static serving of uploaded photos. Only authenticated users (JWT) can fetch.
 // Frontend can embed with <img src="${env.API_URL}/uploads/..."> and the browser will send cookies.
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use(jwtMiddleware);
 
 // API Routes
 app.use("/auth", authLimiter, authRoutes());
