@@ -2,6 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "@jest/glo
 import type { Express } from "express";
 import request from "supertest";
 import type { components, PaginatedResponse } from "../../src/generated/typescript/api";
+import { server } from "../../src/server";
 import { createTestApp } from "../helpers/app.helper";
 import { createUserAndAccessToken } from "../helpers/auth.helper";
 import { clearDatabase, closeTestPool, seedTestData } from "../helpers/database.helper";
@@ -28,6 +29,7 @@ describe("Hashtag Routes", () => {
 
 	afterAll(async () => {
 		await closeTestPool();
+		server.close();
 	});
 
 	beforeEach(async () => {

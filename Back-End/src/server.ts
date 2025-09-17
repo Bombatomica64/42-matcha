@@ -14,7 +14,7 @@ import cors from "cors";
 import express, { type Express } from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
-import { pino } from "pino";
+import pino, { stdTimeFunctions } from "pino";
 import pinoHttp from "pino-http";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
@@ -29,7 +29,7 @@ const logger = pino({
 			base: {
 				pid: false, // Remove process ID for cleaner output
 			},
-			timestamp: pino.stdTimeFunctions.isoTime,
+			timestamp: stdTimeFunctions.isoTime,
 			transport: {
 				target: "pino-pretty",
 				options: {

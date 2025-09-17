@@ -1,5 +1,7 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
 import type { Express } from "express";
 import request from "supertest";
+import { server } from "../../src/server";
 import { createTestApp } from "../helpers/app.helper";
 import { createUserAndAccessToken } from "../helpers/auth.helper";
 import { clearDatabase, closeTestPool, testQuery } from "../helpers/database.helper";
@@ -15,6 +17,7 @@ describe("Notifications Routes", () => {
 
 	afterAll(async () => {
 		await closeTestPool();
+		server.close();
 	});
 
 	beforeEach(async () => {

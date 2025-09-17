@@ -25,11 +25,7 @@ export async function createAndEmitNotification(
 	}
 
 	const notificationRepository = new NotificationRepository(pool);
-	logger.info(`[NotificationWorker] Creating notification for user ${userId}`, {
-		type,
-		actorId,
-		metadata,
-	});
+	logger.info({ userId, type, actorId, metadata }, `[NotificationWorker] Creating notification`);
 
 	const created = await notificationRepository.create({
 		user_id: userId,
@@ -53,11 +49,11 @@ export async function createAndEmitNotification(
 	try {
 		emitNotificationToUser(userId, dto);
 	} catch (err) {
-		logger.error(`[NotificationWorker] Socket emit failed`, err);
+		logger.error({ err }, `[NotificationWorker] Socket emit failed`);
 		try {
 			await notificationRepository.markFailed(dto.id);
 		} catch (dbErr) {
-			logger.error(`[NotificationWorker] Failed to mark notification as failed in DB`, dbErr);
+			logger.error({ err: dbErr }, `[NotificationWorker] Failed to mark notification as failed in DB`);
 		}
 	}
 

@@ -16,7 +16,7 @@ server.listen(env.PORT, () => {
 	const { NODE_ENV, HOST, PORT } = env;
 	logger.info(`Matcha Server (${NODE_ENV}) running on http://${HOST}:${PORT}`);
 	logger.info(`API Documentation available at http://${HOST}:${PORT}/api-docs`);
-	logger.info("Socket io started", server);
+	logger.info(`Socket io started on ${server}`);
 });
 
 const onCloseSignal = () => {

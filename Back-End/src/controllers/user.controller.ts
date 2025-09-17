@@ -260,6 +260,30 @@ export class UserController {
 		}
 
 		try {
+			// Quick validation: invalid UUID should be treated as not found
+			const uuidRegex = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/i;
+			if (!uuidRegex.test(targetUserId)) {
+				const errorResponse: ErrorResponse = {
+					error: "Not Found",
+					message: "User not found",
+					code: "USER_NOT_FOUND",
+				};
+				res.status(404).json(errorResponse);
+				return;
+			}
+
+			// Ensure target user exists before attempting like/dislike
+			const targetUser = await this.userService.getUserById(targetUserId);
+			if (!targetUser) {
+				const errorResponse: ErrorResponse = {
+					error: "Not Found",
+					message: "User not found",
+					code: "USER_NOT_FOUND",
+				};
+				res.status(404).json(errorResponse);
+				return;
+			}
+
 			const result = await this.userService.likeUser(userId, targetUserId, like);
 
 			const successResponse: SuccessfulLikeResponse = {
@@ -767,9 +791,9 @@ export class UserController {
 			// Parse interests if provided
 			const interestsList = interests
 				? interests
-						.split(",")
-						.map((s) => s.trim())
-						.filter(Boolean)
+					.split(",")
+					.map((s) => s.trim())
+					.filter(Boolean)
 				: undefined;
 
 			// Build search criteria

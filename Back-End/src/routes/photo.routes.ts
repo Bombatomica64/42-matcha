@@ -26,6 +26,8 @@ const photoRoutes = (): Router => {
 	router.get("/:photoId", photoController.getPhotoById.bind(photoController));
 	router.delete("/:photoId", photoController.deletePhoto.bind(photoController));
 	router.post("/:photoId/main", photoController.setMainPhoto.bind(photoController));
+  // Reorder photos for current user
+  router.put("/order", photoController.updateOrder.bind(photoController));
 
 	return router;
 };

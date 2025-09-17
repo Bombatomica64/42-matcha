@@ -250,4 +250,43 @@ export class PhotoRepository extends BaseRepository<Photo> {
 			uploaded_at: new Date(row.uploaded_at).toISOString(),
 		};
 	}
+
+	/**
+	 * Update display_order for a user's photos in a single transaction.
+	 * The array order defines the new display_order starting at 0.
+	 */
+	async updateDisplayOrder(userId: string, photoIds: string[]): Promise<boolean> {
+		const client = await pool.connect();
+		try {
+			await client.query("BEGIN");
+			// Validate that all provided ids belong to the user
+			const { rows } = await client.query<{ id: string }>(
+				"SELECT id FROM user_photos WHERE user_id = $1",
+				[userId],
+			);
+			const owned = new Set(rows.map((r) => r.id));
+			for (const pid of photoIds) {
+				if (!owned.has(pid)) {
+					await client.query("ROLLBACK");
+					return false;
+				}
+			}
+
+			// Update each photo's display_order according to its position
+			for (let i = 0; i < photoIds.length; i++) {
+				await client.query(
+					"UPDATE user_photos SET display_order = $1 WHERE id = $2 AND user_id = $3",
+					[i, photoIds[i], userId],
+				);
+			}
+
+			await client.query("COMMIT");
+			return true;
+		} catch (e) {
+			await client.query("ROLLBACK");
+			throw e;
+		} finally {
+			client.release();
+		}
+	}
 }

@@ -1,10 +1,18 @@
 import fs from "node:fs";
 import path from "node:path";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
 import type { Express } from "express";
 import request from "supertest";
+import type { components } from "../../src/generated/typescript/api";
+import { server } from "../../src/server";
 import { createTestApp } from "../helpers/app.helper";
 import { createUserAndAccessToken } from "../helpers/auth.helper";
 import { clearDatabase, closeTestPool, seedTestData } from "../helpers/database.helper";
+
+type Photo = components["schemas"]["Photo"];
+type PhotoResponse = components["schemas"]["PhotoResponse"];
+type PhotoListResponse = components["schemas"]["PhotoListResponse"];
+type ErrorResponse = components["schemas"]["ErrorResponse"];
 
 describe("Photo Routes", () => {
 	let app: Express;
@@ -56,7 +64,7 @@ describe("Photo Routes", () => {
 
 	afterAll(async () => {
 		await closeTestPool();
-
+		server.close();
 		// Clean up test image
 		if (fs.existsSync(testImagePath)) {
 			fs.unlinkSync(testImagePath);
@@ -89,11 +97,12 @@ describe("Photo Routes", () => {
 				.attach("photo", testImagePath)
 				.expect(201);
 
-			expect(response.body).toHaveProperty("message");
-			expect(response.body).toHaveProperty("photo");
-			expect(response.body.photo).toHaveProperty("id");
-			expect(response.body.photo).toHaveProperty("url");
-			expect(response.body.photo).toHaveProperty("is_main");
+			const body = response.body as PhotoResponse;
+			expect(typeof body.message).toBe("string");
+			expect(body.photo).toBeDefined();
+			expect(typeof body.photo.id).toBe("string");
+			expect(typeof body.photo.image_url).toBe("string");
+			expect(typeof body.photo.is_main).toBe("boolean");
 		});
 
 		it("should reject upload without authentication", async () => {
@@ -102,7 +111,8 @@ describe("Photo Routes", () => {
 				.attach("photo", testImagePath)
 				.expect(401);
 
-			expect(response.body).toHaveProperty("error");
+			const body = response.body as ErrorResponse;
+			expect(typeof body.error).toBe("string");
 		});
 
 		it("should reject upload without file", async () => {
@@ -111,7 +121,8 @@ describe("Photo Routes", () => {
 				.set("Authorization", `Bearer ${authToken}`)
 				.expect(400);
 
-			expect(response.body).toHaveProperty("error");
+			const body = response.body as ErrorResponse;
+			expect(typeof body.error).toBe("string");
 		});
 
 		it("should reject non-image files", async () => {
@@ -125,7 +136,8 @@ describe("Photo Routes", () => {
 				.attach("photo", textFilePath)
 				.expect(400);
 
-			expect(response.body).toHaveProperty("error");
+			const body = response.body as ErrorResponse;
+			expect(typeof body.error).toBe("string");
 
 			// Clean up
 			fs.unlinkSync(textFilePath);
@@ -138,7 +150,8 @@ describe("Photo Routes", () => {
 				.attach("photo", testImagePath)
 				.expect(201);
 
-			expect(response.body.photo.is_main).toBe(true);
+			const body = response.body as PhotoResponse;
+			expect(body.photo.is_main).toBe(true);
 		});
 	});
 
@@ -156,15 +169,16 @@ describe("Photo Routes", () => {
 				.set("Authorization", `Bearer ${authToken}`)
 				.expect(200);
 
-			expect(response.body).toHaveProperty("photos");
-			expect(Array.isArray(response.body.photos)).toBe(true);
-			expect(response.body.photos.length).toBeGreaterThan(0);
+			const body = response.body as PhotoListResponse;
+			expect(Array.isArray(body.photos)).toBe(true);
+			expect(body.photos.length).toBeGreaterThan(0);
 		});
 
 		it("should reject request without authentication", async () => {
 			const response = await request(app).get("/photos").expect(401);
 
-			expect(response.body).toHaveProperty("error");
+			const body = response.body as ErrorResponse;
+			expect(typeof body.error).toBe("string");
 		});
 	});
 
@@ -187,9 +201,9 @@ describe("Photo Routes", () => {
 				.set("Authorization", `Bearer ${authToken}`)
 				.expect(200);
 
-			expect(response.body).toHaveProperty("message");
-			expect(response.body).toHaveProperty("photo");
-			expect(response.body.photo.is_main).toBe(true);
+			const body = response.body as PhotoResponse;
+			expect(typeof body.message).toBe("string");
+			expect(body.photo.is_main).toBe(true);
 		});
 
 		it("should reject setting non-existent photo as main", async () => {
@@ -198,13 +212,15 @@ describe("Photo Routes", () => {
 				.set("Authorization", `Bearer ${authToken}`)
 				.expect(404);
 
-			expect(response.body).toHaveProperty("error");
+			const body = response.body as ErrorResponse;
+			expect(typeof body.error).toBe("string");
 		});
 
 		it("should reject request without authentication", async () => {
 			const response = await request(app).post(`/photos/${photoId}/main`).expect(401);
 
-			expect(response.body).toHaveProperty("error");
+			const body = response.body as ErrorResponse;
+			expect(typeof body.error).toBe("string");
 		});
 	});
 
@@ -227,7 +243,8 @@ describe("Photo Routes", () => {
 				.set("Authorization", `Bearer ${authToken}`)
 				.expect(200);
 
-			expect(response.body).toHaveProperty("message");
+			const body = response.body as { message: string };
+			expect(typeof body.message).toBe("string");
 		});
 
 		it("should return 404 for non-existent photo", async () => {
@@ -236,13 +253,15 @@ describe("Photo Routes", () => {
 				.set("Authorization", `Bearer ${authToken}`)
 				.expect(404);
 
-			expect(response.body).toHaveProperty("error");
+			const body = response.body as ErrorResponse;
+			expect(typeof body.error).toBe("string");
 		});
 
 		it("should reject request without authentication", async () => {
 			const response = await request(app).delete(`/photos/${photoId}`).expect(401);
 
-			expect(response.body).toHaveProperty("error");
+			const body = response.body as ErrorResponse;
+			expect(typeof body.error).toBe("string");
 		});
 	});
 
@@ -265,10 +284,11 @@ describe("Photo Routes", () => {
 				.set("Authorization", `Bearer ${authToken}`)
 				.expect(200);
 
-			expect(response.body).toHaveProperty("photo");
-			expect(response.body.photo).toHaveProperty("id", photoId);
-			expect(response.body.photo).toHaveProperty("url");
-			expect(response.body.photo).toHaveProperty("is_main");
+			const body = response.body as { photo: Photo };
+			expect(typeof body.photo.id).toBe("string");
+			expect(body.photo.id).toBe(photoId);
+			expect(typeof body.photo.image_url).toBe("string");
+			expect(typeof body.photo.is_main).toBe("boolean");
 		});
 
 		it("should return 404 for non-existent photo", async () => {
@@ -277,13 +297,15 @@ describe("Photo Routes", () => {
 				.set("Authorization", `Bearer ${authToken}`)
 				.expect(404);
 
-			expect(response.body).toHaveProperty("error");
+			const body = response.body as ErrorResponse;
+			expect(typeof body.error).toBe("string");
 		});
 
 		it("should reject request without authentication", async () => {
 			const response = await request(app).get(`/photos/${photoId}`).expect(401);
 
-			expect(response.body).toHaveProperty("error");
+			const body = response.body as ErrorResponse;
+			expect(typeof body.error).toBe("string");
 		});
 	});
 
@@ -307,8 +329,9 @@ describe("Photo Routes", () => {
 				.attach("photo", testImagePath)
 				.expect(400);
 
-			expect(response.body).toHaveProperty("error");
-			expect(response.body.error).toContain("maximum");
+			const body = response.body as ErrorResponse;
+			expect(typeof body.error).toBe("string");
+			expect(body.error).toContain("maximum");
 		});
 	});
 
@@ -325,7 +348,8 @@ describe("Photo Routes", () => {
 				.attach("photo", largeFilePath)
 				.expect(400);
 
-			expect(response.body).toHaveProperty("error");
+			const body = response.body as ErrorResponse;
+			expect(typeof body.error).toBe("string");
 
 			// Clean up
 			fs.unlinkSync(largeFilePath);
@@ -344,7 +368,8 @@ describe("Photo Routes", () => {
 					.attach("photo", filePath)
 					.expect(400);
 
-				expect(response.body).toHaveProperty("error");
+				const body = response.body as ErrorResponse;
+				expect(typeof body.error).toBe("string");
 
 				// Clean up
 				fs.unlinkSync(filePath);

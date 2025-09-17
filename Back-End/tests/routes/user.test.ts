@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
 import type { Express } from "express";
 import request from "supertest";
+import { server } from "../../src/server";
 import { createTestApp } from "../helpers/app.helper";
 import { createUserAndAccessToken } from "../helpers/auth.helper";
 import { clearDatabase, closeTestPool, seedTestData } from "../helpers/database.helper";
@@ -16,6 +17,7 @@ describe("User Routes", () => {
 
 	afterAll(async () => {
 		await closeTestPool();
+		server.close();
 	});
 
 	beforeEach(async () => {
@@ -81,11 +83,11 @@ describe("User Routes", () => {
 				sexual_orientation: "heterosexual",
 				location: {
 					latitude: 40.7128,
-					longitude: -74.0060
+					longitude: -74.006,
 				},
 				location_manual: false,
 				fame_rating: 3,
-				profile_complete: true
+				profile_complete: true,
 			};
 
 			const response = await request(app)
@@ -129,8 +131,8 @@ describe("User Routes", () => {
 				sexual_orientation: "heterosexual",
 				location: {
 					latitude: 40.7128,
-					longitude: -74.0060
-				}
+					longitude: -74.006,
+				},
 			};
 
 			const response = await request(app)
@@ -147,7 +149,7 @@ describe("User Routes", () => {
 		it("should partially update user profile", async () => {
 			const patchData = {
 				first_name: "Patched",
-				bio: "This is my patched bio"
+				bio: "This is my patched bio",
 			};
 
 			const response = await request(app)
@@ -168,8 +170,8 @@ describe("User Routes", () => {
 				sexual_orientation: "bisexual",
 				location: {
 					latitude: 41.8781,
-					longitude: -87.6298
-				}
+					longitude: -87.6298,
+				},
 			};
 
 			const response = await request(app)
@@ -189,7 +191,7 @@ describe("User Routes", () => {
 		it("should reject invalid patch data", async () => {
 			const invalidPatchData = {
 				gender: "invalid_gender",
-				sexual_orientation: "invalid_orientation"
+				sexual_orientation: "invalid_orientation",
 			};
 
 			const response = await request(app)
@@ -242,7 +244,7 @@ describe("User Routes", () => {
 
 			// Accept both 200 (with data) and 204 (no more users)
 			expect([200, 204]).toContain(response.status);
-			
+
 			if (response.status === 200) {
 				expect(response.body.meta).toHaveProperty("current_page", 2);
 				expect(response.body.meta).toHaveProperty("per_page", 5);
@@ -262,7 +264,7 @@ describe("User Routes", () => {
 
 			// Accept both 200 (with data) and 204 (no matches)
 			expect([200, 204]).toContain(response.status);
-			
+
 			if (response.status === 200) {
 				expect(response.body).toHaveProperty("data");
 				expect(Array.isArray(response.body.data)).toBe(true);

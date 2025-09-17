@@ -43,6 +43,15 @@ export class PhotoService {
 		return await this.photoRepository.setAsMain(photoId, userId);
 	}
 
+	/**
+	 * Update display order for a user's photos atomically.
+	 * photoIds should be the full ordered list (index is the new display_order)
+	 */
+	async updateOrder(userId: string, photoIds: string[]): Promise<boolean> {
+		if (!Array.isArray(photoIds) || photoIds.length === 0) return false;
+		return await this.photoRepository.updateDisplayOrder(userId, photoIds);
+	}
+
 	private isValidImageFile(file: Express.Multer.File): boolean {
 		const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp"];
 		const maxSize = 5 * 1024 * 1024; // 5MB

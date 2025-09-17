@@ -31,11 +31,7 @@ export async function createAndEmitNotification(
 	try {
 		const notificationRepository = new NotificationRepository(pool);
 
-		logger.info(`[NotificationEmitter] Creating notification for user ${userId}`, {
-			type,
-			actorId,
-			metadata,
-		});
+		logger.info({ userId, type, actorId, metadata }, `[NotificationEmitter] Creating notification`);
 
 		// Insert notification into database
 		const createdNotification = await notificationRepository.create({
@@ -66,26 +62,22 @@ export async function createAndEmitNotification(
 			// via the 'notification:ack' socket event handled in setupNotificationHandlers
 		} catch (socketError) {
 			// If socket emission fails, mark notification as failed
-			logger.error(`[NotificationEmitter] Failed to emit notification via socket:`, socketError);
+			logger.error({ err: socketError }, `[NotificationEmitter] Failed to emit notification via socket`);
 
 			try {
 				await notificationRepository.markFailed(notificationDTO.id);
 			} catch (dbError) {
-				logger.error(`[NotificationEmitter] Failed to mark notification as failed in DB:`, dbError);
+				logger.error({ err: dbError }, `[NotificationEmitter] Failed to mark notification as failed in DB`);
 			}
 
 			// Don't throw here - notification was saved to DB, socket failure is not critical
 		}
 
-		logger.info(`[NotificationEmitter] Notification created and emitted successfully`, {
-			notificationId: notificationDTO.id,
-			userId,
-			type,
-		});
+		logger.info({ notificationId: notificationDTO.id, userId, type }, `[NotificationEmitter] Notification created and emitted successfully`);
 
 		return notificationDTO;
 	} catch (error) {
-		logger.error(`[NotificationEmitter] Error creating notification for user ${userId}:`, error);
+		logger.error({ err: error, userId }, `[NotificationEmitter] Error creating notification`);
 		throw error;
 	}
 }

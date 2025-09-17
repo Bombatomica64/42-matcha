@@ -6,6 +6,9 @@ import { logger } from "../server";
 type ErrorResponse = components["schemas"]["ErrorResponse"];
 type PhotoResponse = components["schemas"]["PhotoResponse"];
 type PhotoListResponse = components["schemas"]["PhotoListResponse"];
+type PhotoOrderUpdateRequest = {
+	photoIds: string[];
+};
 
 export class PhotoController {
 	private photoService: PhotoService;
@@ -224,6 +227,57 @@ export class PhotoController {
 			const errorResponse: ErrorResponse = {
 				error: "Internal Server Error",
 				message: "Failed to set main photo",
+				code: "SERVER_ERROR",
+			};
+			res.status(500).json(errorResponse);
+		}
+	}
+
+	/**
+	 * PUT /photos/order - Update display order for current user's photos
+	 */
+	public async updateOrder(req: Request, res: Response): Promise<void> {
+		try {
+			const userId = res.locals.user?.id;
+			if (!userId) {
+				const errorResponse: ErrorResponse = {
+					error: "Unauthorized",
+					message: "User authentication required",
+					code: "AUTH_REQUIRED",
+				};
+				res.status(401).json(errorResponse);
+				return;
+			}
+
+			const body = req.body as Partial<PhotoOrderUpdateRequest> | undefined;
+			const photoIds: string[] = Array.isArray(body?.photoIds) ? body.photoIds as string[] : [];
+			if (!photoIds || photoIds.length === 0) {
+				const errorResponse: ErrorResponse = {
+					error: "Bad Request",
+					message: "photoIds array is required",
+					code: "VALIDATION_ERROR",
+				};
+				res.status(400).json(errorResponse);
+				return;
+			}
+
+			const success = await this.photoService.updateOrder(userId, photoIds);
+			if (!success) {
+				const errorResponse: ErrorResponse = {
+					error: "Bad Request",
+					message: "Failed to update photo order",
+					code: "VALIDATION_ERROR",
+				};
+				res.status(400).json(errorResponse);
+				return;
+			}
+
+			res.status(204).send();
+		} catch (error) {
+			logger.error(`Failed to update photo order: ${error}`);
+			const errorResponse: ErrorResponse = {
+				error: "Internal Server Error",
+				message: "Failed to update photo order",
 				code: "SERVER_ERROR",
 			};
 			res.status(500).json(errorResponse);

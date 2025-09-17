@@ -12,21 +12,14 @@ export function emitNotificationToUser(userId: string, notification: Notificatio
 	try {
 		const userRoom = `user_${userId}`;
 
-		logger.info(`[NotificationSocket] Sending notification to user ${userId} in room ${userRoom}`, {
-			notificationId: notification.id,
-			type: notification.type,
-		});
+		logger.info({ notificationId: notification.id, type: notification.type, userId, room: userRoom }, `[NotificationSocket] Sending notification`);
 
 		// Emit to the user's personal room
 		getIO().to(userRoom).emit("notification", notification);
 
-		logger.debug(`[NotificationSocket] Notification emitted successfully`, {
-			userId,
-			notificationId: notification.id,
-			type: notification.type,
-		});
+		logger.debug({ userId, notificationId: notification.id, type: notification.type }, `[NotificationSocket] Notification emitted successfully`);
 	} catch (error) {
-		logger.error(`[NotificationSocket] Error emitting notification to user ${userId}:`, error);
+		logger.error({ err: error, userId }, `[NotificationSocket] Error emitting notification`);
 	}
 }
 
@@ -37,13 +30,11 @@ export function emitNotificationRead(userId: string, notificationId: string): vo
 	try {
 		const userRoom = `user_${userId}`;
 
-		logger.info(`[NotificationSocket] Sending read confirmation to user ${userId}`, {
-			notificationId,
-		});
+		logger.info({ userId, notificationId }, `[NotificationSocket] Sending read confirmation`);
 
 		getIO().to(userRoom).emit("notification:read", { notificationId });
 	} catch (error) {
-		logger.error(`[NotificationSocket] Error emitting read confirmation to user ${userId}:`, error);
+		logger.error({ err: error, userId }, `[NotificationSocket] Error emitting read confirmation`);
 	}
 }
 
@@ -58,10 +49,7 @@ export function emitAllNotificationsRead(userId: string): void {
 
 		getIO().to(userRoom).emit("notifications:allRead");
 	} catch (error) {
-		logger.error(
-			`[NotificationSocket] Error emitting all-read confirmation to user ${userId}:`,
-			error,
-		);
+		logger.error({ err: error, userId }, `[NotificationSocket] Error emitting all-read confirmation`);
 	}
 }
 
@@ -69,43 +57,36 @@ export function emitAllNotificationsRead(userId: string): void {
  * Handle notification-related socket events for a connected user
  */
 export function setupNotificationHandlers(socket: Socket): void {
-	logger.info(`[NotificationSocket] Setting up notification handlers for user ${socket.userId}`);
+	logger.info({ userId: socket.userId }, `[NotificationSocket] Setting up notification handlers`);
 
 	const notificationRepository = new NotificationRepository(pool);
 
 	// Handle notification acknowledgments (for delivery confirmation)
 	socket.on("notification:ack", async (data: { notificationId: string }) => {
 		try {
-			logger.info(`[NotificationSocket] Notification acknowledged by user ${socket.userId}`, {
-				notificationId: data.notificationId,
-			});
+			logger.info({ userId: socket.userId, notificationId: data.notificationId }, `[NotificationSocket] Notification acknowledged`);
 
 			// Mark notification as delivered in the database
 			await notificationRepository.markDelivered(data.notificationId);
 
-			logger.debug(`[NotificationSocket] Notification marked as delivered`, {
-				notificationId: data.notificationId,
-				userId: socket.userId,
-			});
+			logger.debug({ notificationId: data.notificationId, userId: socket.userId }, `[NotificationSocket] Notification marked as delivered`);
 		} catch (error) {
-			logger.error(`[NotificationSocket] Error marking notification as delivered:`, error);
+			logger.error({ err: error }, `[NotificationSocket] Error marking notification as delivered`);
 		}
 	});
 
 	// Handle read receipts (optional - if you want real-time read status)
 	socket.on("notification:markRead", async (data: { notificationId: string }) => {
 		try {
-			logger.info(`[NotificationSocket] User ${socket.userId} marking notification as read`, {
-				notificationId: data.notificationId,
-			});
+			logger.info({ userId: socket.userId, notificationId: data.notificationId }, `[NotificationSocket] Marking notification as read`);
 
 			// You could call your notification service here to mark as read
 			// and then emit the confirmation back
 			emitNotificationRead(socket.userId, data.notificationId);
 		} catch (error) {
-			logger.error(`[NotificationSocket] Error handling read receipt:`, error);
+			logger.error({ err: error }, `[NotificationSocket] Error handling read receipt`);
 		}
 	});
 
-	logger.debug(`[NotificationSocket] Notification handlers set up for user ${socket.userId}`);
+	logger.debug({ userId: socket.userId }, `[NotificationSocket] Notification handlers set up`);
 }

@@ -1,5 +1,7 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
 import type { Express } from "express";
 import request from "supertest";
+import { server } from "../../src/server";
 import { createTestApp } from "../helpers/app.helper";
 import { clearDatabase, closeTestPool } from "../helpers/database.helper";
 
@@ -12,6 +14,7 @@ describe("Health and Basic Routes", () => {
 
 	afterAll(async () => {
 		await closeTestPool();
+		server.close();
 	});
 
 	beforeEach(async () => {

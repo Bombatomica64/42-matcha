@@ -2,6 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "@jest/glo
 import type { Express } from "express";
 import request from "supertest";
 import type { components } from "../../src/generated/typescript/api";
+import { server } from "../../src/server";
 import { createTestApp } from "../helpers/app.helper";
 import { createUserAndTokens } from "../helpers/auth.helper";
 import { clearDatabase, closeTestPool } from "../helpers/database.helper";
@@ -20,6 +21,7 @@ describe("Authentication Routes", () => {
 
 	afterAll(async () => {
 		await closeTestPool();
+		server.close();
 	});
 
 	beforeEach(async () => {

@@ -74,17 +74,17 @@ export const seedTestData = async (): Promise<void> => {
         id, email, username, first_name, last_name, 
         password, birth_date, gender, location,
         activated, profile_complete, fame_rating, online_status,
-        email_verified_at
+        email_verified_at, bio, sexual_orientation
       ) VALUES 
       (
         '550e8400-e29b-41d4-a716-446655440000', 'test1@example.com', 'testuser1', 'Test', 'User1',
         $1, '1990-01-01', 'male', ST_Point(2.3522, 48.8566),
-        true, true, 3.5, true, CURRENT_TIMESTAMP
+        true, true, 3.5, true, CURRENT_TIMESTAMP, 'Test bio for user 1', 'heterosexual'
       ),
       (
         '550e8400-e29b-41d4-a716-446655440001', 'test2@example.com', 'testuser2', 'Test', 'User2',
         $1, '1992-05-15', 'female', ST_Point(2.3522, 48.8566),
-        true, true, 4.0, false, CURRENT_TIMESTAMP
+        true, true, 4.0, false, CURRENT_TIMESTAMP, 'Test bio for user 2', 'heterosexual'
       )
       ON CONFLICT (id) DO NOTHING
     `,
