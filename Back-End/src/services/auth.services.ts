@@ -4,6 +4,7 @@ import { emailService } from "@utils/email";
 import { comparePassword, hashPassword } from "@utils/hash";
 import { generateTokenPair, refreshAccessToken, verifyJwt } from "@utils/jwt";
 import { pool } from "../database";
+import crypto from "node:crypto";
 
 export class AuthService {
 	private userRepository: UserRepository;
@@ -27,17 +28,24 @@ export class AuthService {
 			throw new Error("Username is already taken");
 		}
 
+		// Ensure password (OAuth signups may not provide one)
+		const rawPassword = userData.password ?? crypto.randomUUID();
 		// Hash password
-		const hashedPassword = await hashPassword(userData.password);
+		const hashedPassword = await hashPassword(rawPassword);
 		if (!hashedPassword) {
 			throw new Error("Failed to hash password");
 		}
+
+		// Normalize sexual_orientation to match DB constraint (fallback to 'bisexual')
+		const normalizedSexualOrientation: "heterosexual" | "homosexual" | "bisexual" =
+			userData.sexual_orientation === "other" ? "bisexual" : userData.sexual_orientation;
 
 		// Create user data with hashed password
 		const userDataWithHashedPassword = {
 			...userData,
 			password: hashedPassword,
 			location_manual: userData.location_manual ?? false,
+			sexual_orientation: normalizedSexualOrientation,
 
 			email_verification_token:
 				emailService.generateVerificationToken() || "00000000-0000-0000-0000-000000000000",

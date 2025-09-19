@@ -132,6 +132,27 @@ paths:
             application/json:
               schema:
                 $ref: './common.yaml#/components/schemas/ErrorResponse'
+  identities:
+    get:
+      summary: List linked external identities for current user
+      operationId: listIdentities
+      tags:
+        - Authentication
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of linked identities
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentitiesResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/ErrorResponse'
 
 
 components:
@@ -265,3 +286,32 @@ components:
         message:
           type: string
           example: "Email sent with password reset instructions"
+
+    Identity:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        provider_key:
+          type: string
+          example: google
+        provider_name:
+          type: string
+          example: Google
+        provider_user_id:
+          type: string
+        email:
+          type:
+            - string
+            - 'null'
+        created_at:
+          type: string
+          format: date-time
+    IdentitiesResponse:
+      type: object
+      properties:
+        identities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Identity'

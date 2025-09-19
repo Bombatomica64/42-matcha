@@ -11,6 +11,8 @@ import notificationRoutes from "@routes/notification.routes";
 import photoRoutes from "@routes/photo.routes";
 import userRoutes from "@routes/user.routes";
 import cors from "cors";
+import session from "express-session";
+import passport from "./auth/passport.config";
 import express, { type Express } from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
@@ -82,6 +84,17 @@ app.use(
 	}),
 );
 app.use(helmet());
+
+// Minimal session setup required for some passport strategies (even if we use session: false on routes)
+app.use(
+	session({
+		secret: env.SESSION_SECRET,
+		resave: false,
+		saveUninitialized: false,
+		cookie: { secure: env.NODE_ENV === "production", sameSite: "lax" },
+	}),
+);
+app.use(passport.initialize());
 
 // Rate limiters
 const globalLimiter = rateLimit({

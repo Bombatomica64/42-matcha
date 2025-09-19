@@ -5,7 +5,7 @@ import type { components } from "../../src/generated/typescript/api";
 import { server } from "../../src/server";
 import { createTestApp } from "../helpers/app.helper";
 import { createUserAndTokens } from "../helpers/auth.helper";
-import { clearDatabase, closeTestPool } from "../helpers/database.helper";
+import { clearDatabase, closeTestPool, testQuery } from "../helpers/database.helper";
 
 type RegisterRequest = components["schemas"]["RegisterRequest"];
 type RegisterResponse = components["schemas"]["RegisterResponse"];
@@ -17,6 +17,51 @@ describe("Authentication Routes", () => {
 
 	beforeAll(async () => {
 		app = await createTestApp();
+	});
+
+	describe("GET /auth/identities", () => {
+		let accessToken: string;
+		let userId: string;
+
+		beforeEach(async () => {
+			// Create user
+			const created = await createUserAndTokens();
+			accessToken = created.accessToken;
+			userId = created.userId;
+
+			// Ensure providers are seeded (migration may have run already)
+			await testQuery(
+				`INSERT INTO auth_providers(key, name, type) VALUES ('google','Google','oauth2') ON CONFLICT (key) DO NOTHING`,
+			);
+			const providerRes = await testQuery(`SELECT id FROM auth_providers WHERE key = 'google'`);
+			const providerId = providerRes.rows[0].id as number;
+
+			// Seed a linked identity for the user
+			await testQuery(
+				`INSERT INTO user_identities (user_id, provider_id, provider_user_id, email) VALUES ($1, $2, $3, $4)
+				ON CONFLICT (provider_id, provider_user_id) DO NOTHING`,
+				[userId, providerId, "google-sub-123", "linked@example.com"],
+			);
+		});
+
+		it("should return linked identities for authenticated user", async () => {
+			const response = await request(app)
+				.get("/auth/identities")
+				.set("Authorization", `Bearer ${accessToken}`)
+				.expect(200);
+
+			expect(response.body).toHaveProperty("identities");
+			expect(Array.isArray(response.body.identities)).toBe(true);
+			if (response.body.identities.length > 0) {
+				const first = response.body.identities[0];
+				expect(first).toHaveProperty("provider_key");
+				expect(first).toHaveProperty("provider_user_id");
+			}
+		});
+
+		it("should reject when not authenticated", async () => {
+			await request(app).get("/auth/identities").expect(401);
+		});
 	});
 
 	afterAll(async () => {

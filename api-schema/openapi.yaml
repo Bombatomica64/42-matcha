@@ -23,6 +23,8 @@ paths:
     $ref: './schemas/auth.yaml#/paths/verifyEmail'
   /auth/resetPassword:
     $ref: './schemas/auth.yaml#/paths/resetPassword'
+  /auth/identities:
+    $ref: './schemas/auth.yaml#/paths/identities'
 
 
   # User profile endpoints

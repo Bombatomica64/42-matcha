@@ -23,4 +23,18 @@ export const env = {
 
 	// Bcrypt
 	BCRYPT_SALT_ROUNDS: Number(process.env.BCRYPT_SALT_ROUNDS) || 12,
+
+	// Google OAuth
+	GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || "",
+	GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || "",
+	GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL || "/auth/google/callback",
+
+	// University SAML
+	UNIVERSITY_SAML_ENTRY_POINT: process.env.UNIVERSITY_SAML_ENTRY_POINT || "",
+	UNIVERSITY_SAML_ISSUER: process.env.UNIVERSITY_SAML_ISSUER || "matcha-app",
+	UNIVERSITY_SAML_CALLBACK_URL: process.env.UNIVERSITY_SAML_CALLBACK_URL || "/auth/university/callback",
+	UNIVERSITY_SAML_CERT: process.env.UNIVERSITY_SAML_CERT || "",
+
+	// Session Secret
+	SESSION_SECRET: process.env.SESSION_SECRET || "your-super-secret-session-key",
 } as const;

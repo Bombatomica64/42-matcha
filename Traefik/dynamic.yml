@@ -1,30 +1,31 @@
 http:
   routers:
-    # Frontend - highest priority for root path
+    # Frontend served on main host
     frontend:
-      rule: "Host(`matcha.bombatomica64.dev`) && PathPrefix(`/`)"
+      rule: "Host(`matcha.bombatomica64.dev`)"
       service: frontend-service
       entryPoints:
         - web
+        - websecure
       middlewares:
         - default-headers
-      priority: 1  # Lowest priority for catch-all
+      priority: 1
 
-    # Backend API routes
-    backend-api:
-      rule: "Host(`matcha.bombatomica64.dev`) && PathPrefix(`/api`)"
+    # Backend served on api subdomain
+    backend:
+      rule: "Host(`api.matcha.bombatomica64.dev`)"
       service: backend-service
       entryPoints:
         - web
+        - websecure
       middlewares:
-        - api-stripprefix
         - default-headers
         - cors-headers
-      priority: 3  # Higher priority for API
-    
-    # Socket.IO routes - with HTTP/3 support for WebTransport
+      priority: 2
+
+    # Socket.IO on backend host (optional explicit routing)
     backend-socketio:
-      rule: "Host(`matcha.bombatomica64.dev`) && PathPrefix(`/socket.io`)"
+      rule: "Host(`api.matcha.bombatomica64.dev`) && PathPrefix(`/socket.io`)"
       service: backend-service
       entryPoints:
         - web
@@ -33,7 +34,7 @@ http:
         - default-headers
         - cors-headers
         - http3-headers
-      priority: 2  # High priority for Socket.IO
+      priority: 3
 
   services:
     backend-service:
@@ -59,12 +60,7 @@ http:
         customRequestHeaders:
           X-Forwarded-Proto: "https"
         accessControlAllowOriginList:
-          - "*"
-    
-    api-stripprefix:
-      stripPrefix:
-        prefixes:
-          - "/api"
+          - "https://matcha.bombatomica64.dev"
     
     cors-headers:
       headers:
@@ -78,9 +74,8 @@ http:
         accessControlAllowHeaders:
           - "*"
         accessControlAllowCredentials: true
-        customResponseHeaders:
-          Access-Control-Allow-Origin: "*"
-          Access-Control-Allow-Credentials: "true"
+        accessControlAllowOriginList:
+          - "https://matcha.bombatomica64.dev"
     
     http3-headers:
       headers:

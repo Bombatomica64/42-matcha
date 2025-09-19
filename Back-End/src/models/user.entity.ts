@@ -32,6 +32,10 @@ export interface User {
 	photos: Photo[];
 	created_at: Date;
 	updated_at: Date;
+	// OAuth provider information
+	google_id?: string;
+	university_id?: string; // For SAML/university authentication
+	auth_provider?: "local" | "google" | "university";
 	// Computed/aggregated fields from database counters
 	likes_received_count?: number;
 	views_count?: number;
@@ -58,18 +62,22 @@ export type UpdateUserData = Partial<Omit<User, "id" | "created_at" | "updated_a
 export type RegisterUserData = {
 	username: string;
 	email: string;
-	password: string;
+	password?: string; // Optional for OAuth users
 	first_name: string;
 	last_name: string;
 	birth_date: Date;
 	bio?: string;
 	gender: "male" | "female" | "other";
-	sexual_orientation: "heterosexual" | "homosexual" | "bisexual";
+	sexual_orientation: "heterosexual" | "homosexual" | "bisexual" | "other";
 	location?: {
 		type: "Point";
 		coordinates: [number, number];
 	};
 	location_manual?: boolean;
+	// OAuth provider information
+	google_id?: string;
+	university_id?: string;
+	auth_provider?: "local" | "google" | "university";
 };
 
 // Additional interfaces from user.types.ts

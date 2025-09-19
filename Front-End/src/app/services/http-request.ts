@@ -43,13 +43,13 @@ export class HttpRequestService {
 		httpEndpoint: EP,
 		httpMethod: M,
 	): Observable<TRes> {
-		return this.http.request<TRes>(
-			httpMethod,
-			this.getUrl(httpEndpoint),
-			credentials === undefined || credentials === null
-				? {}
-				: { body: credentials },
-		);
+			return this.http.request<TRes>(
+				httpMethod,
+				this.getUrl(httpEndpoint),
+				credentials === undefined || credentials === null
+					? { withCredentials: true }
+					: { body: credentials, withCredentials: true },
+			);
 	}
 
 	// Query params helper (accepts object or pre-built string). If a string is passed it's appended directly.
@@ -96,9 +96,10 @@ export class HttpRequestService {
 				cleaned[k] = v as (typeof cleaned)[string];
 			}
 		}
-		return this.http.request<TRes>(httpMethod, this.getUrl(httpEndpoint), {
-			params: cleaned,
-		});
+			return this.http.request<TRes>(httpMethod, this.getUrl(httpEndpoint), {
+				params: cleaned,
+				withCredentials: true,
+			});
 	}
 	private isServer(): boolean {
 		return isPlatformServer(this.platformId);
