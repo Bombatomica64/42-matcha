@@ -10,8 +10,7 @@ import { ProgressBar } from 'primeng/progressbar';
 import { ToastModule } from 'primeng/toast';
 import { GalleriaModule } from 'primeng/galleria';
 import { DialogModule } from 'primeng/dialog';
-import { DragDropModule } from '@angular/cdk/drag-drop';
-import type { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { DragDropModule, moveItemInArray, CdkDragDrop } from '@angular/cdk/drag-drop';
 
 import { type HttpEndpoint, type HttpMethod, HttpRequestService } from '../../services/http-request';
 import { GetUserProfile } from '../../services/user/get-user-profile';
@@ -102,11 +101,13 @@ type FileUploadSelectEvent = { files: File[] | FileList };
     </p-dialog>
     <p-toast />
     @if (orderedPhotos().length > 0) {
-      <div cdkDropList (cdkDropListDropped)="onDrop($event)" class="grid grid-cols-12 gap-4" style="max-width: 800px;">
+  <div cdkDropList cdkDropListOrientation="mixed" class="example-list" (cdkDropListDropped)="onDrop($event)">
         @for (image of orderedPhotos(); track image.id; let index = $index) {
-          <div class="col-span-4" cdkDrag>
-            <img [src]="image.full_image_url" [alt]="image.original_filename ?? image.filename" crossorigin="use-credentials" style="cursor: pointer" (click)="imageClick(index)" />
-            <p-button label="Set Main" icon="pi pi-star" [severity]="image.is_main ? 'success' : 'secondary'" (onClick)="setMainPhoto(image.id)" [disabled]="image.is_main" />
+          <div class="col-span-4 example-boxes" cdkDrag>
+            <div class="img-container">
+              <img cdkDragHandle [src]="image.full_image_url" [alt]="image.original_filename ?? image.filename" crossorigin="use-credentials" (click)="imageClick(index)" />
+              <p-button class="overlay-button" aria-label="Set Main" [rounded]="true" [text]="true" [raised]="true" icon="pi pi-star" [severity]="image.is_main ? 'warn' : 'secondary'" (onClick)="setMainPhoto(image.id)" [disabled]="image.is_main" />
+            </div>
           </div>
         }
       </div>
@@ -128,7 +129,72 @@ type FileUploadSelectEvent = { files: File[] | FileList };
     </p-galleria>
   </div>
   `,
-  styles: ``
+  styles: `
+    .example-list {
+      display: flex;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 800px;
+      gap: 15px;
+      padding: 15px;
+      border: solid 1px #ccc;
+      min-height: 60px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .example-boxes {
+      border: solid 1px #ccc;
+      border-radius: 4px;
+      color: rgba(0, 0, 0, 0.87);
+      display: inline-block;
+      box-sizing: border-box;
+      cursor: move;
+      background: white;
+      text-align: center;
+      width: 100px;
+      padding: 0px;
+    }
+    .img-container {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      border-radius: 4px;
+    }
+    .example-boxes img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 4px;
+    }
+    .overlay-button {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      z-index: 5;
+      opacity: 0;
+      transition: opacity 120ms ease-in-out;
+      pointer-events: none;
+      --pi-button-padding: 6px; /* primeng small tweak if needed */
+    }
+    .img-container:hover .overlay-button {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .cdk-drag-preview {
+      box-sizing: border-box;
+      border-radius: 4px;
+      box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+                  0 8px 10px 1px rgba(0, 0, 0, 0.14),
+                  0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    }
+    .cdk-drag-placeholder {
+      opacity: 0;
+    }
+    .cdk-drag-animating {
+      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+    }
+  `
 })
 export class UserImages {
   private readonly messageService = inject(MessageService);
@@ -270,11 +336,10 @@ export class UserImages {
       });
   }
 
-  onDrop(event: CdkDragDrop<Photo[]>) {
+  onDrop(event: CdkDragDrop<(Photo & { full_image_url: string })[]>) {
     const before = this.orderedPhotos();
     const optimistic = [...before];
-    const [moved] = optimistic.splice(event.previousIndex, 1);
-    optimistic.splice(event.currentIndex, 0, moved);
+    moveItemInArray(optimistic, event.previousIndex, event.currentIndex);
     this.orderedPhotos.set(optimistic);
 
     const photoIds = optimistic.map(p => p.id);
