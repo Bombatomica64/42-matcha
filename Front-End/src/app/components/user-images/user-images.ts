@@ -106,7 +106,9 @@ type FileUploadSelectEvent = { files: File[] | FileList };
           <div class="col-span-4 example-boxes" cdkDrag>
             <div class="img-container">
               <img cdkDragHandle [src]="image.full_image_url" [alt]="image.original_filename ?? image.filename" crossorigin="use-credentials" (click)="imageClick(index)" />
-              <p-button class="overlay-button" aria-label="Set Main" [rounded]="true" [text]="true" [raised]="true" icon="pi pi-star" [severity]="image.is_main ? 'warn' : 'secondary'" (onClick)="setMainPhoto(image.id)" [disabled]="image.is_main" />
+              @if (image.is_main) {
+                <i class="pi pi-star main-star" aria-hidden="true" title="Main photo"></i>
+              }
             </div>
           </div>
         }
@@ -180,6 +182,15 @@ type FileUploadSelectEvent = { files: File[] | FileList };
     .img-container:hover .overlay-button {
       opacity: 1;
       pointer-events: auto;
+    }
+    .main-star {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      z-index: 6;
+      color: #f1c40f; /* golden yellow */
+      font-size: 20px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
     }
     .cdk-drag-preview {
       box-sizing: border-box;
@@ -329,6 +340,12 @@ export class UserImages {
           this.messageService.add({ severity: 'success', summary: 'Upload', detail: 'Caricamento completato', life: 3000 });
           this.profileService.reloadProfile();
           this.showUploadDialog = false;
+
+          // Dopo upload, imposta come main la prima immagine (se presente) dopo breve delay
+          setTimeout(() => {
+            const firstId = this.orderedPhotos()[0]?.id;
+            if (firstId) this.setMainPhoto(firstId);
+          }, 300);
         },
         error: (error: ErrorResponse) => {
           this.messageService.add({ severity: 'error', summary: 'Upload failed', detail: error?.message ?? 'Errore', life: 5000 });
@@ -356,6 +373,9 @@ export class UserImages {
           this.messageService.add({ severity: 'success', summary: 'Ordine aggiornato', detail: 'Ordine foto salvato', life: 2000 });
           // Optionally refresh profile to reflect new order everywhere
           this.profileService.reloadProfile();
+          // Dopo reorder, imposta come main la prima immagine ottimistica
+          const firstIdOptimistic = optimistic[0]?.id;
+          if (firstIdOptimistic) this.setMainPhoto(firstIdOptimistic);
         },
         error: (error: ErrorResponse) => {
           // rollback
