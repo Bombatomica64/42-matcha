@@ -35,7 +35,7 @@ type FileUploadSelectEvent = { files: File[] | FileList };
   providers: [MessageService],
   template: `
   <div class="card flex justify-center">
-    <p-button label="Upload Photo" icon="pi pi-upload" (onClick)="showUploadDialog = true" />
+
     <p-dialog [(visible)]="showUploadDialog" modal="true" header="Upload Photo" [style]="{width: '500px'}">
       <p-fileupload name="myfile[]" [customUpload]="true" [multiple]="true" accept="image/*" maxFileSize="1000000" (onSelect)="onSelectedFiles($event)">
         <ng-template #header let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback">
@@ -112,6 +112,7 @@ type FileUploadSelectEvent = { files: File[] | FileList };
             </div>
           </div>
         }
+        <p-button [ngStyle]="{ display: 'flex' }" class="example-boxes" [label]="orderedPhotos().length >= 5 ? 'Limit reached' : 'Upload Photo'" icon="pi pi-upload" iconPos="top" (onClick)="showUploadDialog = true" [disabled]="orderedPhotos().length >= 5"/>
       </div>
     }
     <p-galleria
@@ -143,6 +144,7 @@ type FileUploadSelectEvent = { files: File[] | FileList };
       min-height: 60px;
       border-radius: 4px;
       overflow: hidden;
+      justify-content: center;
     }
     .example-boxes {
       border: solid 1px #ccc;
