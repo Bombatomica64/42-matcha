@@ -2,19 +2,17 @@ import { Component, inject, input, PLATFORM_ID, computed, signal, effect } from 
 import { isPlatformBrowser } from '@angular/common';
 import { MessageService } from 'primeng/api';
 import { PrimeNG } from 'primeng/config';
-import { FileUpload } from 'primeng/fileupload';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { BadgeModule } from 'primeng/badge';
-import { ProgressBar } from 'primeng/progressbar';
 import { ToastModule } from 'primeng/toast';
 import { GalleriaModule } from 'primeng/galleria';
-import { DialogModule } from 'primeng/dialog';
 import { DragDropModule, moveItemInArray, CdkDragDrop } from '@angular/cdk/drag-drop';
 
 import { type HttpEndpoint, type HttpMethod, HttpRequestService } from '../../services/http-request';
 import { GetUserProfile } from '../../services/user/get-user-profile';
 import { environment } from '../../../environments/environment';
+import { ImageUploadDialogComponent } from '../image-upload-dialog/image-upload-dialog';
 
 import type { components } from '../../../types/api';
 
@@ -26,80 +24,23 @@ type Photo = components['schemas']['Photo'];
 
 // Local helper types
 type ResponsiveOption = { breakpoint: string; numVisible: number }
-type UploadFile = { file?: File; name?: string; size?: number; objectURL?: string }
-type FileUploadSelectEvent = { files: File[] | FileList };
 
 @Component({
   selector: 'app-user-images',
   standalone: true,
-  imports: [FileUpload, ProgressBar, ButtonModule, BadgeModule, ToastModule, CommonModule, GalleriaModule, DragDropModule, DialogModule],
+  imports: [ButtonModule, BadgeModule, ToastModule, CommonModule, GalleriaModule, DragDropModule, ImageUploadDialogComponent],
   providers: [MessageService],
   template: `
   <div class="card flex justify-center">
+    <!-- Image Upload Dialog Component -->
+    <app-image-upload-dialog
+      [visible]="showUploadDialog"
+      [maxFileSize]="1000000"
+      (visibleChange)="showUploadDialog = $event"
+      (uploadSuccess)="onUploadSuccess($event)"
+      (uploadError)="onUploadError($event)"
+    />
 
-    <p-dialog [(visible)]="showUploadDialog" modal="true" header="Upload Photo" [style]="{width: '500px'}">
-      <p-fileupload name="myfile[]" [customUpload]="true" [multiple]="true" accept="image/*" maxFileSize="1000000" (onSelect)="onSelectedFiles($event)">
-        <ng-template #header let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback">
-          <div class="flex flex-wrap justify-between items-center flex-1 gap-4">
-            <div class="flex gap-2">
-              <p-button (onClick)="choose($event, chooseCallback)" icon="pi pi-images" [rounded]="true" [outlined]="true" />
-              <p-button (onClick)="uploadEvent()" icon="pi pi-cloud-upload" [rounded]="true" [outlined]="true" severity="success" [disabled]="!files || files.length === 0" />
-              <p-button (onClick)="clearCallback()" icon="pi pi-times" [rounded]="true" [outlined]="true" severity="danger" [disabled]="!files || files.length === 0" />
-            </div>
-            <p-progressbar [value]="totalSizePercent" [showValue]="false" class="w-full md:w-20rem h-1 w-full md:ml-auto">
-              <span class="whitespace-nowrap">{{ totalSize }}B / 1Mb</span>
-            </p-progressbar>
-          </div>
-        </ng-template>
-        <ng-template #content let-files let-uploadedFiles="uploadedFiles" let-removeFileCallback="removeFileCallback" let-removeUploadedFileCallback="removeUploadedFileCallback">
-          <div class="flex flex-col gap-8 pt-4">
-            @if (files?.length > 0) {
-              <div>
-                <h5>Pending</h5>
-                <div class="flex flex-wrap gap-4">
-                  @for (file of files; track file; let i = $index) {
-                    <div class="p-8 rounded-border flex flex-col border border-surface items-center gap-4">
-                      <div>
-                        <img role="presentation" [alt]="file.name" [src]="file.objectURL" width="100" height="50" />
-                      </div>
-                      <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name }}</span>
-                      <div>{{ formatSize(file.size) }}</div>
-                      <p-badge value="Pending" severity="warn" />
-                      <p-button icon="pi pi-times" (click)="onRemoveTemplatingFile($event, file, removeFileCallback, i)" [outlined]="true" [rounded]="true" severity="danger" />
-                    </div>
-                  }
-                </div>
-              </div>
-            }
-            @if (uploadedFiles?.length > 0) {
-              <div>
-                <h5>Completed</h5>
-                <div class="flex flex-wrap gap-4">
-                  @for (file of uploadedFiles; track file; let i = $index) {
-                    <div class="card m-0 px-12 flex flex-col border border-surface items-center gap-4">
-                      <div>
-                        <img role="presentation" [alt]="file.name" [src]="file.objectURL" width="100" height="50" />
-                      </div>
-                      <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name }}</span>
-                      <div>{{ formatSize(file.size) }}</div>
-                      <p-badge value="Completed" class="mt-4" severity="success" />
-                      <p-button icon="pi pi-times" (onClick)="removeUploadedFileCallback(i)" [outlined]="true" [rounded]="true" severity="danger" />
-                    </div>
-                  }
-                </div>
-              </div>
-            }
-          </div>
-        </ng-template>
-        <ng-template #file></ng-template>
-        <ng-template #empty>
-          <div class="flex items-center justify-center flex-col">
-            <i class="pi pi-cloud-upload !border-2 !rounded-full !p-8 !text-4xl !text-muted-color"></i>
-            <p class="mt-6 mb-0">Drag and drop files to here to upload.</p>
-          </div>
-        </ng-template>
-      </p-fileupload>
-    </p-dialog>
     <p-toast />
     @if (orderedPhotos().length > 0) {
   <div cdkDropList cdkDropListOrientation="mixed" class="example-list" (cdkDropListDropped)="onDrop($event)">
@@ -293,84 +234,20 @@ export class UserImages {
     this.displayCustom = true;
   }
 
-  files: UploadFile[] = [];
-  totalSize: number = 0;
-  totalSizePercent: number = 0;
-  private readonly maxTotalSize = 1_000_000;
+  onUploadSuccess(response: PostPhotoResponse) {
+    this.profileService.reloadProfile();
+    this.showUploadDialog = false;
 
-  choose(_event: Event, callback: () => void): void {
-    callback();
+    // Dopo upload, imposta come main la prima immagine (se presente) dopo breve delay
+    setTimeout(() => {
+      const firstId = this.orderedPhotos()[0]?.id;
+      if (firstId) this.setMainPhoto(firstId);
+    }, 300);
   }
 
-  onRemoveTemplatingFile(
-    event: Event,
-    file: UploadFile,
-    removeFileCallback: (event: Event, index: number) => void,
-    index: number,
-  ): void {
-    removeFileCallback(event, index);
-    this.totalSize -= file?.size ?? 0;
-    if (this.totalSize < 0) {
-      this.totalSize = 0;
-    }
-    this.totalSizePercent = Math.min(100, Math.round((this.totalSize / this.maxTotalSize) * 100));
-  }
-
-  onClearTemplatingUpload(clear: () => void): void {
-    clear();
-    this.totalSize = 0;
-    this.totalSizePercent = 0;
-  }
-
-  onSelectedFiles(event: FileUploadSelectEvent): void {
-    const filesLike = event?.files ?? [];
-    const current: File[] = Array.isArray(filesLike)
-      ? filesLike
-      : Array.from((filesLike as FileList) ?? []);
-    this.files = current.map((f: File) => ({ file: f, name: f.name, size: f.size }));
-    this.totalSize = this.files.reduce((sum: number, f) => sum + (f?.size ?? 0), 0);
-    this.totalSizePercent = Math.min(100, Math.round((this.totalSize / this.maxTotalSize) * 100));
-  }
-
-  private readonly httpEndpoint: HttpEndpoint = '/photos';
-  private readonly httpMethod: HttpMethod = 'POST';
-
-  uploadEvent(): void {
-    if (!this.files || this.files.length === 0) {
-      this.messageService.add({ severity: 'warn', summary: 'No files', detail: 'Nessun file da caricare', life: 3000 });
-      return;
-    }
-    const form = new FormData();
-    this.files.forEach((f) => {
-      const nativeFile: File | undefined = f?.file;
-      if (nativeFile instanceof File) {
-        form.append('photo', nativeFile, nativeFile.name);
-      }
-    });
-    form.append('is_main', 'false');
-    form.append('display_order', '0');
-    this.http
-      .request<typeof this.httpEndpoint, typeof this.httpMethod, PostPhotoResponse, FormData>(
-        form,
-        this.httpEndpoint,
-        this.httpMethod,
-      )
-      .subscribe({
-        next: () => {
-          this.messageService.add({ severity: 'success', summary: 'Upload', detail: 'Caricamento completato', life: 3000 });
-          this.profileService.reloadProfile();
-          this.showUploadDialog = false;
-
-          // Dopo upload, imposta come main la prima immagine (se presente) dopo breve delay
-          setTimeout(() => {
-            const firstId = this.orderedPhotos()[0]?.id;
-            if (firstId) this.setMainPhoto(firstId);
-          }, 300);
-        },
-        error: (error: ErrorResponse) => {
-          this.messageService.add({ severity: 'error', summary: 'Upload failed', detail: error?.message ?? 'Errore', life: 5000 });
-        }
-      });
+  onUploadError(error: ErrorResponse) {
+    // L'errore è già gestito nel componente di upload
+    console.error('Upload error:', error);
   }
 
   private readonly httpMethodDelete: HttpMethod = 'DELETE';
@@ -380,7 +257,7 @@ export class UserImages {
     const optimistic = before.filter(p => p.id !== photoId);
     this.orderedPhotos.set(optimistic);
 
-    const endpoint = `${this.httpEndpoint}/${encodeURIComponent(photoId)}` as HttpEndpoint;
+    const endpoint = `/photos/${encodeURIComponent(photoId)}` as HttpEndpoint;
 
     this.http
       .request(
@@ -410,7 +287,7 @@ export class UserImages {
     const payload = { photoIds } as const;
 
     this.http
-      .request<typeof this.httpEndpoint, 'PUT', unknown, typeof payload>(
+      .request<HttpEndpoint, 'PUT', unknown, typeof payload>(
         payload,
         '/photos/order' as HttpEndpoint,
         'PUT'
@@ -456,18 +333,5 @@ export class UserImages {
           this.messageService.add({ severity: 'error', summary: 'Errore', detail: error?.message ?? 'Impossibile impostare foto principale', life: 5000 });
         }
       });
-  }
-
-  formatSize(bytes: number): string {
-    const k = 1024;
-    const dm = 3;
-    const fallback = ['B', 'KB', 'MB', 'GB', 'TB'];
-    const sizes = this.config.translation?.fileSizeTypes ?? fallback;
-    if (!bytes || bytes === 0) {
-      return `0 ${sizes[0]}`;
-    }
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    const formattedSize = parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
-    return `${formattedSize} ${sizes[i] ?? fallback[i]}`;
   }
 }
