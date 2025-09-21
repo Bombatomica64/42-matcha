@@ -19,6 +19,7 @@ import { environment } from '../../../environments/environment';
 import type { components } from '../../../types/api';
 
 type PostPhotoResponse = { id: string; image_url: string };
+type DeletePhotoResponse = unknown;
 type ErrorResponse = components['schemas']['ErrorResponse'];
 
 type Photo = components['schemas']['Photo'];
@@ -109,6 +110,7 @@ type FileUploadSelectEvent = { files: File[] | FileList };
               @if (image.is_main) {
                 <i class="pi pi-star main-star" aria-hidden="true" title="Main photo"></i>
               }
+              <p-button class="overlay-delete" aria-label="Delete photo" [rounded]="true" variant="text" [raised]="true" size="small" icon="pi pi-trash" severity="danger" (onClick)="deletePhoto(image.id)"></p-button>
             </div>
           </div>
         }
@@ -170,6 +172,22 @@ type FileUploadSelectEvent = { files: File[] | FileList };
       object-fit: cover;
       display: block;
       border-radius: 4px;
+    }
+    .overlay-delete {
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+      z-index: 6;
+      opacity: 0;
+      transition: opacity 120ms ease-in-out, transform 120ms ease-in-out;
+      pointer-events: none;
+      --pi-button-padding: 6px;
+      transform: translateY(4px);
+    }
+    .img-container:hover .overlay-delete {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
     }
     .overlay-button {
       position: absolute;
@@ -351,6 +369,33 @@ export class UserImages {
         },
         error: (error: ErrorResponse) => {
           this.messageService.add({ severity: 'error', summary: 'Upload failed', detail: error?.message ?? 'Errore', life: 5000 });
+        }
+      });
+  }
+
+  private readonly httpMethodDelete: HttpMethod = 'DELETE';
+
+  deletePhoto(photoId: string) {
+    const before = this.orderedPhotos();
+    const optimistic = before.filter(p => p.id !== photoId);
+    this.orderedPhotos.set(optimistic);
+
+    const endpoint = `${this.httpEndpoint}/${encodeURIComponent(photoId)}` as HttpEndpoint;
+
+    this.http
+      .request(
+        undefined,
+        endpoint,
+        this.httpMethodDelete
+      )
+      .subscribe({
+        next: () => {
+          this.messageService.add({ severity: 'success', summary: 'Photo deleted', detail: 'Foto eliminata con successo', life: 3000 });
+          this.profileService.reloadProfile();
+        },
+        error: (error: ErrorResponse) => {
+          this.orderedPhotos.set(before);
+          this.messageService.add({ severity: 'error', summary: 'Delete failed', detail: error?.message ?? 'Errore', life: 5000 });
         }
       });
   }
