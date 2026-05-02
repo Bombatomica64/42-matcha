@@ -11,9 +11,7 @@ import {
 	signal,
 	ViewChild,
 } from "@angular/core";
-import { animate, state, style, transition, trigger } from "@angular/animations";
 import { ButtonModule } from "primeng/button";
-import { CardModule } from "primeng/card";
 import { CommonModule } from "@angular/common";
 import type { operations } from "../../../types/api";
 import {
@@ -23,6 +21,9 @@ import {
 	type PaginationQuery,
 } from "../../services/http-request";
 import { Card } from "../card/card";
+import { RightCard } from "../right-card/right-card";
+import { LeftCard } from "../left-card/left-card";
+import { GetUserProfile } from "../../services/user/get-user-profile";
 
 export type DiscoverUsersQuery =
 	operations["discoverUsers"]["parameters"]["query"];
@@ -32,36 +33,13 @@ type DiscoverUsersData = DiscoverUsersResponse["data"];
 
 @Component({
 	selector: "app-tinder-card",
-	imports: [CdkDrag, CardModule, ButtonModule, Card, CommonModule],
-	animations: [
-		trigger('slideFromRight', [
-			transition(':enter', [
-				style({ left: '-10%' }),
-				animate('300ms ease-in-out', style({ left: '-70%' }))
-			]),
-			transition(':leave', [
-				animate('300ms ease-in-out', style({ left: '10%' }))
-			])
-		]),
-		trigger('slideFromLeft', [
-			transition(':enter', [
-				style({ left: '10%' }),
-				animate('300ms ease-in-out', style({ left: '100%' }))
-			]),
-			transition(':leave', [
-				animate('300ms ease-in-out', style({ left: '10%' }))
-			])
-		]),
-	],
+	imports: [CdkDrag, ButtonModule, Card, CommonModule, RightCard, LeftCard],
 	template: `
       <div #box class="example-box" cdkDrag [cdkDragFreeDragPosition]="dragPosition()" (cdkDragMoved)="onDragMoved($event)" (cdkDragEnded)="onDragEnded($event)">
         <div #content class="content">
           @if (users().length > 0 && currentUserIndex() < users().length) {
-            @if (!isDragging() && !sidesHidden())
-              {
-                <div class="left" @slideFromRight></div>
-                <div class="right" @slideFromLeft></div>
-              }
+            <app-left-card class="left" [class.panels-hidden]="sidesHidden()" [user]="users()[currentUserIndex()]"></app-left-card>
+            <app-right-card class="right" [class.panels-hidden]="sidesHidden()" [user]="users()[currentUserIndex()]"></app-right-card>
             <app-card [user]="users()[currentUserIndex()]" />
           }
         </div>
@@ -80,8 +58,18 @@ type DiscoverUsersData = DiscoverUsersResponse["data"];
     left: -70%;
     width: 70%;
     height: 90%;
-    background: #ffffffff;
+    background: rgb(51, 51, 51);
+    border-radius: 8px 0 0 8px;
+    padding: 16px;
     z-index: 1;
+    opacity: 1;
+    pointer-events: auto;
+    transition: left 300ms ease-in-out, opacity 300ms ease-in-out;
+  }
+  .left.panels-hidden {
+    left: 15%;
+    opacity: 0;
+    pointer-events: none;
   }
   .right {
     position: absolute;
@@ -89,8 +77,18 @@ type DiscoverUsersData = DiscoverUsersResponse["data"];
     left: 100%;
     width: 70%;
     height: 90%;
-    background: #ffffffff;
+    background: rgb(51, 51, 51);
+    border-radius: 0 8px 8px 0;
+    padding: 12px;
     z-index: 1;
+    opacity: 1;
+    pointer-events: auto;
+    transition: left 300ms ease-in-out, opacity 300ms ease-in-out;
+  }
+  .right.panels-hidden {
+    left: 15%;
+    opacity: 0;
+    pointer-events: none;
   }
   .example-box {
     width: 90%;
@@ -134,6 +132,7 @@ type DiscoverUsersData = DiscoverUsersResponse["data"];
   `,
 })
 export class TinderCard {
+  profileService = inject(GetUserProfile);
   private hostRef = inject(ElementRef<HTMLElement>);
 	hostWidth = input.required<number>();
 	hostHeight = input.required<number>();

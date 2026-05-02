@@ -31,7 +31,7 @@ type ResponsiveOption = { breakpoint: string; numVisible: number }
   imports: [ButtonModule, BadgeModule, ToastModule, CommonModule, GalleriaModule, DragDropModule, ImageUploadDialogComponent],
   providers: [MessageService],
   template: `
-  <div class="card flex justify-center">
+  <div class="card flex justify-center" [class.editable]="!editable()">
     <!-- Image Upload Dialog Component -->
     <app-image-upload-dialog
       [visible]="showUploadDialog"
@@ -42,22 +42,22 @@ type ResponsiveOption = { breakpoint: string; numVisible: number }
     />
 
     <p-toast />
-    @if (orderedPhotos().length > 0) {
-  <div cdkDropList cdkDropListOrientation="mixed" class="example-list" (cdkDropListDropped)="onDrop($event)">
-        @for (image of orderedPhotos(); track image.id; let index = $index) {
-          <div class="col-span-4 example-boxes" cdkDrag>
-            <div class="img-container">
-              <img cdkDragHandle [src]="image.full_image_url" [alt]="image.original_filename ?? image.filename" crossorigin="use-credentials" (click)="imageClick(index)" />
-              @if (image.is_main) {
-                <i class="pi pi-star main-star" aria-hidden="true" title="Main photo"></i>
-              }
-              <p-button class="overlay-delete" aria-label="Delete photo" [rounded]="true" variant="text" [raised]="true" size="small" icon="pi pi-trash" severity="danger" (onClick)="deletePhoto(image.id)"></p-button>
-            </div>
+    <div cdkDropList cdkDropListOrientation="mixed" class="example-list" [class.editable]="!editable()" (cdkDropListDropped)="onDrop($event)">
+      @for (image of orderedPhotos(); track image.id; let index = $index) {
+        <div class="col-span-4 example-boxes" [class.editable]="!editable()" cdkDrag>
+          <div class="img-container">
+            <img cdkDragHandle [src]="image.full_image_url" [alt]="image.original_filename ?? image.filename" crossorigin="use-credentials" (click)="imageClick(index)" />
+            @if (image.is_main) {
+              <i class="pi pi-star main-star" aria-hidden="true" title="Main photo"></i>
+            }
+            <p-button class="overlay-delete" aria-label="Delete photo" [rounded]="true" variant="text" [raised]="true" size="small" icon="pi pi-trash" severity="danger" (onClick)="deletePhoto(image.id)"></p-button>
           </div>
-        }
+        </div>
+      }
+      @if (editable()) {
         <p-button [ngStyle]="{ display: 'flex' }" class="example-boxes" [label]="orderedPhotos().length >= 5 ? 'Limit reached' : 'Upload Photo'" icon="pi pi-upload" iconPos="top" (onClick)="showUploadDialog = true" [disabled]="orderedPhotos().length >= 5"/>
-      </div>
-    }
+      }
+    </div>
     <p-galleria
       [value]="orderedPhotos()"
       [(activeIndex)]="activeIndex"
@@ -76,6 +76,9 @@ type ResponsiveOption = { breakpoint: string; numVisible: number }
   </div>
   `,
   styles: `
+    .card.editable {
+      height: 100%;
+    }
     .example-list {
       display: flex;
       flex-wrap: wrap;
@@ -88,6 +91,11 @@ type ResponsiveOption = { breakpoint: string; numVisible: number }
       border-radius: 4px;
       overflow: hidden;
       justify-content: center;
+      scrollbar-color: rgba(0,0,0,0.25) transparent;
+    }
+    .example-list.editable {
+      height: 100%;
+      overflow-y: auto;
     }
     .example-boxes {
       border: solid 1px #ccc;
@@ -100,6 +108,12 @@ type ResponsiveOption = { breakpoint: string; numVisible: number }
       text-align: center;
       width: 100px;
       padding: 0px;
+    }
+    .card.editable {
+      height: 100%;
+    }
+    .example-boxes.editable {
+      width: 100%;
     }
     .img-container {
       position: relative;
@@ -180,6 +194,7 @@ export class UserImages {
   showUploadDialog = false;
 
   images = input<Photo[]>();
+  editable = input<boolean>(true);
 
   // Local signal for drag-and-drop order
   orderedPhotos = signal<(Photo & { full_image_url: string })[]>([]);

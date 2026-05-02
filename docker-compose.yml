@@ -12,8 +12,8 @@ services:
         condition: service_healthy
     networks:
       - traefik
-    expose:
-      - "3000"
+    ports:
+      - "3000:3000"
 
   frontend:
     build:
@@ -24,16 +24,16 @@ services:
     expose:
       - "80"
 
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    command: tunnel --no-autoupdate run --token "${CLOUDFLARE_TOKEN}" --protocol auto
-    env_file:
-      - .env
-    depends_on:
-      - traefik
-    networks:
-      - traefik
-    restart: unless-stopped
+  # cloudflared:
+  #   image: cloudflare/cloudflared:latest
+  #   command: tunnel --no-autoupdate run --token "${CLOUDFLARE_TOKEN}" --protocol auto
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     - traefik
+  #   networks:
+  #     - traefik
+  #   restart: unless-stopped
 
 
   traefik:

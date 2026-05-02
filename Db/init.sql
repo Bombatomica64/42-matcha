@@ -152,17 +152,6 @@ CREATE TABLE IF NOT EXISTS messages (
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create notifications table
-CREATE TABLE IF NOT EXISTS notifications (
-		id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-		user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-		type VARCHAR(50) NOT NULL, -- 'like', 'view', 'match', 'unlike', 'message'
-		related_user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-		message TEXT,
-		read_at TIMESTAMP,
-		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
 -- Create indexes for performance
 CREATE INDEX idx_user_likes_liker ON user_likes(liker_id);
 CREATE INDEX idx_user_likes_liked ON user_likes(liked_id);
@@ -172,8 +161,6 @@ CREATE INDEX idx_profile_views_viewer ON profile_views(viewer_id);
 CREATE INDEX idx_profile_views_viewed ON profile_views(viewed_id);
 CREATE INDEX idx_messages_match ON messages(match_id);
 CREATE INDEX idx_messages_sender ON messages(sender_id);
-CREATE INDEX idx_notifications_user ON notifications(user_id);
-CREATE INDEX idx_notifications_type ON notifications(type);
 CREATE INDEX idx_users_last_seen ON users(last_seen);
 CREATE INDEX idx_users_online_status ON users(online_status);
 

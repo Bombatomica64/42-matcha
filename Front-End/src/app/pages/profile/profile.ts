@@ -13,7 +13,6 @@ import { RatingModule } from 'primeng/rating';
 import { adultValidator } from '../../components/forms/register-form/register-form';
 import { SelectModule } from 'primeng/select';
 import { components } from '../../../types/api';
-import { HttpEndpoint, HttpMethod, HttpRequestService } from '../../services/http-request';
 import { Card } from "../../components/card/card";
 import { UserImages } from "../../components/user-images/user-images";
 
@@ -42,75 +41,103 @@ type ErrorResponse = components['schemas']['ErrorResponse'];
     UserImages,
 ],
   template: `
-    <div style="padding: 1rem;">
-      <app-card [user]="profileService.profile()"/>
-      <app-user-images [images]="profileService.profile().photos" />
-    </div>
+    <div class="page-outer">
+      <div class="page-center">
 
-    <div style="display: flex; flex-direction: column; padding: 1rem;">
-      <p>{{ profileService.profile().name }}</p>
-      <br />
+        <!-- colonna sinistra: card + immagini, fissa -->
+        <div class="left-col">
+          <div style="padding: 1rem;">
+            <app-card [user]="profileService.profile()"/>
+            <app-user-images [images]="profileService.profile().photos" />
+          </div>
+        </div>
 
-      <app-profile-form />
-    </div>
+        <!-- colonna destra: tutto il resto, scrollabile -->
+        <div class="right-col">
+          <p>{{ profileService.profile().name }}</p>
 
-    <div style="padding: 1rem;">
-      <p>Hashtags: {{ profileService.profile().hashtags }}</p>
-      <p>Photos: {{ profileService.profile().photos }}</p>
+          <app-profile-form />
 
-      <!-- <p>Online Status: {{ profileService.profile()?.online_status }}</p> -->
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
-        <span>Fame Rating:</span>
-        <p-rating [ngModel]="profileService.profile().fame_rating" [readonly]="true" style="pointer-events: none;" />
+          <p>Hashtags: {{ profileService.profile().hashtags }}</p>
+
+          <div class="stat-row">
+            <span>Fame Rating:</span>
+            <p-rating [ngModel]="profileService.profile().fame_rating" [readonly]="true" style="pointer-events: none;" />
+          </div>
+          <div class="stat-row">
+            <span>Likes Received:</span>
+            <p-button [rounded]="true" size="small" label="{{profileService.profile().likes_received}}" icon="pi pi-thumbs-up" severity="success" iconPos="right"/>
+          </div>
+          <div class="stat-row">
+            <span>Views:</span>
+            <p-button [rounded]="true" size="small" label="{{profileService.profile().views}}" icon="pi pi-eye" severity="info" iconPos="right"/>
+          </div>
+          <div class="stat-row">
+            <span>Matches:</span>
+            <p-button [rounded]="true" size="small" label="{{profileService.profile().matches}}" icon="pi pi-heart" severity="warn" iconPos="right"/>
+          </div>
+
+          <p-button label="Change Password" icon="pi pi-lock" severity="secondary"></p-button>
+        </div>
+
       </div>
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
-        <span>Likes Received:</span>
-        <p-button [rounded]="true" size="small" label="{{profileService.profile().likes_received}}" icon="pi pi-thumbs-up" severity="success" iconPos="right"/>
-      </div>
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
-        <span>Views:</span>
-        <p-button [rounded]="true" size="small" label="{{profileService.profile().views}}" icon="pi pi-eye" severity="info" iconPos="right"/>
-      </div>
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
-        <span>Matches:</span>
-        <p-button [rounded]="true" size="small" label="{{profileService.profile().matches}}" icon="pi pi-heart" severity="warn" iconPos="right"/>
-      </div>
-
-      <p-button label="Change Password" icon="pi pi-lock" severity="secondary"></p-button>
     </div>
   `,
   styles: `
     :host {
+      display: block;
+      height: 100%;
+      overflow: hidden;
+    }
+    .page-outer {
+      display: flex;
+      justify-content: center;
+      height: 100%;
+      padding: 0 2rem;
+      box-sizing: border-box;
+    }
+    .page-center {
       display: flex;
       flex-direction: row;
+      gap: 2rem;
+      width: 100%;
+      max-width: 900px;
       height: 100%;
+    }
+    .left-col {
+      flex: 0 0 auto;
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      align-self: center;
+    }
+    .right-col {
+      flex: 1 1 0;
+      display: flex;
+      flex-direction: column;
       gap: 1rem;
+      overflow-y: auto;
+      padding: 1rem 0.5rem 1rem 0;
+      scrollbar-width: thin;
+      scrollbar-color: #555 transparent;
     }
-    :host > div:first-child {
-      align-self: center; /* Centers the first child vertically */
-      /* Other styles for the first div */
+    .right-col::-webkit-scrollbar {
+      width: 8px;
     }
-    :host > div:last-child {
-      /* Styles for the second div - it will stay at the top due to align-items: flex-start on the parent */
+    .right-col::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .right-col::-webkit-scrollbar-thumb {
+      background-color: #555;
+      border-radius: 4px;
+    }
+    .stat-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
   `,
 })
 export class Profile {
   profileService = inject(GetUserProfile);
-
-//  httpEndpoint: HttpEndpoint = "/photos"
-//  httpMethod: HttpMethod = "POST"
-//
-//  constructor() {
-//	  this.auth.requestParams("", this.httpEndpoint, this.httpMethod).subscribe({
-//      next: (response: GetPhotoResponse) => {
-//        console.log('photo success:', response);
-//      },
-//      error: (error: ErrorResponse) => {
-//        console.error('photo error:', error);
-//      }
-//    });
-//	}
-//
-//  auth = inject(HttpRequestService)
 }

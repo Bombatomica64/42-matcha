@@ -1,80 +1,65 @@
 import { Component, input } from "@angular/core";
-import { ButtonModule } from "primeng/button";
-import { CardModule } from "primeng/card";
-import { TagModule } from 'primeng/tag';
 import type { components } from "../../../types/api";
 
 type User = components["schemas"]["User"];
 
+
 @Component({
 	selector: "app-card",
-	imports: [CardModule, ButtonModule, TagModule],
+	imports: [],
 	template: `
-      <img alt="Foto profilo" class="w-full" [src]="getMainPhotoUrl()" />
-
-      <div class="card-body">
-        <div class="info">
-          <p-tag [style]="{ border: '2px solid var(--border-color)', background: 'transparent', color: 'var(--text-color)'}">
-              <div class="flex items-center gap-2 px-1">
-                  <span class="text-base">
-                      {{ user().first_name }} {{ user().last_name }}
-                  </span>
-              </div>
-          </p-tag>
-
-          <p class="bio">
-          bio: <br>
-          {{ user().bio || 'Nessuna bio disponibile' }}
-          </p>
-          <p><br>{{ calculateAge(user().birth_date) }} anni</p>
-        </div>
-
-        <div class="card-footer">
-            <p-button label="Cancel" severity="secondary" class="w-full" [outlined]="true" styleClass="w-full" />
-            <p-button label="Save" class="w-full" styleClass="w-full" />
-        </div>
+      <img alt="Foto profilo" [src]="getMainPhotoUrl()" />
+      <div class="overlay">
+        <span class="name">{{ user().first_name }} {{ user().last_name }}</span>
+        <span class="age">{{ calculateAge(user().birth_date) }} anni</span>
       </div>
-
   `,
 	styles: `
-  img {
-    border-radius: 8px;
-  }
   :host {
-    display: flex;
-    flex-direction: column;
+    display: block;
+    position: relative;
     width: 100%;
     height: 100%;
-    z-index: 20 !important;
-    background: #383737ff;
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 20;
+  }
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
     border-radius: 8px;
   }
-  .card-body {
-    height: 100%;
+  .overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1.5rem 1rem 1rem;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    border-radius: 0 0 8px 8px;
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 1rem;
+    align-items: baseline;
+    gap: 0.5rem;
+    color: #fff;
   }
-  .card-footer {
-    display: flex;
-    gap: 0.75rem;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
+  .name {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  .age {
+    font-size: 1rem;
+    opacity: 0.9;
   }
   `,
 })
 export class Card {
 	user = input.required<User>();
 
-	// Metodo per ottenere l'URL della foto principale
 	getMainPhotoUrl(): string {
 		const mainPhoto = this.user().photos?.find((photo) => photo.is_main);
-		return (
-			mainPhoto?.image_url ||
-			"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNlHxpViduYZdKNiOmJRnkvFnKf88RcG-Edg&s"
-		); // Placeholder se non c'è foto
+		return mainPhoto?.image_url || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNlHxpViduYZdKNiOmJRnkvFnKf88RcG-Edg&s";
 	}
 
 	// Metodo per calcolare l'età (opzionale, basato su birth_date)

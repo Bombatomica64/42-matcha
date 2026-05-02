@@ -45,7 +45,7 @@ export class MainSidebar implements OnInit {
           {
             label: "Home",
             icon: "pi pi-plus",
-            //shortcut: '⌘+N'
+            routerLink: "/home",
           },
           {
             label: "Profiles",
